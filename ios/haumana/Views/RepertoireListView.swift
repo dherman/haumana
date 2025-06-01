@@ -1,54 +1,34 @@
-//
-//  RepertoireListView.swift
-//  haumana
-//
-//  Created on 6/1/2025.
-//
-
 import SwiftUI
 import SwiftData
 
 struct RepertoireListView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var viewModel: RepertoireListViewModel?
+    @Query private var pieces: [Piece]
+    @State private var showingAddView = false
+    @State private var searchText = ""
     
     var body: some View {
         NavigationStack {
             Group {
-                if let viewModel = viewModel {
-                    if viewModel.pieces.isEmpty && !viewModel.isSearching {
-                        emptyStateView
-                    } else {
-                        listView
-                    }
+                if pieces.isEmpty {
+                    emptyStateView
                 } else {
-                    ProgressView()
-                        .onAppear {
-                            self.viewModel = RepertoireListViewModel(repository: PieceRepository(modelContext: modelContext))
-                            self.viewModel?.loadPieces()
-                        }
+                    listView
                 }
             }
             .navigationTitle("Haumana")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    addButton
+                    Button {
+                        showingAddView = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
                 }
             }
-            .searchable(text: Binding(
-                get: { viewModel?.searchText ?? "" },
-                set: { viewModel?.searchText = $0 }
-            ), isPresented: Binding(
-                get: { viewModel?.isSearching ?? false },
-                set: { viewModel?.isSearching = $0 }
-            ))
-            .onSubmit(of: .search) {
-                viewModel?.searchPieces()
-            }
-            .onChange(of: viewModel?.isSearching ?? false) { _, isSearching in
-                if !isSearching && viewModel?.searchText.isEmpty == true {
-                    viewModel?.clearSearch()
-                }
+            .searchable(text: $searchText)
+            .sheet(isPresented: $showingAddView) {
+                AddEditPieceView(piece: nil)
             }
         }
     }
@@ -66,7 +46,7 @@ struct RepertoireListView: View {
                 .multilineTextAlignment(.center)
             
             Button(action: {
-                // Navigate to add piece
+                showingAddView = true
             }) {
                 Text("Add your first oli or mele")
                     .font(.headline)
@@ -81,30 +61,37 @@ struct RepertoireListView: View {
     
     private var listView: some View {
         List {
-            ForEach(viewModel?.pieces ?? []) { piece in
-                PieceRowView(piece: piece)
+            ForEach(filteredPieces) { piece in
+                NavigationLink(destination: PieceDetailView(piece: piece)) {
+                    PieceRowView(piece: piece)
+                }
             }
             .onDelete(perform: deletePieces)
         }
-        .refreshable {
-            viewModel?.loadPieces()
-        }
     }
     
-    private var addButton: some View {
-        Button(action: {
-            // Navigate to add piece
-        }) {
-            Image(systemName: "plus")
+    private var filteredPieces: [Piece] {
+        if searchText.isEmpty {
+            return pieces
+        } else {
+            return pieces.filter { piece in
+                piece.title.localizedCaseInsensitiveContains(searchText) ||
+                piece.lyrics.localizedCaseInsensitiveContains(searchText) ||
+                (piece.author?.localizedCaseInsensitiveContains(searchText) ?? false)
+            }
         }
     }
     
     private func deletePieces(at offsets: IndexSet) {
-        guard let viewModel = viewModel else { return }
         for index in offsets {
-            if index < viewModel.pieces.count {
-                viewModel.deletePiece(viewModel.pieces[index])
-            }
+            let piece = filteredPieces[index]
+            modelContext.delete(piece)
+        }
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to delete piece: \(error)")
         }
     }
 }
@@ -121,7 +108,7 @@ struct PieceRowView: View {
                 
                 Spacer()
                 
-                CategoryBadge(category: piece.categoryEnum)
+                PieceCategoryBadge(category: piece.categoryEnum)
             }
             
             Text(piece.lyricsPreview)
@@ -133,7 +120,7 @@ struct PieceRowView: View {
     }
 }
 
-struct CategoryBadge: View {
+struct PieceCategoryBadge: View {
     let category: PieceCategory
     
     var body: some View {
