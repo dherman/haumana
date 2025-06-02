@@ -29,6 +29,7 @@ final class Piece: Identifiable {
     var category: String = PieceCategory.oli.rawValue
     var lyrics: String = ""
     var language: String = "haw"  // ISO 639 code
+    var englishTranslation: String?
     var author: String?
     var sourceUrl: String?
     var notes: String?
@@ -41,6 +42,7 @@ final class Piece: Identifiable {
         category: PieceCategory = .oli,
         lyrics: String,
         language: String = "haw",
+        englishTranslation: String? = nil,
         author: String? = nil,
         sourceUrl: String? = nil,
         notes: String? = nil
@@ -50,6 +52,7 @@ final class Piece: Identifiable {
         self.category = category.rawValue
         self.lyrics = lyrics
         self.language = language
+        self.englishTranslation = englishTranslation
         self.author = author
         self.sourceUrl = sourceUrl
         self.notes = notes

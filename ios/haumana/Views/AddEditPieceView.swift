@@ -9,6 +9,7 @@ struct AddEditPieceView: View {
     @State private var category: PieceCategory = .oli
     @State private var lyrics: String = ""
     @State private var language: String = "haw"
+    @State private var englishTranslation: String = ""
     @State private var author: String = ""
     @State private var sourceUrl: String = ""
     @State private var notes: String = ""
@@ -22,7 +23,7 @@ struct AddEditPieceView: View {
     let piece: Piece?
     
     enum Field: Hashable {
-        case title, lyrics, author, sourceUrl, notes
+        case title, lyrics, englishTranslation, author, sourceUrl, notes
     }
     
     init(piece: Piece? = nil) {
@@ -75,6 +76,17 @@ struct AddEditPieceView: View {
                     }
                 } header: {
                     Text("Language")
+                        .font(.caption)
+                        .textCase(.uppercase)
+                }
+                
+                // English Translation Section (optional)
+                Section {
+                    TextEditor(text: $englishTranslation)
+                        .focused($focusedField, equals: .englishTranslation)
+                        .frame(minHeight: 100)
+                } header: {
+                    Text("English Translation (optional)")
                         .font(.caption)
                         .textCase(.uppercase)
                 }
@@ -144,12 +156,13 @@ struct AddEditPieceView: View {
                    category != piece.categoryEnum ||
                    lyrics != piece.lyrics ||
                    language != piece.language ||
+                   englishTranslation != (piece.englishTranslation ?? "") ||
                    author != (piece.author ?? "") ||
                    sourceUrl != (piece.sourceUrl ?? "") ||
                    notes != (piece.notes ?? "")
         } else {
-            return !title.isEmpty || !lyrics.isEmpty || !author.isEmpty ||
-                   !sourceUrl.isEmpty || !notes.isEmpty
+            return !title.isEmpty || !lyrics.isEmpty || !englishTranslation.isEmpty ||
+                   !author.isEmpty || !sourceUrl.isEmpty || !notes.isEmpty
         }
     }
     
@@ -165,6 +178,7 @@ struct AddEditPieceView: View {
         category = piece.categoryEnum
         lyrics = piece.lyrics
         language = piece.language
+        englishTranslation = piece.englishTranslation ?? ""
         author = piece.author ?? ""
         sourceUrl = piece.sourceUrl ?? ""
         notes = piece.notes ?? ""
@@ -194,6 +208,7 @@ struct AddEditPieceView: View {
             existingPiece.category = category.rawValue
             existingPiece.lyrics = trimmedLyrics
             existingPiece.language = language
+            existingPiece.englishTranslation = englishTranslation.isEmpty ? nil : englishTranslation
             existingPiece.author = author.isEmpty ? nil : author
             existingPiece.sourceUrl = sourceUrl.isEmpty ? nil : sourceUrl
             existingPiece.notes = notes.isEmpty ? nil : notes
@@ -205,6 +220,7 @@ struct AddEditPieceView: View {
                 category: category,
                 lyrics: trimmedLyrics,
                 language: language,
+                englishTranslation: englishTranslation.isEmpty ? nil : englishTranslation,
                 author: author.isEmpty ? nil : author,
                 sourceUrl: sourceUrl.isEmpty ? nil : sourceUrl,
                 notes: notes.isEmpty ? nil : notes

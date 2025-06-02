@@ -68,3 +68,6 @@ The app uses SwiftUI and SwiftData frameworks with MVVM architecture:
 - Lehua flower image for branding
 
 The app targets iOS 17+ and supports both portrait and landscape orientations with dark mode compatibility.
+
+## Development Memories
+- Always build for iPhone 16

@@ -43,6 +43,19 @@ struct PieceDetailView: View {
                     .font(.body)
                     .lineSpacing(4)
                 
+                // English Translation
+                if let englishTranslation = piece.englishTranslation, !englishTranslation.isEmpty {
+                    Divider()
+                    
+                    Text("English Translation")
+                        .font(.headline)
+                        .padding(.top)
+                    
+                    Text(englishTranslation)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+                
                 // Notes
                 if let notes = piece.notes, !notes.isEmpty {
                     Divider()
