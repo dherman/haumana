@@ -84,6 +84,7 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 - Secure local data per user
 - Sign out functionality
 - Privacy/terms links
+- TestFlight beta deployment
 
 **Screens:**
 - Welcome/sign-in screen
@@ -95,11 +96,13 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 - Keychain storage for auth
 - User-scoped data model
 - Prepare for cloud sync
+- TestFlight build and distribution
 
 **Success Metrics:**
 - Smooth sign-in flow
 - Data properly isolated per user
 - No data loss on sign-out/in
+- Beta build successfully deployed
 
 ---
 
@@ -194,7 +197,7 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 - Code optimization
 - Crash reporting
 - Analytics setup
-- TestFlight deployment
+- App Store submission prep
 
 **Success Metrics:**
 - No crashes
