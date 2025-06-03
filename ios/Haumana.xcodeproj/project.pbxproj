@@ -30,9 +30,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F83E039E2DE8C9A700DB7B61 /* haumana */ = {
+		F83E039E2DE8C9A700DB7B61 /* Haumana */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = haumana;
+			path = Haumana;
 			sourceTree = "<group>";
 		};
 		F83E03AE2DE8C9A800DB7B61 /* DataTests */ = {
@@ -75,7 +75,7 @@
 		F83E03932DE8C9A700DB7B61 = {
 			isa = PBXGroup;
 			children = (
-				F83E039E2DE8C9A700DB7B61 /* haumana */,
+				F83E039E2DE8C9A700DB7B61 /* Haumana */,
 				F83E03AE2DE8C9A800DB7B61 /* DataTests */,
 				F83E03B82DE8C9A800DB7B61 /* UITests */,
 				F83E039D2DE8C9A700DB7B61 /* Products */,
@@ -108,7 +108,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F83E039E2DE8C9A700DB7B61 /* haumana */,
+				F83E039E2DE8C9A700DB7B61 /* Haumana */,
 			);
 			name = haumana;
 			packageProductDependencies = (
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F83E03972DE8C9A700DB7B61 /* Build configuration list for PBXProject "haumana" */;
+			buildConfigurationList = F83E03972DE8C9A700DB7B61 /* Build configuration list for PBXProject "Haumana" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -517,7 +517,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F83E03972DE8C9A700DB7B61 /* Build configuration list for PBXProject "haumana" */ = {
+		F83E03972DE8C9A700DB7B61 /* Build configuration list for PBXProject "Haumana" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F83E03BD2DE8C9A800DB7B61 /* Debug */,

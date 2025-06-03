@@ -71,3 +71,4 @@ The app targets iOS 17+ and supports both portrait and landscape orientations wi
 
 ## Development Memories
 - Always build for iPhone 16
+- Whenever creating a document, always make sure to ask me any clarifying questions before finalizing.
