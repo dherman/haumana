@@ -11,8 +11,8 @@ Haumana is an iOS app designed to help students of Hawaiian art and culture mana
 The iOS app code is located in the `ios/` directory:
 - `ios/haumana/`: Main app source code
 - `ios/haumana.xcodeproj/`: Xcode project file
-- `ios/haumanaTests/`: Unit tests
-- `ios/haumanaUITests/`: UI tests
+- `ios/DataTests/`: Unit tests for models and data persistence
+- `ios/UITests/`: UI tests for user interface and interactions
 
 ## Development Commands
 
@@ -28,13 +28,13 @@ xcodebuild -scheme haumana -destination 'generic/platform=iOS' -project ios/haum
 ### Testing
 ```bash
 # Run unit tests
-xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 15' -project ios/haumana.xcodeproj -only-testing:haumanaTests
+xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/haumana.xcodeproj -only-testing:DataTests
 
 # Run UI tests
-xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 15' -project ios/haumana.xcodeproj -only-testing:haumanaUITests
+xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/haumana.xcodeproj -only-testing:UITests
 
 # Run all tests
-xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 15' -project ios/haumana.xcodeproj
+xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/haumana.xcodeproj
 ```
 
 ### Running in Xcode
