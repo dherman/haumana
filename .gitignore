@@ -4,5 +4,9 @@ CLAUDE.local.md
 # Xcode user settings
 **/xcuserdata/
 
+# Test results and output
+**/testResults/
+**/test_output.txt
+
 # macOS
 .DS_Store
