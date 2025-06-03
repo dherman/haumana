@@ -339,7 +339,7 @@ This implementation plan breaks down the Milestone 1 PRD into actionable develop
 
 ### Release Ready
 - [x] Development build created
-- [ ] Release notes written
+- [x] Release notes written
 
 ---
 
