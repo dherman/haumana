@@ -1,0 +1,97 @@
+2025-06-02 21:35:14.261249-0700 haumanaUITests-Runner[9713:2733382] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'BasicUITests' started at 2025-06-02 21:35:19.516.
+Test Case '-[haumanaUITests.BasicUITests testAddPiece]' started.
+    t =     0.00s Start Test at 2025-06-02 21:35:19.517
+    t =     0.12s Set Up
+    t =     0.15s     Open dev.dherman.haumana
+    t =     0.15s         Launch dev.dherman.haumana
+    t =     1.52s             Setting up automation session
+    t =     2.13s             Wait for dev.dherman.haumana to idle
+    t =     7.22s Checking existence of `Button (First Match)`
+    t =     7.26s Tap Button (First Match)
+    t =     7.26s     Wait for dev.dherman.haumana to idle
+    t =     7.27s     Find the Button (First Match)
+    t =     7.29s     Check for interrupting elements affecting "plus" Button
+    t =     7.31s     Synthesize event
+    t =     7.71s     Wait for dev.dherman.haumana to idle
+    t =     8.18s Checking existence of `TextField (First Match)`
+    t =     8.26s Tap TextField (First Match)
+    t =     8.26s     Wait for dev.dherman.haumana to idle
+    t =     8.27s     Find the TextField (First Match)
+    t =     8.33s     Check for interrupting elements affecting "Title" TextField
+    t =     8.36s     Synthesize event
+    t =     8.65s     Wait for dev.dherman.haumana to idle
+    t =     8.68s Type 'Test Oli' into "Title" TextField
+    t =     8.68s     Wait for dev.dherman.haumana to idle
+    t =     9.18s     Find the "Title" TextField
+    t =     9.28s     Check for interrupting elements affecting "Title" TextField
+    t =     9.32s     Synthesize event
+    t =     9.65s     Wait for dev.dherman.haumana to idle
+    t =     9.65s Get number of matches for: Descendants matching type TextView
+    t =     9.68s Tap TextView (First Match)
+    t =     9.68s     Wait for dev.dherman.haumana to idle
+    t =     9.68s     Find the TextView (First Match)
+    t =     9.77s     Check for interrupting elements affecting TextView
+    t =     9.80s     Synthesize event
+    t =    10.09s     Wait for dev.dherman.haumana to idle
+    t =    10.09s Type 'Test lyrics content' into TextView at {{40.0, 364.3}, {313.0, 134.0}}
+    t =    10.09s     Wait for dev.dherman.haumana to idle
+    t =    10.10s     Find the TextView at {{40.0, 364.3}, {313.0, 134.0}}
+    t =    10.18s     Check for interrupting elements affecting TextView
+    t =    10.21s     Synthesize event
+    t =    10.73s     Wait for dev.dherman.haumana to idle
+    t =    10.73s Checking existence of `"Save" Button`
+    t =    10.77s Find the "Save" Button
+    t =    10.82s Tap "Save" Button
+    t =    10.82s     Wait for dev.dherman.haumana to idle
+    t =    10.82s     Find the "Save" Button
+    t =    10.87s     Check for interrupting elements affecting "Save" Button
+    t =    10.90s     Synthesize event
+    t =    11.19s     Wait for dev.dherman.haumana to idle
+    t =    12.59s Get number of matches for: Descendants matching type Cell
+    t =    12.62s Tear Down
+Test Case '-[haumanaUITests.BasicUITests testAddPiece]' passed (12.887 seconds).
+Test Case '-[haumanaUITests.BasicUITests testAppLaunches]' started.
+    t =     0.00s Start Test at 2025-06-02 21:35:32.404
+    t =     0.02s Set Up
+    t =     0.02s     Open dev.dherman.haumana
+    t =     0.02s         Launch dev.dherman.haumana
+    t =     0.02s             Terminate dev.dherman.haumana:9856
+    t =     1.29s             Setting up automation session
+    t =     1.77s             Wait for dev.dherman.haumana to idle
+    t =     2.86s Tear Down
+Test Case '-[haumanaUITests.BasicUITests testAppLaunches]' passed (3.338 seconds).
+Test Case '-[haumanaUITests.BasicUITests testNavigationFromEmptyState]' started.
+    t =     0.00s Start Test at 2025-06-02 21:35:35.744
+    t =     0.02s Set Up
+    t =     0.02s     Open dev.dherman.haumana
+    t =     0.02s         Launch dev.dherman.haumana
+    t =     0.02s             Terminate dev.dherman.haumana:9997
+    t =     1.29s             Setting up automation session
+    t =     1.75s             Wait for dev.dherman.haumana to idle
+    t =     6.84s Checking existence of `Button (First Match)`
+    t =     6.88s Tap Button (First Match)
+    t =     6.88s     Wait for dev.dherman.haumana to idle
+    t =     6.89s     Find the Button (First Match)
+    t =     6.92s     Check for interrupting elements affecting "plus" Button
+    t =     6.94s     Synthesize event
+    t =     7.23s     Wait for dev.dherman.haumana to idle
+    t =     7.67s Waiting 2.0s for "Save" Button to exist
+    t =     8.71s     Checking `Expect predicate `existsNoRetry == 1` for object "Save" Button`
+    t =     8.71s         Checking existence of `"Save" Button`
+    t =     8.76s Tear Down
+Test Case '-[haumanaUITests.BasicUITests testNavigationFromEmptyState]' passed (9.002 seconds).
+Test Case '-[haumanaUITests.BasicUITests testSearchButton]' started.
+    t =     0.00s Start Test at 2025-06-02 21:35:44.745
+    t =     0.02s Set Up
+    t =     0.02s     Open dev.dherman.haumana
+    t =     0.02s         Launch dev.dherman.haumana
+    t =     0.02s             Terminate dev.dherman.haumana:10014
+    t =     1.29s             Setting up automation session
+    t =     1.74s             Wait for dev.dherman.haumana to idle
+    t =     6.83s Checking existence of `"Search" Button`
+    t =     6.88s Tear Down
+Test Case '-[haumanaUITests.BasicUITests testSearchButton]' passed (7.096 seconds).
+Test Suite 'BasicUITests' passed at 2025-06-02 21:35:51.841.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 32.323 (32.326) seconds

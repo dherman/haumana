@@ -1,0 +1,42 @@
+2025-06-02 21:35:18.660458-0700 haumanaUITests-Runner[9793:2734655] [Default] Running tests...
+2025-06-02 21:35:18.667902-0700 haumanaUITests-Runner[9793:2734915] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2025-06-02 21:35:18.708637-0700 haumanaUITests-Runner[9793:2734915] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'PerformanceUITests' started at 2025-06-02 21:35:22.547.
+Test Case '-[haumanaUITests.PerformanceUITests testLaunchPerformance]' started.
+    t =     0.00s Start Test at 2025-06-02 21:35:22.548
+    t =     0.10s Set Up
+    t =     0.12s Open dev.dherman.haumana
+    t =     0.12s     Launch dev.dherman.haumana
+    t =     0.95s         Setting up automation session
+    t =     1.44s         Wait for dev.dherman.haumana to idle
+    t =     3.28s Open dev.dherman.haumana
+    t =     3.28s     Launch dev.dherman.haumana
+    t =     3.28s         Terminate dev.dherman.haumana:9899
+    t =     4.55s         Setting up automation session
+    t =     5.14s         Wait for dev.dherman.haumana to idle
+    t =     6.78s Open dev.dherman.haumana
+    t =     6.78s     Launch dev.dherman.haumana
+    t =     6.78s         Terminate dev.dherman.haumana:9922
+    t =     8.04s         Setting up automation session
+    t =     8.51s         Wait for dev.dherman.haumana to idle
+    t =    10.14s Open dev.dherman.haumana
+    t =    10.14s     Launch dev.dherman.haumana
+    t =    10.14s         Terminate dev.dherman.haumana:9941
+    t =    11.40s         Setting up automation session
+    t =    11.88s         Wait for dev.dherman.haumana to idle
+    t =    13.49s Open dev.dherman.haumana
+    t =    13.49s     Launch dev.dherman.haumana
+    t =    13.49s         Terminate dev.dherman.haumana:10000
+    t =    14.75s         Setting up automation session
+    t =    15.23s         Wait for dev.dherman.haumana to idle
+    t =    16.87s Open dev.dherman.haumana
+    t =    16.87s     Launch dev.dherman.haumana
+    t =    16.87s         Terminate dev.dherman.haumana:10015
+    t =    18.13s         Setting up automation session
+    t =    18.60s         Wait for dev.dherman.haumana to idle
+/Users/dherman/Code/haumana/ios/haumanaUITests/PerformanceUITests.swift:19: Test Case '-[haumanaUITests.PerformanceUITests testLaunchPerformance]' measured [Duration (AppLaunch), s] average: 0.730, relative standard deviation: 6.549%, values: [0.825970, 0.707633, 0.705116, 0.706465, 0.706460], performanceMetricID:com.apple.dt.XCTMetric_ApplicationLaunch-AppLaunch.duration, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.000, maxStandardDeviation: 0.000
+    t =    20.46s Tear Down
+Test Case '-[haumanaUITests.PerformanceUITests testLaunchPerformance]' passed (20.689 seconds).
+Test Suite 'PerformanceUITests' passed at 2025-06-02 21:35:43.239.
+	 Executed 1 test, with 0 failures (0 unexpected) in 20.689 (20.692) seconds

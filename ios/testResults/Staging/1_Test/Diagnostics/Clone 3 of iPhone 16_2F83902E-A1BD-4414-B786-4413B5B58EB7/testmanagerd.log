@@ -1,0 +1,49 @@
+21:34:57.454 xcodebuild[8577:2722697] Got a sim device notification for Clone 3 of iPhone 16: {
+    notification = "availableDevices_changed";
+}
+21:34:57.454 xcodebuild[8577:2722697] Got a sim device notification for Clone 3 of iPhone 16: {
+    device = "Clone 3 of iPhone 16 (2F83902E-A1BD-4414-B786-4413B5B58EB7, iOS 18.5, Booting)";
+    "last_booted_at" = "2025-06-03 04:34:57 +0000";
+    "new_state" = 2;
+    notification = "device_state";
+    "prev_state" = 1;
+}
+21:34:57.454 xcodebuild[8577:2722697] Sim Clone 3 of iPhone 16 state changed to 2
+21:34:57.454 xcodebuild[8577:2722746] Got a sim device notification for Clone 3 of iPhone 16: {
+    "SimDeviceNotification_NewBootStatus" = "SimDeviceBootInfo { status = 0 (Booting), elapsed = 0.000000, isTerminal = 0, info = (null) }";
+    device = "Clone 3 of iPhone 16 (2F83902E-A1BD-4414-B786-4413B5B58EB7, iOS 18.5, Booting)";
+    notification = "SimDeviceNotificationType_BootStatus";
+}
+21:34:57.703 xcodebuild[8577:2722744] Got a sim device notification for Clone 3 of iPhone 16: {
+    notification = "availableDevices_changed";
+}
+21:34:57.703 xcodebuild[8577:2722744] Got a sim device notification for Clone 3 of iPhone 16: {
+    device = "Clone 3 of iPhone 16 (2F83902E-A1BD-4414-B786-4413B5B58EB7, iOS 18.5, Booted)";
+    "new_state" = 3;
+    notification = "device_state";
+    "prev_state" = 2;
+}
+21:34:57.703 xcodebuild[8577:2722744] Sim Clone 3 of iPhone 16 state changed to 3
+21:34:57.703 xcodebuild[8577:2722744] Sim Clone 3 of iPhone 16: Unregistering for sim device notification with token 3
+21:34:57.703 xcodebuild[8577:2722744] Calling -[SimDevice getenv:error:] for TESTMANAGERD_SIM_SOCK
+21:34:57.704 xcodebuild[8577:2722744] Sim Clone 3 of iPhone 16 has testmanagerd socket at /private/tmp/com.apple.launchd.2w9u0u3yLx/com.apple.testmanagerd.unix-domain.socket
+21:34:57.704 xcodebuild[8577:2722744] Validating test connection socket path (/private/tmp/com.apple.launchd.2w9u0u3yLx/com.apple.testmanagerd.unix-domain.socket)
+21:34:57.704 xcodebuild[8577:2722744] Constructing transport for test connection socket
+21:34:57.704 xcodebuild[8577:2722744] Connected socket 71 to testmanagerd for Sim Clone 3 of iPhone 16
+21:34:57.704 xcodebuild[8577:2722744] Initiating control session with IDE capabilities: <XCTCapabilities: 0x600000800ce0>: {
+}
+21:34:58.598 xcodebuild[8577:2722749] Got reply to control session initiation request (result:error): <XCTCapabilities: 0x60000082cae0>: {
+    "authorize test session capability" = 1;
+    "automation mode" = 1;
+    "daemon container sandbox extension" = 1;
+    "initiate daemon control session capability" = 4;
+    "initiate test runner session capability" = 2;
+    "record UI interaction capability" = 2;
+    "report crashes capability" = 1;
+    "request log archive capability" = 1;
+    "supports delayed attachment transfers" = 1;
+}: (null)
+21:34:58.598 xcodebuild[8577:2722697] Requesting crash report collection for process names: haumanaUITests-Runner, runningboardd, testmanagerd, assertiond, FrontBoard, xctest, debugserver, backboardd, DTServiceHub, haumana, haumanaUITests, SpringBoard
+21:34:58.602 xcodebuild[8577:2722697] Got reply to crash report collection request (error: (null))
+21:35:14.435 xcodebuild[8577:2722697] Requesting authorization for pid 9713
+21:35:14.453 xcodebuild[8577:2722697] Got reply to authorization request for pid 9713 (result:error): 1: (null)

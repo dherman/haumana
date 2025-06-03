@@ -9,8 +9,8 @@ Haumana is an iOS app designed to help students of Hawaiian art and culture mana
 ## Project Structure
 
 The iOS app code is located in the `ios/` directory:
-- `ios/haumana/`: Main app source code
-- `ios/haumana.xcodeproj/`: Xcode project file
+- `ios/Haumana/`: Main app source code
+- `ios/Haumana.xcodeproj/`: Xcode project file
 - `ios/DataTests/`: Unit tests for models and data persistence
 - `ios/UITests/`: UI tests for user interface and interactions
 
@@ -19,28 +19,28 @@ The iOS app code is located in the `ios/` directory:
 ### Building
 ```bash
 # Build for simulator
-xcodebuild -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 15' -project ios/haumana.xcodeproj
+xcodebuild -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/Haumana.xcodeproj
 
 # Build for device
-xcodebuild -scheme haumana -destination 'generic/platform=iOS' -project ios/haumana.xcodeproj
+xcodebuild -scheme haumana -destination 'generic/platform=iOS' -project ios/Haumana.xcodeproj
 ```
 
 ### Testing
 ```bash
 # Run unit tests
-xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/haumana.xcodeproj -only-testing:DataTests
+xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/Haumana.xcodeproj -only-testing:DataTests
 
 # Run UI tests
-xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/haumana.xcodeproj -only-testing:UITests
+xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/Haumana.xcodeproj -only-testing:UITests
 
 # Run all tests
-xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/haumana.xcodeproj
+xcodebuild test -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,arch=arm64' -project ios/Haumana.xcodeproj
 ```
 
 ### Running in Xcode
 ```bash
 # Open project in Xcode
-open ios/haumana.xcodeproj
+open ios/Haumana.xcodeproj
 ```
 
 ## Architecture
@@ -51,7 +51,7 @@ The app uses SwiftUI and SwiftData frameworks with MVVM architecture:
 - **Piece.swift**: Core data model representing oli/mele with fields for title, category, lyrics, language, author, source URL, and notes
 
 ### Views
-- **haumanaApp.swift**: Main app entry point, sets up SwiftData ModelContainer and navigation
+- **HaumanaApp.swift**: Main app entry point, sets up SwiftData ModelContainer and navigation
 - **SplashScreenView.swift**: Branded splash screen with custom fonts and lehua flower image
 - **RepertoireListView.swift**: Main list view showing all pieces with search, empty state, and swipe-to-delete
 

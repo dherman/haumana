@@ -1,0 +1,96 @@
+Standard output and standard error from dev.dherman.haumana with process ID 9899 beginning at 2025-06-03 04:35:23 +0000
+
+Successfully registered Pearl Hirenha font
+Successfully registered Adelia font
+2025-06-02 21:35:23.987262-0700 haumana[9899:2735932] [library] load_eligibility_plist: Failed to open /Users/dherman/Library/Developer/XCTestDevices/BA8BFD33-AD27-410F-A8B2-9B0A1FE092B8/data/Containers/Data/Application/7241BF47-7373-4D23-AD81-73DDCC40C7AF/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+2025-06-02 21:35:23.988472-0700 haumana[9899:2735969] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x600000020f80>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2025-06-02 21:35:23.989729-0700 haumana[9899:2735971] [Default] Received request to notify when the main run loop is idle
+2025-06-02 21:35:23.989795-0700 haumana[9899:2735971] [Default] Idle notifier finished setting up run loop observer
+2025-06-02 21:35:23.989854-0700 haumana[9899:2735971] [Default] Received request to notify when animations are idle
+2025-06-02 21:35:23.989903-0700 haumana[9899:2735971] [Default] Sending animations idle reply with error: (null)
+2025-06-02 21:35:24.074271-0700 haumana[9899:2735932] [Default] Idle notifier run loop observer fired
+2025-06-02 21:35:24.074340-0700 haumana[9899:2735932] [Default] Sending main run loop idle reply
+Standard output and standard error from dev.dherman.haumana with process ID 9922 beginning at 2025-06-03 04:35:26 +0000
+
+Successfully registered Pearl Hirenha font
+Successfully registered Adelia font
+2025-06-02 21:35:27.688340-0700 haumana[9922:2736389] [library] load_eligibility_plist: Failed to open /Users/dherman/Library/Developer/XCTestDevices/BA8BFD33-AD27-410F-A8B2-9B0A1FE092B8/data/Containers/Data/Application/7241BF47-7373-4D23-AD81-73DDCC40C7AF/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+2025-06-02 21:35:27.689125-0700 haumana[9922:2736428] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x6000000092e0>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2025-06-02 21:35:27.690220-0700 haumana[9922:2736432] [Default] Received request to notify when the main run loop is idle
+2025-06-02 21:35:27.690274-0700 haumana[9922:2736432] [Default] Idle notifier finished setting up run loop observer
+2025-06-02 21:35:27.690333-0700 haumana[9922:2736432] [Default] Received request to notify when animations are idle
+2025-06-02 21:35:27.690368-0700 haumana[9922:2736432] [Default] Sending animations idle reply with error: (null)
+2025-06-02 21:35:27.772617-0700 haumana[9922:2736389] [Default] Idle notifier run loop observer fired
+2025-06-02 21:35:27.772667-0700 haumana[9922:2736389] [Default] Sending main run loop idle reply
+Standard output and standard error from dev.dherman.haumana with process ID 9941 beginning at 2025-06-03 04:35:30 +0000
+
+Successfully registered Pearl Hirenha font
+Successfully registered Adelia font
+2025-06-02 21:35:31.056897-0700 haumana[9941:2736945] [library] load_eligibility_plist: Failed to open /Users/dherman/Library/Developer/XCTestDevices/BA8BFD33-AD27-410F-A8B2-9B0A1FE092B8/data/Containers/Data/Application/7241BF47-7373-4D23-AD81-73DDCC40C7AF/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+2025-06-02 21:35:31.057530-0700 haumana[9941:2736991] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x6000000311b0>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2025-06-02 21:35:31.058541-0700 haumana[9941:2736984] [Default] Received request to notify when the main run loop is idle
+2025-06-02 21:35:31.058591-0700 haumana[9941:2736984] [Default] Idle notifier finished setting up run loop observer
+2025-06-02 21:35:31.058639-0700 haumana[9941:2736984] [Default] Received request to notify when animations are idle
+2025-06-02 21:35:31.058682-0700 haumana[9941:2736984] [Default] Sending animations idle reply with error: (null)
+2025-06-02 21:35:31.100728-0700 haumana[9941:2736987] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2025-06-02 21:35:31.135499-0700 haumana[9941:2736945] [Default] Idle notifier run loop observer fired
+2025-06-02 21:35:31.135556-0700 haumana[9941:2736945] [Default] Sending main run loop idle reply
+2025-06-02 21:35:31.177636-0700 haumana[9941:2736986] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+Standard output and standard error from dev.dherman.haumana with process ID 10000 beginning at 2025-06-03 04:35:33 +0000
+
+Successfully registered Pearl Hirenha font
+Successfully registered Adelia font
+2025-06-02 21:35:34.421683-0700 haumana[10000:2737483] [library] load_eligibility_plist: Failed to open /Users/dherman/Library/Developer/XCTestDevices/BA8BFD33-AD27-410F-A8B2-9B0A1FE092B8/data/Containers/Data/Application/7241BF47-7373-4D23-AD81-73DDCC40C7AF/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+2025-06-02 21:35:34.422498-0700 haumana[10000:2737526] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x600000028130>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2025-06-02 21:35:34.423508-0700 haumana[10000:2737523] [Default] Received request to notify when the main run loop is idle
+2025-06-02 21:35:34.423551-0700 haumana[10000:2737523] [Default] Idle notifier finished setting up run loop observer
+2025-06-02 21:35:34.423598-0700 haumana[10000:2737523] [Default] Received request to notify when animations are idle
+2025-06-02 21:35:34.423624-0700 haumana[10000:2737523] [Default] Sending animations idle reply with error: (null)
+2025-06-02 21:35:34.465798-0700 haumana[10000:2737520] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2025-06-02 21:35:34.500800-0700 haumana[10000:2737483] [Default] Idle notifier run loop observer fired
+2025-06-02 21:35:34.500847-0700 haumana[10000:2737483] [Default] Sending main run loop idle reply
+2025-06-02 21:35:34.555854-0700 haumana[10000:2737527] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+Standard output and standard error from dev.dherman.haumana with process ID 10015 beginning at 2025-06-03 04:35:37 +0000
+
+Successfully registered Pearl Hirenha font
+Successfully registered Adelia font
+2025-06-02 21:35:37.771439-0700 haumana[10015:2737848] [library] load_eligibility_plist: Failed to open /Users/dherman/Library/Developer/XCTestDevices/BA8BFD33-AD27-410F-A8B2-9B0A1FE092B8/data/Containers/Data/Application/7241BF47-7373-4D23-AD81-73DDCC40C7AF/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+2025-06-02 21:35:37.772224-0700 haumana[10015:2737893] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x60000002c030>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2025-06-02 21:35:37.773280-0700 haumana[10015:2737891] [Default] Received request to notify when the main run loop is idle
+2025-06-02 21:35:37.773339-0700 haumana[10015:2737891] [Default] Idle notifier finished setting up run loop observer
+2025-06-02 21:35:37.773408-0700 haumana[10015:2737891] [Default] Received request to notify when animations are idle
+2025-06-02 21:35:37.773458-0700 haumana[10015:2737891] [Default] Sending animations idle reply with error: (null)
+2025-06-02 21:35:37.816186-0700 haumana[10015:2737892] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2025-06-02 21:35:37.851430-0700 haumana[10015:2737848] [Default] Idle notifier run loop observer fired
+2025-06-02 21:35:37.851474-0700 haumana[10015:2737848] [Default] Sending main run loop idle reply
+2025-06-02 21:35:37.907523-0700 haumana[10015:2737891] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+Standard output and standard error from dev.dherman.haumana with process ID 10037 beginning at 2025-06-03 04:35:40 +0000
+
+Successfully registered Pearl Hirenha font
+Successfully registered Adelia font
+2025-06-02 21:35:41.149483-0700 haumana[10037:2738442] [library] load_eligibility_plist: Failed to open /Users/dherman/Library/Developer/XCTestDevices/BA8BFD33-AD27-410F-A8B2-9B0A1FE092B8/data/Containers/Data/Application/7241BF47-7373-4D23-AD81-73DDCC40C7AF/private/var/db/eligibilityd/eligibility.plist: No such file or directory(2)
+2025-06-02 21:35:41.150467-0700 haumana[10037:2738496] [Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x600000030130>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2025-06-02 21:35:41.151699-0700 haumana[10037:2738496] [Default] Received request to notify when the main run loop is idle
+2025-06-02 21:35:41.151756-0700 haumana[10037:2738496] [Default] Idle notifier finished setting up run loop observer
+2025-06-02 21:35:41.151817-0700 haumana[10037:2738496] [Default] Received request to notify when animations are idle
+2025-06-02 21:35:41.151855-0700 haumana[10037:2738496] [Default] Sending animations idle reply with error: (null)
+2025-06-02 21:35:41.229595-0700 haumana[10037:2738442] [Default] Idle notifier run loop observer fired
+2025-06-02 21:35:41.229655-0700 haumana[10037:2738442] [Default] Sending main run loop idle reply
