@@ -13,6 +13,8 @@ struct AddEditPieceView: View {
     @State private var author: String = ""
     @State private var sourceUrl: String = ""
     @State private var notes: String = ""
+    @State private var includeInPractice: Bool = true
+    @State private var isFavorite: Bool = false
     
     @State private var showingCancelAlert = false
     @State private var showingValidationError = false
@@ -57,6 +59,19 @@ struct AddEditPieceView: View {
                         .textCase(.uppercase)
                 }
                 
+                // Practice Settings Section
+                Section {
+                    Toggle("Include in Practice", isOn: $includeInPractice)
+                } header: {
+                    Text("Practice Settings")
+                        .font(.caption)
+                        .textCase(.uppercase)
+                } footer: {
+                    Text("When enabled, this piece will be available for random selection during practice sessions")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
                 // Lyrics Section
                 Section {
                     TextEditor(text: $lyrics)
@@ -84,11 +99,15 @@ struct AddEditPieceView: View {
                 Section {
                     TextEditor(text: $englishTranslation)
                         .focused($focusedField, equals: .englishTranslation)
-                        .frame(minHeight: 100)
+                        .frame(minHeight: 120)
                 } header: {
                     Text("English Translation (optional)")
                         .font(.caption)
                         .textCase(.uppercase)
+                } footer: {
+                    Text("Provide a translation to display alongside the original during practice")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 
                 // Additional Info Section
@@ -124,11 +143,20 @@ struct AddEditPieceView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        save()
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            isFavorite.toggle()
+                        }) {
+                            Image(systemName: isFavorite ? "star.fill" : "star")
+                                .foregroundColor(isFavorite ? .yellow : .gray)
+                        }
+                        
+                        Button("Save") {
+                            save()
+                        }
+                        .fontWeight(.semibold)
+                        .disabled(!isValid)
                     }
-                    .fontWeight(.semibold)
-                    .disabled(!isValid)
                 }
             }
             .alert("Discard Changes?", isPresented: $showingCancelAlert) {
@@ -159,10 +187,13 @@ struct AddEditPieceView: View {
                    englishTranslation != (piece.englishTranslation ?? "") ||
                    author != (piece.author ?? "") ||
                    sourceUrl != (piece.sourceUrl ?? "") ||
-                   notes != (piece.notes ?? "")
+                   notes != (piece.notes ?? "") ||
+                   includeInPractice != piece.includeInPractice ||
+                   isFavorite != piece.isFavorite
         } else {
             return !title.isEmpty || !lyrics.isEmpty || !englishTranslation.isEmpty ||
-                   !author.isEmpty || !sourceUrl.isEmpty || !notes.isEmpty
+                   !author.isEmpty || !sourceUrl.isEmpty || !notes.isEmpty ||
+                   !includeInPractice || isFavorite
         }
     }
     
@@ -182,6 +213,8 @@ struct AddEditPieceView: View {
         author = piece.author ?? ""
         sourceUrl = piece.sourceUrl ?? ""
         notes = piece.notes ?? ""
+        includeInPractice = piece.includeInPractice
+        isFavorite = piece.isFavorite
     }
     
     private func save() {
@@ -212,6 +245,8 @@ struct AddEditPieceView: View {
             existingPiece.author = author.isEmpty ? nil : author
             existingPiece.sourceUrl = sourceUrl.isEmpty ? nil : sourceUrl
             existingPiece.notes = notes.isEmpty ? nil : notes
+            existingPiece.includeInPractice = includeInPractice
+            existingPiece.isFavorite = isFavorite
             existingPiece.updatedAt = Date()
         } else {
             // Create new piece
@@ -225,6 +260,8 @@ struct AddEditPieceView: View {
                 sourceUrl: sourceUrl.isEmpty ? nil : sourceUrl,
                 notes: notes.isEmpty ? nil : notes
             )
+            newPiece.includeInPractice = includeInPractice
+            newPiece.isFavorite = isFavorite
             modelContext.insert(newPiece)
         }
         

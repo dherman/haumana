@@ -6,6 +6,23 @@ struct RepertoireListView: View {
     @Query private var pieces: [Piece]
     @State private var showingAddView = false
     @State private var searchText = ""
+    @State private var selectedFilter: FilterOption = .all
+    
+    enum FilterOption: String, CaseIterable {
+        case all = "All"
+        case oli = "Oli"
+        case mele = "Mele"
+        case favorites = "Favorites"
+        
+        var systemImage: String {
+            switch self {
+            case .all: return "music.note.list"
+            case .oli: return "waveform"
+            case .mele: return "music.note"
+            case .favorites: return "star.fill"
+            }
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -60,26 +77,64 @@ struct RepertoireListView: View {
     }
     
     private var listView: some View {
-        List {
-            ForEach(filteredPieces) { piece in
-                NavigationLink(destination: PieceDetailView(piece: piece)) {
-                    PieceRowView(piece: piece)
+        VStack(spacing: 0) {
+            // Filter chips
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(FilterOption.allCases, id: \.self) { filter in
+                        FilterChip(
+                            title: filter.rawValue,
+                            systemImage: filter.systemImage,
+                            isSelected: selectedFilter == filter
+                        ) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedFilter = filter
+                            }
+                        }
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.vertical, 12)
             }
-            .onDelete(perform: deletePieces)
+            
+            Divider()
+            
+            List {
+                ForEach(filteredPieces) { piece in
+                    NavigationLink(destination: PieceDetailView(piece: piece)) {
+                        PieceRowView(piece: piece)
+                    }
+                }
+                .onDelete(perform: deletePieces)
+            }
         }
     }
     
     private var filteredPieces: [Piece] {
-        if searchText.isEmpty {
-            return pieces
-        } else {
-            return pieces.filter { piece in
+        var filtered = pieces
+        
+        // Apply filter option
+        switch selectedFilter {
+        case .all:
+            break
+        case .oli:
+            filtered = filtered.filter { $0.categoryEnum == .oli }
+        case .mele:
+            filtered = filtered.filter { $0.categoryEnum == .mele }
+        case .favorites:
+            filtered = filtered.filter { $0.isFavorite }
+        }
+        
+        // Apply search filter
+        if !searchText.isEmpty {
+            filtered = filtered.filter { piece in
                 piece.title.localizedCaseInsensitiveContains(searchText) ||
                 piece.lyrics.localizedCaseInsensitiveContains(searchText) ||
                 (piece.author?.localizedCaseInsensitiveContains(searchText) ?? false)
             }
         }
+        
+        return filtered
     }
     
     private func deletePieces(at offsets: IndexSet) {
@@ -108,7 +163,23 @@ struct PieceRowView: View {
                 
                 Spacer()
                 
-                PieceCategoryBadge(category: piece.categoryEnum)
+                HStack(spacing: 8) {
+                    // Practice availability indicator
+                    if !piece.includeInPractice {
+                        Image(systemName: "minus.circle")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    // Favorite star
+                    if piece.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundColor(.yellow)
+                    }
+                    
+                    PieceCategoryBadge(category: piece.categoryEnum)
+                }
             }
             
             Text(piece.lyricsPreview)
@@ -134,5 +205,31 @@ struct PieceCategoryBadge: View {
                     .fill(category == .oli ? Color.blue.opacity(0.2) : Color.green.opacity(0.2))
             )
             .foregroundColor(category == .oli ? .blue : .green)
+    }
+}
+
+struct FilterChip: View {
+    let title: String
+    let systemImage: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: systemImage)
+                    .font(.caption)
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .semibold : .regular)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(isSelected ? Color.accentColor : Color(.systemGray5))
+            )
+            .foregroundColor(isSelected ? .white : .primary)
+        }
     }
 }

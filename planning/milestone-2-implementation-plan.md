@@ -177,10 +177,10 @@ This implementation plan breaks down the Milestone 2 PRD into actionable develop
    - Update favorite toggle
 
 ### Verification:
-- [ ] Filters work correctly
-- [ ] New form fields save properly
-- [ ] Practice availability updates immediately
-- [ ] Favorite status persists
+- [x] Filters work correctly
+- [x] New form fields save properly
+- [x] Practice availability updates immediately
+- [x] Favorite status persists
 
 ---
 

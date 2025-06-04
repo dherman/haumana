@@ -7,6 +7,7 @@ struct PieceDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showingEditView = false
     @State private var showingDeleteAlert = false
+    @State private var showingPracticeScreen = false
     
     var body: some View {
         ScrollView {
@@ -19,7 +20,47 @@ struct PieceDetailView: View {
                     
                     Spacer()
                     
-                    CategoryBadge(category: piece.categoryEnum)
+                    VStack(alignment: .trailing, spacing: 8) {
+                        CategoryBadge(category: piece.categoryEnum)
+                        
+                        if piece.isFavorite {
+                            HStack(spacing: 4) {
+                                Image(systemName: "star.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.yellow)
+                                Text("Favorite")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+                
+                // Practice Status
+                if piece.includeInPractice {
+                    Button(action: {
+                        showingPracticeScreen = true
+                    }) {
+                        HStack {
+                            Image(systemName: "play.circle.fill")
+                            Text("Practice Now")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.accentColor)
+                        .cornerRadius(10)
+                    }
+                } else {
+                    HStack {
+                        Image(systemName: "minus.circle")
+                            .foregroundColor(.secondary)
+                        Text("Not included in practice")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 8)
                 }
                 
                 // Author
@@ -134,6 +175,9 @@ struct PieceDetailView: View {
                 AddEditPieceView(piece: piece)
             }
         }
+        .fullScreenCover(isPresented: $showingPracticeScreen) {
+            PracticeScreenForPieceView(piece: piece, modelContext: modelContext)
+        }
         .alert("Delete Piece?", isPresented: $showingDeleteAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
@@ -164,6 +208,28 @@ struct PieceDetailView: View {
         } catch {
             print("Failed to delete piece: \(error)")
         }
+    }
+}
+
+// Wrapper view for practice screen with specific piece
+struct PracticeScreenForPieceView: View {
+    let piece: Piece
+    let modelContext: ModelContext
+    @State private var viewModel: PracticeViewModel
+    
+    init(piece: Piece, modelContext: ModelContext) {
+        self.piece = piece
+        self.modelContext = modelContext
+        self._viewModel = State(wrappedValue: PracticeViewModel(modelContext: modelContext))
+    }
+    
+    var body: some View {
+        PracticeScreenView(viewModel: viewModel)
+            .onAppear {
+                Task {
+                    await viewModel.startSessionForSpecificPiece(piece)
+                }
+            }
     }
 }
 
