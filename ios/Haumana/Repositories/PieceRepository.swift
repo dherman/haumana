@@ -16,6 +16,11 @@ protocol PieceRepositoryProtocol {
     func update(_ piece: Piece) throws
     func delete(_ piece: Piece) throws
     func search(query: String) throws -> [Piece]
+    func fetchPracticeEligible() throws -> [Piece]
+    func fetchFavorites() throws -> [Piece]
+    func toggleFavorite(_ piece: Piece) throws
+    func toggleIncludeInPractice(_ piece: Piece) throws
+    func updateLastPracticed(_ piece: Piece) throws
 }
 
 @MainActor
@@ -67,5 +72,43 @@ final class PieceRepository: PieceRepositoryProtocol {
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
         )
         return try modelContext.fetch(descriptor)
+    }
+    
+    func fetchPracticeEligible() throws -> [Piece] {
+        let descriptor = FetchDescriptor<Piece>(
+            predicate: #Predicate { piece in
+                piece.includeInPractice == true
+            },
+            sortBy: [SortDescriptor(\.title)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+    
+    func fetchFavorites() throws -> [Piece] {
+        let descriptor = FetchDescriptor<Piece>(
+            predicate: #Predicate { piece in
+                piece.isFavorite == true
+            },
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+    
+    func toggleFavorite(_ piece: Piece) throws {
+        piece.isFavorite.toggle()
+        piece.updatedAt = Date()
+        try modelContext.save()
+    }
+    
+    func toggleIncludeInPractice(_ piece: Piece) throws {
+        piece.includeInPractice.toggle()
+        piece.updatedAt = Date()
+        try modelContext.save()
+    }
+    
+    func updateLastPracticed(_ piece: Piece) throws {
+        piece.lastPracticed = Date()
+        piece.updatedAt = Date()
+        try modelContext.save()
     }
 }

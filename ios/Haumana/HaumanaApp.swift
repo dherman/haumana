@@ -14,6 +14,7 @@ struct haumanaApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Piece.self,
+            PracticeSession.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

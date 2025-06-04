@@ -88,15 +88,15 @@ struct SplashScreenView: View {
                 }
             }
             
-            // Auto-transition after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            // Auto-transition after splash screen duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + AppConstants.splashScreenDuration) {
                 withAnimation(.easeInOut(duration: 0.8)) {
                     isActive = true
                 }
             }
         }
         .fullScreenCover(isPresented: $isActive) {
-            RepertoireListView()
+            MainTabView()
         }
     }
     

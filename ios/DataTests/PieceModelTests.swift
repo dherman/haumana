@@ -24,6 +24,8 @@ struct PieceModelTests {
         #expect(piece.sourceUrl == nil)
         #expect(piece.notes == nil)
         #expect(piece.isFavorite == false)
+        #expect(piece.includeInPractice == true)
+        #expect(piece.lastPracticed == nil)
     }
     
     @Test func testCategoryEnum() {

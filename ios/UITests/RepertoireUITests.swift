@@ -25,6 +25,11 @@ final class RepertoireUITests: XCTestCase {
         // Wait for app to fully launch
         sleep(5)
         
+        // Navigate to Repertoire tab
+        let repertoireTab = app.tabBars.buttons["Repertoire"]
+        XCTAssertTrue(repertoireTab.waitForExistence(timeout: 2), "Repertoire tab should exist")
+        repertoireTab.tap()
+        
         // The app should have some navigation structure
         let navBars = app.navigationBars
         XCTAssertTrue(navBars.count > 0, "Should have at least one navigation bar")
@@ -33,6 +38,11 @@ final class RepertoireUITests: XCTestCase {
     func testAddPieceFlow() throws {
         // Wait for splash
         sleep(5)
+        
+        // Navigate to Repertoire tab
+        let repertoireTab = app.tabBars.buttons["Repertoire"]
+        XCTAssertTrue(repertoireTab.waitForExistence(timeout: 2), "Repertoire tab should exist")
+        repertoireTab.tap()
         
         // Find any add button - could be floating button or empty state button
         let addButtons = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'add' OR label CONTAINS[c] 'plus'"))
@@ -65,6 +75,11 @@ final class RepertoireUITests: XCTestCase {
     func testListInteraction() throws {
         // First add a piece
         sleep(5)
+        
+        // Navigate to Repertoire tab
+        let repertoireTab = app.tabBars.buttons["Repertoire"]
+        XCTAssertTrue(repertoireTab.waitForExistence(timeout: 2), "Repertoire tab should exist")
+        repertoireTab.tap()
         
         // Navigate to add screen
         let addButtons = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'add' OR label CONTAINS[c] 'plus'"))
