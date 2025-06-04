@@ -10,12 +10,10 @@ import SwiftData
 
 struct PracticeTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var viewModel: PracticeViewModel?
+    @State private var showingPracticeScreen = false
+    @Query(sort: \PracticeSession.startTime, order: .reverse) private var recentSessions: [PracticeSession]
     @Query private var pieces: [Piece]
-    @Query private var recentSessions: [PracticeSession]
-    
-    private var practiceEligibleCount: Int {
-        pieces.filter { $0.includeInPractice }.count
-    }
     
     private var lastPracticedPiece: Piece? {
         guard let lastSession = recentSessions.first else { return nil }
@@ -26,13 +24,15 @@ struct PracticeTabView: View {
         NavigationStack {
             VStack(spacing: 24) {
                 // Stats Section
-                HStack(spacing: 32) {
-                    StatView(title: "Streak", value: "0", unit: "days")
-                    StatView(title: "Total", value: "\(pieces.count)", unit: "pieces")
-                    StatView(title: "Available", value: "\(practiceEligibleCount)", unit: "to practice")
+                if let vm = viewModel {
+                    HStack(spacing: 32) {
+                        StatView(title: "Streak", value: "\(vm.currentStreak)", unit: "days")
+                        StatView(title: "Total", value: "\(vm.totalPieces)", unit: "pieces")
+                        StatView(title: "Available", value: "\(vm.practiceEligibleCount)", unit: "to practice")
+                    }
+                    .padding(.horizontal)
+                    .padding(.top)
                 }
-                .padding(.horizontal)
-                .padding(.top)
                 
                 // Last Practiced Section
                 if let lastPiece = lastPracticedPiece {
@@ -41,25 +41,37 @@ struct PracticeTabView: View {
                             .font(.headline)
                             .foregroundColor(.secondary)
                         
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(lastPiece.title)
-                                    .font(.title3)
-                                    .fontWeight(.medium)
-                                Text(lastPiece.categoryEnum.displayName)
+                        Button(action: {
+                            Task {
+                                await viewModel?.startSessionForSpecificPiece(lastPiece)
+                                showingPracticeScreen = true
+                            }
+                        }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(lastPiece.title)
+                                        .font(.title3)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                    Text(lastPiece.categoryEnum.displayName)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if let lastPracticed = lastPiece.lastPracticed {
+                                    Text(lastPracticed.formatted(.relative(presentation: .named)))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Image(systemName: "chevron.right")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
-                            Spacer()
-                            if let lastPracticed = lastPiece.lastPracticed {
-                                Text(lastPracticed.formatted(.relative(presentation: .named)))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
                         }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
+                        .buttonStyle(PlainButtonStyle())
                     }
                     .padding(.horizontal)
                 }
@@ -67,39 +79,56 @@ struct PracticeTabView: View {
                 Spacer()
                 
                 // Start Practice Button
-                if practiceEligibleCount > 0 {
-                    Button(action: {
-                        // TODO: Start practice session
-                    }) {
-                        Label("Start Practice", systemImage: "play.circle.fill")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 20)
-                            .background(Color.accentColor)
-                            .cornerRadius(16)
+                if let vm = viewModel {
+                    if vm.practiceEligibleCount > 0 {
+                        Button(action: {
+                            Task {
+                                await vm.startPracticeSession()
+                                if vm.currentPiece != nil {
+                                    showingPracticeScreen = true
+                                }
+                            }
+                        }) {
+                            Label("Start Practice", systemImage: "play.circle.fill")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 20)
+                                .background(Color.accentColor)
+                                .cornerRadius(16)
+                        }
+                        .padding(.horizontal, 32)
+                        .disabled(vm.isLoading)
+                        
+                        if let error = vm.errorMessage {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.red)
+                                .padding(.horizontal)
+                        }
+                    } else {
+                        EmptyPracticeView()
                     }
-                    .padding(.horizontal, 32)
                 } else {
-                    VStack(spacing: 16) {
-                        Image(systemName: "music.note.list")
-                            .font(.system(size: 60))
-                            .foregroundColor(.secondary)
-                        Text("No pieces available for practice")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                        Text("Add pieces to your repertoire to start practicing")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
+                    ProgressView()
+                        .padding()
                 }
                 
                 Spacer()
             }
             .navigationTitle("Practice")
+            .fullScreenCover(isPresented: $showingPracticeScreen) {
+                if let vm = viewModel, let piece = vm.currentPiece {
+                    PracticeScreenView(viewModel: vm)
+                }
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = PracticeViewModel(modelContext: modelContext)
+            }
+            await viewModel?.loadStatistics()
         }
     }
 }
@@ -121,5 +150,23 @@ struct StatView: View {
                 .font(.caption2)
                 .foregroundColor(.secondary)
         }
+    }
+}
+
+struct EmptyPracticeView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "music.note.list")
+                .font(.system(size: 60))
+                .foregroundColor(.secondary)
+            Text("No pieces available for practice")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Text("Add pieces to your repertoire\nor enable them for practice")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
     }
 }
