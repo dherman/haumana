@@ -56,10 +56,10 @@ This implementation plan breaks down the Milestone 2 PRD into actionable develop
    - Add filtering by practice availability
 
 ### Verification:
-- [ ] New model fields persist correctly
-- [ ] Existing data migrates without loss
-- [ ] Tab navigation works smoothly
-- [ ] Icons display correctly in both states
+- [x] New model fields persist correctly
+- [x] Existing data migrates without loss
+- [x] Tab navigation works smoothly
+- [x] Icons display correctly in both states
 
 ---
 
@@ -95,10 +95,10 @@ This implementation plan breaks down the Milestone 2 PRD into actionable develop
    - Maintain session history during practice
 
 ### Verification:
-- [ ] Random selection feels fair
-- [ ] Favorites get appropriate priority
-- [ ] Recently practiced pieces appear less often
-- [ ] Empty state displays correctly
+- [x] Random selection feels fair
+- [x] Favorites get appropriate priority
+- [x] Recently practiced pieces appear less often
+- [x] Empty state displays correctly
 
 ---
 
@@ -138,10 +138,10 @@ This implementation plan breaks down the Milestone 2 PRD into actionable develop
    - Update lastPracticed timestamp
 
 ### Verification:
-- [ ] All gestures work smoothly
-- [ ] Translation display aligns correctly
-- [ ] Session tracking is accurate
-- [ ] Landscape/portrait transitions are smooth
+- [x] All gestures work smoothly
+- [x] Translation display aligns correctly
+- [x] Session tracking is accurate
+- [x] Landscape/portrait transitions are smooth
 
 ---
 

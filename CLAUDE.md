@@ -73,3 +73,4 @@ The app targets iOS 17+ and supports both portrait and landscape orientations wi
 - Always build for iPhone 16
 - Whenever creating a document, always make sure to ask me any clarifying questions before finalizing.
 - Whenever you need to know the current date, use the `date` command.
+- Whenever we make a commit, always check with me on the commit message before finalizing

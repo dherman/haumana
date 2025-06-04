@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import Observation
+import UIKit
 
 @MainActor
 @Observable
@@ -40,6 +41,24 @@ final class PracticeViewModel {
             pieceRepository: pieceRepository,
             modelContext: modelContext
         )
+        
+        // Listen for app lifecycle events
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func handleAppBackground() {
+        Task { @MainActor in
+            await endCurrentSession()
+        }
     }
     
     func loadStatistics() async {
