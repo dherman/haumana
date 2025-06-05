@@ -215,10 +215,10 @@ This implementation plan breaks down the Milestone 2 PRD into actionable develop
    - Handle data updates
 
 ### Verification:
-- [ ] Statistics calculate correctly
-- [ ] History displays accurately
-- [ ] Navigation to pieces works
-- [ ] Data updates in real-time
+- [x] Statistics calculate correctly
+- [x] History displays accurately
+- [x] Navigation to pieces works
+- [x] Data updates in real-time
 
 ---
 

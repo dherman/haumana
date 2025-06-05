@@ -10,10 +10,16 @@ import SwiftData
 
 protocol PracticeSessionRepositoryProtocol {
     func save(_ session: PracticeSession) throws
+    func save(_ session: PracticeSession) async throws
     func getRecentSessions(limit: Int) throws -> [PracticeSession]
+    func getRecentSessions(limit: Int) async throws -> [PracticeSession]
     func getSessionsForPiece(pieceId: UUID) throws -> [PracticeSession]
     func getTotalSessionCount() throws -> Int
+    func getTotalSessionCount() async throws -> Int
     func getStreak() throws -> Int
+    func getStreak() async throws -> Int
+    func getMostPracticedPiece() throws -> (pieceId: UUID, count: Int)?
+    func getMostPracticedPiece() async throws -> (pieceId: UUID, count: Int)?
 }
 
 final class PracticeSessionRepository: PracticeSessionRepositoryProtocol {
@@ -85,5 +91,58 @@ final class PracticeSessionRepository: PracticeSessionRepositoryProtocol {
         }
         
         return streak
+    }
+    
+    func getMostPracticedPiece() throws -> (pieceId: UUID, count: Int)? {
+        let descriptor = FetchDescriptor<PracticeSession>()
+        let sessions = try modelContext.fetch(descriptor)
+        
+        guard !sessions.isEmpty else { return nil }
+        
+        // Count sessions per piece
+        var pieceCounts: [UUID: Int] = [:]
+        for session in sessions {
+            pieceCounts[session.pieceId, default: 0] += 1
+        }
+        
+        // Find the most practiced piece
+        guard let mostPracticed = pieceCounts.max(by: { $0.value < $1.value }) else {
+            return nil
+        }
+        
+        return (pieceId: mostPracticed.key, count: mostPracticed.value)
+    }
+}
+
+// MARK: - Async versions
+extension PracticeSessionRepository {
+    func save(_ session: PracticeSession) async throws {
+        try await MainActor.run {
+            try save(session)
+        }
+    }
+    
+    func getRecentSessions(limit: Int = AppConstants.recentSessionsLimit) async throws -> [PracticeSession] {
+        try await MainActor.run {
+            try getRecentSessions(limit: limit)
+        }
+    }
+    
+    func getTotalSessionCount() async throws -> Int {
+        try await MainActor.run {
+            try getTotalSessionCount()
+        }
+    }
+    
+    func getStreak() async throws -> Int {
+        try await MainActor.run {
+            try getStreak()
+        }
+    }
+    
+    func getMostPracticedPiece() async throws -> (pieceId: UUID, count: Int)? {
+        try await MainActor.run {
+            try getMostPracticedPiece()
+        }
     }
 }

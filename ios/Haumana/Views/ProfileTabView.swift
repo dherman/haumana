@@ -10,34 +10,38 @@ import SwiftData
 
 struct ProfileTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var viewModel: ProfileViewModel?
+    
+    // Use @Query to observe session changes
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var sessions: [PracticeSession]
     @Query private var pieces: [Piece]
     
-    private var totalSessions: Int {
-        sessions.count
-    }
-    
-    private var currentStreak: Int {
-        // TODO: Calculate actual streak
-        return 0
-    }
-    
-    private var mostPracticedPiece: Piece? {
-        guard !sessions.isEmpty else { return nil }
-        
-        let pieceCounts = Dictionary(grouping: sessions, by: { $0.pieceId })
-            .mapValues { $0.count }
-        
-        guard let mostPracticedId = pieceCounts.max(by: { $0.value < $1.value })?.key else {
-            return nil
-        }
-        
-        return pieces.first { $0.id == mostPracticedId }
-    }
-    
     var body: some View {
         NavigationStack {
-            List {
+            if let viewModel = viewModel {
+                profileContent(viewModel: viewModel)
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = ProfileViewModel(modelContext: modelContext)
+                await viewModel?.loadProfileData()
+            }
+        }
+        .onChange(of: sessions.count) { _, _ in
+            // Reload data when sessions change
+            Task {
+                await viewModel?.loadProfileData()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func profileContent(viewModel: ProfileViewModel) -> some View {
+        List {
                 // User Section
                 Section {
                     HStack {
@@ -46,9 +50,9 @@ struct ProfileTabView: View {
                             .foregroundColor(.accentColor)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Guest User")
+                            Text(viewModel.userName)
                                 .font(.headline)
-                            Text("Sign in coming in Milestone 3")
+                            Text(viewModel.userEmail)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -63,49 +67,52 @@ struct ProfileTabView: View {
                     HStack {
                         Label("Current Streak", systemImage: "flame")
                         Spacer()
-                        Text("\(currentStreak) days")
+                        Text("\(viewModel.currentStreak) days")
                             .foregroundColor(.secondary)
                     }
                     
                     HStack {
                         Label("Total Sessions", systemImage: "music.note")
                         Spacer()
-                        Text("\(totalSessions)")
+                        Text("\(viewModel.totalSessions)")
                             .foregroundColor(.secondary)
                     }
                     
-                    if let mostPracticed = mostPracticedPiece {
+                    if let mostPracticed = viewModel.mostPracticedPiece {
                         HStack {
                             Label("Most Practiced", systemImage: "star")
                             Spacer()
-                            Text(mostPracticed.title)
-                                .foregroundColor(.secondary)
-                                .lineLimit(1)
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(mostPracticed.title)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                                Text("\(viewModel.mostPracticedCount) times")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
                 }
                 
                 // Recent Practice History
-                if !sessions.isEmpty {
+                if !viewModel.recentSessions.isEmpty {
                     Section("Recent Practice") {
-                        ForEach(Array(sessions.prefix(10)), id: \.id) { session in
-                            if let piece = pieces.first(where: { $0.id == session.pieceId }) {
+                        ForEach(viewModel.recentSessions) { sessionWithPiece in
+                            NavigationLink(destination: PieceDetailView(piece: sessionWithPiece.piece)) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(piece.title)
+                                        Text(sessionWithPiece.piece.title)
                                             .font(.body)
-                                        Text(session.startTime.formatted(date: .abbreviated, time: .shortened))
+                                        Text(viewModel.formatSessionDate(sessionWithPiece.session.startTime))
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
                                     
                                     Spacer()
                                     
-                                    if let duration = session.duration {
-                                        Text(formatDuration(duration))
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
+                                    Text(viewModel.formatSessionDuration(sessionWithPiece.session))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
                                 .padding(.vertical, 4)
                             }
@@ -118,18 +125,28 @@ struct ProfileTabView: View {
                     HStack {
                         Text("Version")
                         Spacer()
-                        Text(AppConstants.appVersion)
+                        Text(viewModel.appVersion)
                             .foregroundColor(.secondary)
+                    }
+                    
+                    Link(destination: URL(string: "https://github.com/dherman/haumana")!) {
+                        HStack {
+                            Text("View on GitHub")
+                            Spacer()
+                            Image(systemName: "arrow.up.right.square")
+                        }
                     }
                 }
             }
             .navigationTitle("Profile")
-        }
-    }
-    
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return String(format: "%d:%02d", minutes, seconds)
+            .refreshable {
+                await viewModel.refresh()
+            }
+            .onAppear {
+                // Refresh when tab becomes visible
+                Task {
+                    await viewModel.loadProfileData()
+                }
+            }
     }
 }

@@ -8,7 +8,6 @@
 import Foundation
 
 enum AppConstants {
-    static let appVersion = "0.2.0"
     static let appName = "Haumana"
     
     // Practice Settings
