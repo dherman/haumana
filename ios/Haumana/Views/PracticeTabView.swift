@@ -25,42 +25,23 @@ struct PracticeTabView: View {
             VStack(spacing: 0) {
                 // Carousel Container - Takes 60% of vertical space
                 if let vm = viewModel {
-                    if vm.practiceEligibleCount > 0 {
-                        GeometryReader { geometry in
-                            VStack {
-                                // Carousel placeholder - will be replaced with actual carousel
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.systemGray6))
-                                    .frame(height: geometry.size.height * 0.6)
-                                    .overlay(
-                                        VStack(spacing: 16) {
-                                            Image(systemName: "rectangle.stack.fill")
-                                                .font(.system(size: 48))
-                                                .foregroundColor(.secondary)
-                                            Text("Carousel Coming Soon")
-                                                .font(.headline)
-                                                .foregroundColor(.secondary)
-                                            Text("Swipe to browse pieces")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
-                                    )
-                                    .padding(.horizontal)
-                                
-                                // Visual swipe indicators (dots)
-                                HStack(spacing: 8) {
-                                    ForEach(0..<5) { index in
-                                        Circle()
-                                            .fill(index == 2 ? Color.accentColor : Color(.systemGray4))
-                                            .frame(width: 8, height: 8)
-                                    }
-                                }
-                                .padding(.top, 12)
-                                
-                                Spacer()
+                    if vm.practiceEligibleCount > 0 && !vm.suggestionQueue.isEmpty {
+                        PracticeCarouselWrapper(viewModel: vm) { piece, index in
+                            Task {
+                                await vm.selectPieceFromCarousel(at: index)
+                                showingPracticeScreen = true
                             }
                         }
-                        .frame(maxHeight: .infinity)
+                    } else if vm.practiceEligibleCount > 0 && vm.suggestionQueue.isEmpty {
+                        // Loading suggestions
+                        Spacer()
+                        VStack(spacing: 16) {
+                            ProgressView()
+                            Text("Loading suggestions...")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
                     } else {
                         // Empty state
                         Spacer()
@@ -91,7 +72,11 @@ struct PracticeTabView: View {
                 }
             }
             .navigationTitle("Practice")
-            .fullScreenCover(isPresented: $showingPracticeScreen) {
+            .fullScreenCover(isPresented: $showingPracticeScreen, onDismiss: {
+                Task {
+                    await viewModel?.updateCarouselAfterPractice()
+                }
+            }) {
                 if let vm = viewModel, vm.currentPiece != nil {
                     PracticeScreenView(viewModel: vm)
                 }
@@ -123,6 +108,22 @@ struct StatView: View {
                 .font(.caption2)
                 .foregroundColor(.secondary)
         }
+    }
+}
+
+struct PracticeCarouselWrapper: View {
+    let viewModel: PracticeViewModel
+    let onSelect: (Piece, Int) -> Void
+    
+    var body: some View {
+        PracticeCarousel(
+            pieces: viewModel.suggestionQueue,
+            currentIndex: Binding(
+                get: { viewModel.currentCarouselIndex },
+                set: { viewModel.currentCarouselIndex = $0 }
+            ),
+            onSelect: onSelect
+        )
     }
 }
 

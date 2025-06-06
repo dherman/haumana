@@ -28,6 +28,7 @@ final class PracticeViewModel {
     var suggestionQueue: [Piece] = []
     var currentCarouselIndex: Int = 0
     private let suggestionQueueSize = 7
+    private var lastPracticedPieceId: UUID?
     
     // UI State
     var isLoading = false
@@ -171,6 +172,7 @@ final class PracticeViewModel {
     
     private func startSessionForPiece(_ piece: Piece) async {
         currentPiece = piece
+        lastPracticedPieceId = piece.id  // Store for carousel update after practice
         
         // Update piece's last practiced date
         do {
@@ -243,14 +245,38 @@ final class PracticeViewModel {
         // Start practice session with selected piece
         await startSessionForPiece(selectedPiece)
         
-        // Remove the selected piece from queue and refresh
+        // Don't update carousel yet - wait until practice screen is dismissed
+    }
+    
+    func updateCarouselAfterPractice() async {
+        // Find the practiced piece in the queue using the stored ID
+        guard let practicedId = lastPracticedPieceId,
+              let index = suggestionQueue.firstIndex(where: { $0.id == practicedId }) else { 
+            // If piece not found, just refresh the queue
+            await refreshSuggestionQueue()
+            return 
+        }
+        
+        // Remove the practiced piece from queue
         suggestionQueue.remove(at: index)
+        
+        // If we removed the current carousel item, adjust the index
+        if index == currentCarouselIndex && currentCarouselIndex > 0 {
+            currentCarouselIndex -= 1
+        } else if index < currentCarouselIndex {
+            currentCarouselIndex = max(0, currentCarouselIndex - 1)
+        }
+        
+        // Refresh the queue to maintain the desired count
         await refreshSuggestionQueue()
         
-        // Reset carousel index if needed
+        // Reset carousel index if it's out of bounds
         if currentCarouselIndex >= suggestionQueue.count {
             currentCarouselIndex = max(0, suggestionQueue.count - 1)
         }
+        
+        // Clear the stored ID
+        lastPracticedPieceId = nil
     }
     
     func moveCarouselToNext() {
