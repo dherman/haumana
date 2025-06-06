@@ -17,6 +17,7 @@ struct PracticeScreenView: View {
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging = false
     @State private var showSwipeHint = true
+    @AppStorage("hasSeenPracticeSwipeHint") private var hasSeenPracticeSwipeHint = false
     
     var body: some View {
         NavigationStack {
@@ -71,7 +72,7 @@ struct PracticeScreenView: View {
                         .gesture(exitGesture)
                         
                         // Initial swipe hint on right edge
-                        if showSwipeHint && !isDragging {
+                        if showSwipeHint && !isDragging && !hasSeenPracticeSwipeHint {
                             HStack {
                                 Spacer()
                                 
@@ -100,6 +101,7 @@ struct PracticeScreenView: View {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                                     withAnimation {
                                         showSwipeHint = false
+                                        hasSeenPracticeSwipeHint = true
                                     }
                                 }
                             }
@@ -172,6 +174,7 @@ struct PracticeScreenView: View {
                     
                     // Hide hint after first successful swipe
                     showSwipeHint = false
+                    hasSeenPracticeSwipeHint = true
                     
                     withAnimation(.spring()) {
                         dragOffset = UIScreen.main.bounds.width

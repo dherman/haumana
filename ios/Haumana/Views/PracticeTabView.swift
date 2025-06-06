@@ -12,6 +12,8 @@ struct PracticeTabView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: PracticeViewModel?
     @State private var showingPracticeScreen = false
+    @State private var showCarouselTooltip = false
+    @AppStorage("hasSeenCarouselTooltip") private var hasSeenCarouselTooltip = false
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var recentSessions: [PracticeSession]
     @Query private var pieces: [Piece]
     
@@ -30,6 +32,28 @@ struct PracticeTabView: View {
                             Task {
                                 await vm.selectPieceFromCarousel(at: index)
                                 showingPracticeScreen = true
+                            }
+                        }
+                        .overlay(alignment: .top) {
+                            if showCarouselTooltip {
+                                TooltipView(text: "Swipe to browse pieces")
+                                    .padding(.top, 16)
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
+                                    .onAppear {
+                                        // Auto-dismiss after 5 seconds
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                                            withAnimation {
+                                                showCarouselTooltip = false
+                                                hasSeenCarouselTooltip = true
+                                            }
+                                        }
+                                    }
+                                    .onTapGesture {
+                                        withAnimation {
+                                            showCarouselTooltip = false
+                                            hasSeenCarouselTooltip = true
+                                        }
+                                    }
                             }
                         }
                     } else if vm.practiceEligibleCount > 0 && vm.suggestionQueue.isEmpty {
@@ -87,6 +111,15 @@ struct PracticeTabView: View {
                 viewModel = PracticeViewModel(modelContext: modelContext)
             }
             await viewModel?.loadStatistics()
+            
+            // Show tooltip on first launch if we have eligible pieces
+            if !hasSeenCarouselTooltip && viewModel?.practiceEligibleCount ?? 0 > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation {
+                        showCarouselTooltip = true
+                    }
+                }
+            }
         }
     }
 }
@@ -153,5 +186,27 @@ struct EmptyPracticeView: View {
                 .padding(.top, 8)
         }
         .padding()
+    }
+}
+
+struct TooltipView: View {
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "hand.draw")
+                .font(.caption)
+            Text(text)
+                .font(.subheadline)
+                .fontWeight(.medium)
+        }
+        .foregroundColor(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(
+            Capsule()
+                .fill(Color.accentColor)
+                .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+        )
     }
 }

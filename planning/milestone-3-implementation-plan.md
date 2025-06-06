@@ -204,9 +204,9 @@ This implementation plan breaks down the Milestone 3 PRD into actionable develop
    - Document new interaction patterns
 
 ### Verification:
-- [ ] Tooltips show once only
-- [ ] Hints are helpful but not intrusive
-- [ ] Users understand new patterns
+- [x] Tooltips show once only
+- [x] Hints are helpful but not intrusive
+- [x] Users understand new patterns
 
 ---
 
@@ -215,7 +215,6 @@ This implementation plan breaks down the Milestone 3 PRD into actionable develop
 
 ### Tasks:
 1. **Performance Testing** (2 hours)
-   - Test with 1000+ pieces
    - Measure carousel scroll performance
    - Check memory usage
    - Optimize if needed
