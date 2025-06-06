@@ -14,39 +14,34 @@ struct PracticeScreenView: View {
     @Bindable var viewModel: PracticeViewModel
     @State private var showingTranslation = false
     @State private var showingDetails = false
-    @State private var dragOffset = CGSize.zero
+    @State private var dragOffset: CGFloat = 0
     @State private var isDragging = false
+    @State private var showSwipeHint = true
     
     var body: some View {
         NavigationStack {
             if let piece = viewModel.currentPiece {
                 GeometryReader { geometry in
                     ZStack {
-                        // Background for swipe indicators
-                        HStack(spacing: 0) {
-                            // Previous indicator
-                            Rectangle()
-                                .fill(Color.blue.opacity(0.3))
-                                .frame(width: 100)
-                                .overlay(
-                                    Image(systemName: "chevron.left")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.white)
-                                )
-                            
+                        // Exit gesture hint (right edge)
+                        HStack {
                             Spacer()
                             
-                            // Next indicator
                             Rectangle()
-                                .fill(Color.green.opacity(0.3))
-                                .frame(width: 100)
+                                .fill(Color.accentColor.opacity(0.2))
+                                .frame(width: 80)
                                 .overlay(
-                                    Image(systemName: "chevron.right")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.white)
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                        Text("Swipe to finish")
+                                            .font(.caption2)
+                                    }
+                                    .foregroundColor(.accentColor)
+                                    .rotationEffect(.degrees(-90))
                                 )
                         }
-                        .opacity(isDragging ? Double(abs(dragOffset.width)) / 100 : 0)
+                        .opacity(showSwipeHint && isDragging && dragOffset > 20 ? Double(dragOffset) / 100 : 0)
                         
                         // Main content
                         VStack(spacing: 0) {
@@ -72,8 +67,43 @@ struct PracticeScreenView: View {
                             }
                         }
                         .background(Color(.systemBackground))
-                        .offset(x: dragOffset.width)
-                        .gesture(practiceGesture)
+                        .offset(x: dragOffset)
+                        .gesture(exitGesture)
+                        
+                        // Initial swipe hint on right edge
+                        if showSwipeHint && !isDragging {
+                            HStack {
+                                Spacer()
+                                
+                                VStack {
+                                    Spacer()
+                                    HStack(spacing: 2) {
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption2)
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption2)
+                                            .opacity(0.6)
+                                    }
+                                    .foregroundColor(.accentColor)
+                                    .padding(8)
+                                    .background(
+                                        Capsule()
+                                            .fill(Color.accentColor.opacity(0.15))
+                                    )
+                                    Spacer()
+                                }
+                            }
+                            .padding(.trailing, 8)
+                            .transition(.opacity.combined(with: .move(edge: .trailing)))
+                            .onAppear {
+                                // Auto-hide hint after 5 seconds
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                                    withAnimation {
+                                        showSwipeHint = false
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
@@ -85,11 +115,15 @@ struct PracticeScreenView: View {
                     }
                     
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
+                        Button(action: {
                             Task {
                                 await viewModel.endPractice()
                                 dismiss()
                             }
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -113,46 +147,31 @@ struct PracticeScreenView: View {
         }
     }
     
-    private var practiceGesture: some Gesture {
+    private var exitGesture: some Gesture {
         DragGesture()
             .onChanged { value in
-                isDragging = true
-                dragOffset = value.translation
+                // Only respond to right swipes
+                if value.translation.width > 0 {
+                    isDragging = true
+                    dragOffset = value.translation.width
+                }
             }
             .onEnded { value in
                 isDragging = false
                 
                 let threshold: CGFloat = 100
-                let verticalThreshold: CGFloat = 150
                 
                 if value.translation.width > threshold {
-                    // Swipe right - previous piece
+                    // Swipe right - end practice
                     let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
                     impactFeedback.impactOccurred()
                     
-                    withAnimation(.spring()) {
-                        dragOffset = CGSize(width: UIScreen.main.bounds.width, height: 0)
-                    }
-                    Task {
-                        await viewModel.previousPiece()
-                        dragOffset = .zero
-                    }
-                } else if value.translation.width < -threshold {
-                    // Swipe left - next piece
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                    impactFeedback.impactOccurred()
+                    // Hide hint after first successful swipe
+                    showSwipeHint = false
                     
                     withAnimation(.spring()) {
-                        dragOffset = CGSize(width: -UIScreen.main.bounds.width, height: 0)
+                        dragOffset = UIScreen.main.bounds.width
                     }
-                    Task {
-                        await viewModel.nextPiece()
-                        dragOffset = .zero
-                    }
-                } else if value.translation.height < -verticalThreshold {
-                    // Swipe up - end practice
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
                     
                     Task {
                         await viewModel.endPractice()
@@ -160,8 +179,8 @@ struct PracticeScreenView: View {
                     }
                 } else {
                     // Spring back
-                    withAnimation(.spring()) {
-                        dragOffset = .zero
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        dragOffset = 0
                     }
                 }
             }
