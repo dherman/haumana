@@ -30,29 +30,35 @@ This document defines the screen architecture and interaction patterns for Hauma
   4. Profile (settings)
 
 #### 2.2 Practice Tab
-- **Purpose**: Quick access to practice session
+- **Purpose**: Quick access to practice session with preview
 - **Elements**:
-  - Large "Start Practice" button
-  - Last practiced piece preview
+  - Large prominent carousel card showing:
+    - Preview of next randomly-selected piece
+    - Piece title and category
+    - Brief lyrics preview
+    - Swipe indicators
+  - Carousel navigation:
+    - Swipe/drag left → Show next suggested piece
+    - Swipe/drag right → Show previous suggested piece
   - Quick stats (streak, total pieces)
 - **Actions**:
-  - Tap button → Random piece selection → Practice Screen
+  - Tap piece preview → Start practice session → Practice Screen
+  - Swipe carousel → Browse suggested pieces
 
 #### 2.3 Practice Screen (Modal)
-- **Purpose**: Active practice session
+- **Purpose**: Active practice session for a single piece
 - **Elements**:
   - Piece title and category badge
   - Thumbnail image (if available)
   - Lyrics display (scrollable)
   - Language indicator
   - Show/hide translation toggle
-  - Practice controls:
-    - "End Session" button
-    - "Choose Different Piece" button
-    - "View Details" link
+  - Favorite button (star icon)
+  - "View Details" link
+- **Gestures**:
+  - Swipe right → End practice session (like "go back")
 - **Navigation**:
-  - End Session → Practice Summary
-  - Choose Different → New random selection
+  - Swipe right → Return to Practice Tab
   - View Details → Piece Detail Screen
 
 #### 2.4 Practice Summary Screen
@@ -181,7 +187,7 @@ This document defines the screen architecture and interaction patterns for Hauma
 
 ### 1. Quick Practice Flow
 ```
-Home → Tap Practice Tab → Tap Start → Random Piece Shown → Practice → End Session → Summary → Home
+Home → Practice Tab (piece already shown) → Swipe carousel (optional) → Tap piece → Practice Screen → Swipe right to end → Practice Tab
 ```
 
 ### 2. Add Piece Flow

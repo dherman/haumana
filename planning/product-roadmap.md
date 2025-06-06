@@ -74,8 +74,39 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ---
 
-### Milestone 3: Google Authentication (Week 3)
+### Milestone 3: Practice Carousel (Week 3)
 **Target: 1 week after M2**
+**Theme: "Preview Before Practice"**
+
+**Features:**
+- Carousel-based piece selection on Practice tab
+- Preview pieces before starting practice
+- Swipe left/right to browse suggestions
+- Simplified practice screen (single piece, no gestures)
+- Swipe right to end practice session
+- Improved practice metrics accuracy
+
+**Screens:**
+- Updated Practice tab with carousel
+- Simplified Practice screen
+- Remove practice summary screen
+
+**Technical:**
+- Implement carousel component
+- Refactor practice flow
+- Update gesture handling
+- Simplify state management
+
+**Success Metrics:**
+- Users feel more in control of selection
+- Practice metrics more accurate
+- Cleaner separation of selection vs practice
+- Intuitive gesture navigation
+
+---
+
+### Milestone 4: Google Authentication (Week 4)
+**Target: 1 week after M3**
 **Theme: "Secure Your Data"**
 
 **Features:**
@@ -106,8 +137,8 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ---
 
-### Milestone 4: Cloud Sync - Part 1 (Week 4-5)
-**Target: 2 weeks after M3**
+### Milestone 5: Cloud Sync - Part 1 (Week 5-6)
+**Target: 2 weeks after M4**
 **Theme: "Access Anywhere"**
 
 **Features:**
@@ -135,8 +166,8 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ---
 
-### Milestone 5: Enhanced Content (Week 6-7)
-**Target: 2 weeks after M4**
+### Milestone 6: Enhanced Content (Week 7-8)
+**Target: 2 weeks after M5**
 **Theme: "Rich Experience"**
 
 **Features:**
@@ -160,8 +191,8 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ---
 
-### Milestone 6: Search & Discovery (Week 8)
-**Target: 1 week after M5**
+### Milestone 7: Search & Discovery (Week 9)
+**Target: 1 week after M6**
 **Theme: "Find Faster"**
 
 **Features:**
@@ -183,8 +214,8 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ---
 
-### Milestone 7: Polish & Performance (Week 9)
-**Target: 1 week after M6**
+### Milestone 8: Polish & Performance (Week 10)
+**Target: 1 week after M7**
 **Theme: "Production Ready"**
 
 **Features:**
