@@ -133,11 +133,11 @@ This implementation plan breaks down the Milestone 3 PRD into actionable develop
    - Return to Practice tab on exit
 
 ### Verification:
-- [ ] Only right swipe works
-- [ ] No piece navigation possible
-- [ ] Clean, focused interface
-- [ ] Smooth exit animation
-- [ ] Session tracking accurate
+- [x] Only right swipe works
+- [x] No piece navigation possible
+- [x] Clean, focused interface
+- [x] Smooth exit animation
+- [x] Session tracking accurate
 
 ---
 
@@ -175,10 +175,10 @@ This implementation plan breaks down the Milestone 3 PRD into actionable develop
    - Test with existing user data
 
 ### Verification:
-- [ ] Browsing doesn't affect practice metrics
-- [ ] Session duration accurate
-- [ ] Last practiced updates correctly
-- [ ] Historical data preserved
+- [x] Browsing doesn't affect practice metrics
+- [x] Session duration accurate
+- [x] Last practiced updates correctly
+- [x] Historical data preserved
 
 ---
 

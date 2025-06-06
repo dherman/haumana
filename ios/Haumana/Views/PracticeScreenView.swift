@@ -107,6 +107,10 @@ struct PracticeScreenView: View {
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
+                .task {
+                    // Start the practice session when the screen appears
+                    await viewModel.beginSelectedPractice()
+                }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button("Details") {

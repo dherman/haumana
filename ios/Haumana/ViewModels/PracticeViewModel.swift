@@ -29,6 +29,7 @@ final class PracticeViewModel {
     var currentCarouselIndex: Int = 0
     private let suggestionQueueSize = 7
     private var lastPracticedPieceId: UUID?
+    private var carouselMetrics = CarouselMetrics()
     
     // UI State
     var isLoading = false
@@ -69,7 +70,7 @@ final class PracticeViewModel {
     
     func loadStatistics() async {
         do {
-            let allPieces = try await pieceRepository.fetchAll()
+            let allPieces = try pieceRepository.fetchAll()
             totalPieces = allPieces.count
             practiceEligibleCount = allPieces.filter { $0.includeInPractice }.count
             currentStreak = try await sessionRepository.getStreak()
@@ -89,7 +90,7 @@ final class PracticeViewModel {
             errorMessage = nil
             
             // Get a random piece
-            guard let piece = try await selectionService.selectRandomPiece() else {
+            guard let piece = try selectionService.selectRandomPiece() else {
                 errorMessage = "No pieces available for practice"
                 isLoading = false
                 return
@@ -115,9 +116,9 @@ final class PracticeViewModel {
             // Get a new random piece
             do {
                 let excludedIds = sessionHistory.map { $0.id }
-                guard let piece = try await selectionService.getNextPiece(excluding: excludedIds) else {
+                guard let piece = try selectionService.getNextPiece(excluding: excludedIds) else {
                     // If no more pieces, wrap around
-                    guard let piece = try await selectionService.selectRandomPiece() else {
+                    guard let piece = try selectionService.selectRandomPiece() else {
                         errorMessage = "No pieces available"
                         return
                     }
@@ -155,7 +156,7 @@ final class PracticeViewModel {
         guard let piece = currentPiece else { return }
         
         do {
-            try await pieceRepository.toggleFavorite(piece)
+            try pieceRepository.toggleFavorite(piece)
         } catch {
             print("Error toggling favorite: \(error)")
         }
@@ -171,12 +172,15 @@ final class PracticeViewModel {
     // MARK: - Private Methods
     
     private func startSessionForPiece(_ piece: Piece) async {
-        currentPiece = piece
-        lastPracticedPieceId = piece.id  // Store for carousel update after practice
+        // Don't overwrite currentPiece if it's already set (from carousel selection)
+        if currentPiece == nil {
+            currentPiece = piece
+            lastPracticedPieceId = piece.id
+        }
         
         // Update piece's last practiced date
         do {
-            try await pieceRepository.updateLastPracticed(piece)
+            try pieceRepository.updateLastPracticed(piece)
         } catch {
             print("Error updating last practiced: \(error)")
         }
@@ -217,8 +221,16 @@ final class PracticeViewModel {
     
     func loadSuggestionQueue() async {
         do {
-            suggestionQueue = try await selectionService.generateSuggestionQueue(count: suggestionQueueSize)
+            suggestionQueue = try selectionService.generateSuggestionQueue(count: suggestionQueueSize)
             currentCarouselIndex = 0
+            
+            // Reset carousel metrics for new browsing session
+            carouselMetrics = CarouselMetrics()
+            
+            // Track initial piece shown
+            if !suggestionQueue.isEmpty {
+                carouselMetrics.recordBrowse(pieceId: suggestionQueue[0].id)
+            }
         } catch {
             print("Error loading suggestion queue: \(error)")
             errorMessage = "Error loading suggestions"
@@ -227,7 +239,7 @@ final class PracticeViewModel {
     
     func refreshSuggestionQueue() async {
         do {
-            suggestionQueue = try await selectionService.refreshSuggestionQueue(
+            suggestionQueue = try selectionService.refreshSuggestionQueue(
                 currentQueue: suggestionQueue,
                 count: suggestionQueueSize
             )
@@ -242,10 +254,22 @@ final class PracticeViewModel {
         let selectedPiece = suggestionQueue[index]
         currentCarouselIndex = index
         
-        // Start practice session with selected piece
-        await startSessionForPiece(selectedPiece)
+        // Track carousel selection
+        carouselMetrics.recordSelection(pieceId: selectedPiece.id, at: index)
+        print(carouselMetrics.toBrowsingLog())
+        
+        // Just set the current piece - don't start session yet
+        currentPiece = selectedPiece
+        lastPracticedPieceId = selectedPiece.id
         
         // Don't update carousel yet - wait until practice screen is dismissed
+    }
+    
+    func beginSelectedPractice() async {
+        guard let piece = currentPiece else { return }
+        
+        // Now actually start the session
+        await startSessionForPiece(piece)
     }
     
     func updateCarouselAfterPractice() async {
@@ -282,10 +306,20 @@ final class PracticeViewModel {
     func moveCarouselToNext() {
         guard !suggestionQueue.isEmpty else { return }
         currentCarouselIndex = (currentCarouselIndex + 1) % suggestionQueue.count
+        
+        // Track browsing
+        if currentCarouselIndex < suggestionQueue.count {
+            carouselMetrics.recordBrowse(pieceId: suggestionQueue[currentCarouselIndex].id)
+        }
     }
     
     func moveCarouselToPrevious() {
         guard !suggestionQueue.isEmpty else { return }
         currentCarouselIndex = currentCarouselIndex == 0 ? suggestionQueue.count - 1 : currentCarouselIndex - 1
+        
+        // Track browsing
+        if currentCarouselIndex < suggestionQueue.count {
+            carouselMetrics.recordBrowse(pieceId: suggestionQueue[currentCarouselIndex].id)
+        }
     }
 }
