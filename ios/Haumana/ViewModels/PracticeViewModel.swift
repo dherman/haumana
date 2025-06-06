@@ -24,6 +24,11 @@ final class PracticeViewModel {
     var sessionHistory: [Piece] = []
     var currentHistoryIndex: Int = -1
     
+    // Carousel state
+    var suggestionQueue: [Piece] = []
+    var currentCarouselIndex: Int = 0
+    private let suggestionQueueSize = 7
+    
     // UI State
     var isLoading = false
     var errorMessage: String?
@@ -67,6 +72,11 @@ final class PracticeViewModel {
             totalPieces = allPieces.count
             practiceEligibleCount = allPieces.filter { $0.includeInPractice }.count
             currentStreak = try await sessionRepository.getStreak()
+            
+            // Initialize suggestion queue if needed
+            if suggestionQueue.isEmpty && practiceEligibleCount > 0 {
+                await loadSuggestionQueue()
+            }
         } catch {
             print("Error loading statistics: \(error)")
         }
@@ -199,5 +209,57 @@ final class PracticeViewModel {
         }
         
         currentSession = nil
+    }
+    
+    // MARK: - Carousel Methods
+    
+    func loadSuggestionQueue() async {
+        do {
+            suggestionQueue = try await selectionService.generateSuggestionQueue(count: suggestionQueueSize)
+            currentCarouselIndex = 0
+        } catch {
+            print("Error loading suggestion queue: \(error)")
+            errorMessage = "Error loading suggestions"
+        }
+    }
+    
+    func refreshSuggestionQueue() async {
+        do {
+            suggestionQueue = try await selectionService.refreshSuggestionQueue(
+                currentQueue: suggestionQueue,
+                count: suggestionQueueSize
+            )
+        } catch {
+            print("Error refreshing suggestion queue: \(error)")
+        }
+    }
+    
+    func selectPieceFromCarousel(at index: Int) async {
+        guard index >= 0 && index < suggestionQueue.count else { return }
+        
+        let selectedPiece = suggestionQueue[index]
+        currentCarouselIndex = index
+        
+        // Start practice session with selected piece
+        await startSessionForPiece(selectedPiece)
+        
+        // Remove the selected piece from queue and refresh
+        suggestionQueue.remove(at: index)
+        await refreshSuggestionQueue()
+        
+        // Reset carousel index if needed
+        if currentCarouselIndex >= suggestionQueue.count {
+            currentCarouselIndex = max(0, suggestionQueue.count - 1)
+        }
+    }
+    
+    func moveCarouselToNext() {
+        guard !suggestionQueue.isEmpty else { return }
+        currentCarouselIndex = (currentCarouselIndex + 1) % suggestionQueue.count
+    }
+    
+    func moveCarouselToPrevious() {
+        guard !suggestionQueue.isEmpty else { return }
+        currentCarouselIndex = currentCarouselIndex == 0 ? suggestionQueue.count - 1 : currentCarouselIndex - 1
     }
 }

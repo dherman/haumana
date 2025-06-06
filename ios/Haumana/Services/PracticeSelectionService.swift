@@ -12,12 +12,15 @@ import SwiftData
 protocol PracticeSelectionServiceProtocol {
     func selectRandomPiece() throws -> Piece?
     func getNextPiece(excluding: [UUID]) throws -> Piece?
+    func generateSuggestionQueue(count: Int) throws -> [Piece]
+    func refreshSuggestionQueue(currentQueue: [Piece], count: Int) throws -> [Piece]
 }
 
 @MainActor
 final class PracticeSelectionService: PracticeSelectionServiceProtocol {
     private let pieceRepository: PieceRepositoryProtocol
     private let modelContext: ModelContext
+    private var recentlyShownIds: Set<UUID> = []
     
     init(pieceRepository: PieceRepositoryProtocol, modelContext: ModelContext) {
         self.pieceRepository = pieceRepository
@@ -100,5 +103,64 @@ final class PracticeSelectionService: PracticeSelectionServiceProtocol {
             let index = adjustedValue / AppConstants.priority3Weight
             return priority3[index]
         }
+    }
+    
+    func generateSuggestionQueue(count: Int) throws -> [Piece] {
+        recentlyShownIds.removeAll()
+        var suggestions: [Piece] = []
+        
+        // Get all eligible pieces
+        let eligiblePieces = try pieceRepository.fetchPracticeEligible()
+        guard !eligiblePieces.isEmpty else { return [] }
+        
+        // If we have fewer pieces than requested, return all of them
+        if eligiblePieces.count <= count {
+            return eligiblePieces.shuffled()
+        }
+        
+        // Generate suggestions ensuring variety
+        for _ in 0..<count {
+            if let piece = try getNextPiece(excluding: Array(recentlyShownIds)) {
+                suggestions.append(piece)
+                recentlyShownIds.insert(piece.id)
+            } else {
+                // If we can't get more unique pieces, stop
+                break
+            }
+        }
+        
+        return suggestions
+    }
+    
+    func refreshSuggestionQueue(currentQueue: [Piece], count: Int) throws -> [Piece] {
+        // Keep track of what's already in the queue
+        for piece in currentQueue {
+            recentlyShownIds.insert(piece.id)
+        }
+        
+        // If recently shown set gets too large (>50% of eligible pieces), reset it
+        let eligibleCount = try pieceRepository.fetchPracticeEligible().count
+        if recentlyShownIds.count > eligibleCount / 2 {
+            recentlyShownIds.removeAll()
+            // Re-add current queue items
+            for piece in currentQueue {
+                recentlyShownIds.insert(piece.id)
+            }
+        }
+        
+        var newQueue = currentQueue
+        
+        // Add new suggestions to reach the desired count
+        while newQueue.count < count {
+            if let piece = try getNextPiece(excluding: Array(recentlyShownIds)) {
+                newQueue.append(piece)
+                recentlyShownIds.insert(piece.id)
+            } else {
+                // Can't add more unique pieces
+                break
+            }
+        }
+        
+        return newQueue
     }
 }

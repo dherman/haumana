@@ -22,108 +22,77 @@ struct PracticeTabView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                // Stats Section
-                if let vm = viewModel {
-                    HStack(spacing: 32) {
-                        StatView(title: "Streak", value: "\(vm.currentStreak)", unit: "days")
-                        StatView(title: "Total", value: "\(vm.totalPieces)", unit: "pieces")
-                        StatView(title: "Available", value: "\(vm.practiceEligibleCount)", unit: "to practice")
-                    }
-                    .padding(.horizontal)
-                    .padding(.top)
-                }
-                
-                // Last Practiced Section
-                if let lastPiece = lastPracticedPiece {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Last Practiced")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                        
-                        Button(action: {
-                            Task {
-                                await viewModel?.startSessionForSpecificPiece(lastPiece)
-                                showingPracticeScreen = true
-                            }
-                        }) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(lastPiece.title)
-                                        .font(.title3)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(.primary)
-                                    Text(lastPiece.categoryEnum.displayName)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                if let lastPracticed = lastPiece.lastPracticed {
-                                    Text(lastPracticed.formatted(.relative(presentation: .named)))
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .padding(.horizontal)
-                }
-                
-                Spacer()
-                
-                // Start Practice Button
+            VStack(spacing: 0) {
+                // Carousel Container - Takes 60% of vertical space
                 if let vm = viewModel {
                     if vm.practiceEligibleCount > 0 {
-                        Button(action: {
-                            // Add haptic feedback
-                            let impact = UIImpactFeedbackGenerator(style: .medium)
-                            impact.impactOccurred()
-                            
-                            Task {
-                                await vm.startPracticeSession()
-                                if vm.currentPiece != nil {
-                                    showingPracticeScreen = true
+                        GeometryReader { geometry in
+                            VStack {
+                                // Carousel placeholder - will be replaced with actual carousel
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(.systemGray6))
+                                    .frame(height: geometry.size.height * 0.6)
+                                    .overlay(
+                                        VStack(spacing: 16) {
+                                            Image(systemName: "rectangle.stack.fill")
+                                                .font(.system(size: 48))
+                                                .foregroundColor(.secondary)
+                                            Text("Carousel Coming Soon")
+                                                .font(.headline)
+                                                .foregroundColor(.secondary)
+                                            Text("Swipe to browse pieces")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    )
+                                    .padding(.horizontal)
+                                
+                                // Visual swipe indicators (dots)
+                                HStack(spacing: 8) {
+                                    ForEach(0..<5) { index in
+                                        Circle()
+                                            .fill(index == 2 ? Color.accentColor : Color(.systemGray4))
+                                            .frame(width: 8, height: 8)
+                                    }
                                 }
+                                .padding(.top, 12)
+                                
+                                Spacer()
                             }
-                        }) {
-                            Label("Start Practice", systemImage: "play.circle.fill")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 20)
-                                .background(Color.accentColor)
-                                .cornerRadius(16)
                         }
-                        .padding(.horizontal, 32)
-                        .disabled(vm.isLoading)
-                        
-                        if let error = vm.errorMessage {
-                            Text(error)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                                .padding(.horizontal)
-                        }
+                        .frame(maxHeight: .infinity)
                     } else {
+                        // Empty state
+                        Spacer()
                         EmptyPracticeView()
+                        Spacer()
                     }
                 } else {
+                    // Loading state
+                    Spacer()
                     ProgressView()
                         .padding()
+                    Spacer()
                 }
                 
-                Spacer()
+                // Stats Section - Below carousel
+                if let vm = viewModel {
+                    VStack(spacing: 16) {
+                        Divider()
+                        
+                        HStack(spacing: 32) {
+                            StatView(title: "Streak", value: "\(vm.currentStreak)", unit: "days")
+                            StatView(title: "Total", value: "\(vm.totalPieces)", unit: "pieces")
+                            StatView(title: "Available", value: "\(vm.practiceEligibleCount)", unit: "to practice")
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                    }
+                }
             }
             .navigationTitle("Practice")
             .fullScreenCover(isPresented: $showingPracticeScreen) {
-                if let vm = viewModel, let piece = vm.currentPiece {
+                if let vm = viewModel, vm.currentPiece != nil {
                     PracticeScreenView(viewModel: vm)
                 }
             }
