@@ -47,10 +47,10 @@ This implementation plan breaks down the Milestone 3 PRD into actionable develop
    - Separate browsing from practice state
 
 ### Verification:
-- [ ] Carousel container displays correctly
-- [ ] Stats remain visible below carousel
-- [ ] Empty state shows when no pieces available
-- [ ] View model properly manages carousel state
+- [x] Carousel container displays correctly
+- [x] Stats remain visible below carousel
+- [x] Empty state shows when no pieces available
+- [x] View model properly manages carousel state
 
 ---
 
@@ -90,11 +90,11 @@ This implementation plan breaks down the Milestone 3 PRD into actionable develop
    - Handle circular navigation
 
 ### Verification:
-- [ ] Smooth 60fps scrolling performance
-- [ ] Cards snap correctly
-- [ ] Visual indicators update properly
-- [ ] Tap to select works reliably
-- [ ] Works with 1, few, and many pieces
+- [x] Smooth 60fps scrolling performance
+- [x] Cards snap correctly
+- [x] Visual indicators update properly
+- [x] Tap to select works reliably
+- [x] Works with 1, few, and many pieces
 
 ---
 
