@@ -82,6 +82,10 @@ struct PracticeTabView: View {
                 if let vm = viewModel {
                     if vm.practiceEligibleCount > 0 {
                         Button(action: {
+                            // Add haptic feedback
+                            let impact = UIImpactFeedbackGenerator(style: .medium)
+                            impact.impactOccurred()
+                            
                             Task {
                                 await vm.startPracticeSession()
                                 if vm.currentPiece != nil {
@@ -154,18 +158,29 @@ struct StatView: View {
 }
 
 struct EmptyPracticeView: View {
+    @State private var selectedTab = 0
+    
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Image(systemName: "music.note.list")
                 .font(.system(size: 60))
                 .foregroundColor(.secondary)
+                .symbolEffect(.pulse, options: .repeating)
+            
             Text("No pieces available for practice")
                 .font(.headline)
                 .foregroundColor(.secondary)
+            
             Text("Add pieces to your repertoire\nor enable them for practice")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+            
+            // Add navigation hint
+            Text("Go to the Repertoire tab to get started")
+                .font(.caption)
+                .foregroundColor(.accentColor)
+                .padding(.top, 8)
         }
         .padding()
     }

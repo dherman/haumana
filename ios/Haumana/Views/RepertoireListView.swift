@@ -85,7 +85,8 @@ struct RepertoireListView: View {
                         FilterChip(
                             title: filter.rawValue,
                             systemImage: filter.systemImage,
-                            isSelected: selectedFilter == filter
+                            isSelected: selectedFilter == filter,
+                            count: getFilterCount(for: filter)
                         ) {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 selectedFilter = filter
@@ -147,6 +148,19 @@ struct RepertoireListView: View {
             try modelContext.save()
         } catch {
             print("Failed to delete piece: \(error)")
+        }
+    }
+    
+    private func getFilterCount(for filter: FilterOption) -> Int {
+        switch filter {
+        case .all:
+            return pieces.count
+        case .oli:
+            return pieces.filter { $0.categoryEnum == .oli }.count
+        case .mele:
+            return pieces.filter { $0.categoryEnum == .mele }.count
+        case .favorites:
+            return pieces.filter { $0.isFavorite }.count
         }
     }
 }
@@ -212,6 +226,7 @@ struct FilterChip: View {
     let title: String
     let systemImage: String
     let isSelected: Bool
+    let count: Int
     let action: () -> Void
     
     var body: some View {
@@ -222,6 +237,12 @@ struct FilterChip: View {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(isSelected ? .semibold : .regular)
+                if count > 0 {
+                    Text("(\(count))")
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+                }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
