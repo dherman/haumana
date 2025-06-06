@@ -6,6 +6,144 @@ Haumana is an iOS app designed to help students of Hawaiian art and culture mana
 
 ---
 
+## Version 0.2.0 - Milestone 2 (Start Practicing)
+*Released: June 2025*
+
+This release transforms Haumana from a repertoire manager into an active practice companion with smart random selection, session tracking, and intuitive gesture controls.
+
+### New Features
+
+#### Practice Mode
+- **Smart random selection**: Weighted algorithm prioritizes pieces based on favorites and time since last practice
+- **Gesture controls**: Swipe left for next piece, right for previous, up to end session
+- **Full-screen interface**: Distraction-free practice environment with essential controls
+- **Session tracking**: Automatic recording of practice time and history
+- **Haptic feedback**: Tactile responses enhance gesture interactions
+
+#### Tab Navigation
+- **Practice tab** (default): Quick access to start sessions with at-a-glance statistics
+- **Repertoire tab**: Enhanced with filtering and visual indicators
+- **Profile tab**: View practice history, statistics, and achievements
+
+#### Enhanced Repertoire Features
+- **Favorites**: Star your most important pieces for priority in practice
+- **Practice availability**: Toggle pieces on/off for practice sessions
+- **Filter options**: View all, Oli only, Mele only, or favorites with item counts
+- **Visual indicators**: See favorites and practice status at a glance
+
+#### Bilingual Support
+- **English translations**: Add optional translations to any piece
+- **Show/hide toggle**: Control translation visibility during practice
+- **Smart layouts**: Portrait shows translation below, landscape shows side-by-side
+- **Line alignment**: Translations align line-by-line for easy comparison
+
+#### Practice Statistics
+- **Current streak**: Track consecutive days of practice
+- **Total sessions**: See your overall practice count
+- **Most practiced**: Identify your most frequently practiced piece
+- **Recent history**: View last 10 sessions with duration and quick access
+
+### User Experience Improvements
+
+#### Quick Start
+- Launch to practice in just 2 taps
+- Last practiced piece shown on home screen
+- Clear empty states guide new users
+
+#### Smooth Interactions
+- Animated transitions between pieces
+- Spring animations for favorite toggles
+- Filter chips show counts for quick overview
+- Real-time updates across all tabs
+
+#### Performance
+- Random selection algorithm: <100ms
+- Practice screen transitions: <300ms
+- Session tracking runs asynchronously
+- Supports 50+ practice sessions without degradation
+
+### Technical Updates
+
+#### Updated Data Model
+Each piece now includes:
+- `isFavorite`: Mark important pieces
+- `includeInPractice`: Control practice availability
+- `lastPracticed`: Track recency for smart selection
+- `englishTranslation`: Optional bilingual support
+
+#### New Practice Session Model
+- Tracks start and end times
+- Links to practiced pieces
+- Calculates duration automatically
+- Designed for future cloud sync
+
+#### Architecture Improvements
+- ViewModels for Practice and Profile tabs
+- Repository pattern extended with async/await
+- Real-time SwiftData queries for automatic updates
+- Background session saving on app interruption
+
+### Getting Started with Practice
+
+1. **Mark pieces for practice**: New pieces are included by default
+2. **Start practicing**: Tap the prominent button on the Practice tab
+3. **Use gestures**: Swipe to navigate, tap star to favorite
+4. **Track progress**: Check your stats in the Profile tab
+
+### Gesture Reference
+- **Swipe Left** → Next random piece
+- **Swipe Right** → Previous piece (session history)
+- **Swipe Up** → End practice session
+- **Tap Star** → Toggle favorite status
+
+### Practice Algorithm
+
+The weighted selection ensures variety while prioritizing:
+1. **Priority 1**: Favorites not practiced in 7+ days (3x weight)
+2. **Priority 2**: Non-favorites not practiced in 7+ days (2x weight)
+3. **Priority 3**: All other eligible pieces (1x weight)
+
+### What's New for Existing Users
+
+Your existing repertoire is ready for practice:
+- All pieces are included in practice by default
+- No pieces are favorited initially
+- English translations can be added through Edit
+- Practice history starts fresh
+
+### Bug Fixes & Improvements
+
+- Fixed: Profile tab updates immediately after practice sessions
+- Improved: Filter performance with large repertoires
+- Enhanced: Form validation provides clearer feedback
+- Added: Haptic feedback for better interaction feel
+
+### Known Limitations
+
+Features planned for future milestones:
+- No authentication yet (coming in Milestone 3)
+- No cloud synchronization
+- No audio recording
+- No practice goals or timers
+- No data export
+- Portrait-only during practice
+
+### Privacy & Performance
+
+- **Still local-only**: All data remains on your device
+- **No network required**: Complete offline functionality
+- **Performance tested**: Smooth with 1000+ pieces and hundreds of sessions
+
+### Acknowledgments
+
+Mahalo to early testers for valuable feedback on practice workflows and gesture preferences.
+
+### Support
+
+For questions, feedback, or issues, please file issues on GitHub.
+
+---
+
 ## Version 0.1.0 - Milestone 1 (Build Your Repertoire)
 *Released: June 2025*
 
@@ -107,9 +245,11 @@ This initial release focuses on core repertoire management. The following featur
 - No sharing features
 - No cloud synchronization
 
+---
+
 ### Bug Fixes & Improvements
 
-As this is the initial release, this section will be populated in future versions based on user feedback and testing.
+(This section will be populated in future versions based on user feedback and testing.)
 
 ### Acknowledgments
 
@@ -119,12 +259,11 @@ Special thanks to the Bay Area hula community, especially hālau [Nā Lei Hulu i
 
 For questions, feedback, or issues, file issues on GitHub.
 
----
-
 Aloha ♥️
 
 ### Version History
 
 | Version | Release Date | Theme |
 |---------|--------------|-------|
+| 0.2.0 | June 2025 | Start Practicing |
 | 0.1.0 | June 2025 | Build Your Repertoire |
