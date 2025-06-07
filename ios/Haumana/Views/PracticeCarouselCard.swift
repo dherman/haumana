@@ -110,9 +110,10 @@ struct PracticeCarouselCard_Previews: PreviewProvider {
         PracticeCarouselCard(
             piece: Piece(
                 title: "E Kuʻu Morning Dew",
-                category: .oli,
-                lyrics: "E kuʻu morning dew\nKa wai ʻawaʻawa\nHoʻokahi ka manaʻo\nAloha wau iā ʻoe\n\nNa ka makani e pā mai\nMe he ʻala pua mae\nʻAʻole naʻe he mea ʻē\nI kuʻu aloha ʻole ʻoe",
-                language: "haw"
+                category: .mele,
+                lyrics: "E kuʻu morning dew\nAlia mai, alia mai\nMaliu mai ʻoe\nI kaʻu e hea nei\nE kali mai ʻoe\nIaʻu nei, iaʻu nei\nʻO wau iho nō\nMe ke aloha\n \nWehe mai ke alaula\nʻOliliko nei līhau\nE hoʻohehelo ana\nI neia papālina\nI uka o Mānā\nI ka ʻiu uhiwai\nMa laila nō kāua\nE pili mau ai\nMa laila nō kāua\nE pili mau ai",
+                language: "haw",
+                author: "Eddie Kamae"
             ),
             isSelected: true,
             onTap: {}
@@ -121,3 +122,4 @@ struct PracticeCarouselCard_Previews: PreviewProvider {
         .padding()
     }
 }
+
