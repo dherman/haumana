@@ -123,13 +123,7 @@ struct ProfileTabView: View {
                 // Help Section
                 Section("How to Use") {
                     NavigationLink(destination: HelpView()) {
-                        HStack {
-                            Label("Practice Guide", systemImage: "questionmark.circle")
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+                        Label("Practice Guide", systemImage: "questionmark.circle")
                     }
                 }
                 
