@@ -70,6 +70,13 @@ struct PracticeScreenView: View {
                         .background(Color(.systemBackground))
                         .offset(x: dragOffset)
                         .gesture(exitGesture)
+                        .accessibilityAction(.escape) {
+                            // Allow VoiceOver users to exit with escape gesture
+                            Task {
+                                await viewModel.endPractice()
+                                dismiss()
+                            }
+                        }
                         
                         // Initial swipe hint on right edge
                         if showSwipeHint && !isDragging && !hasSeenPracticeSwipeHint {
@@ -205,6 +212,7 @@ struct PracticeHeaderView: View {
                     Text(piece.title)
                         .font(.title)
                         .fontWeight(.bold)
+                        .accessibilityAddTraits(.isHeader)
                     
                     HStack {
                         Label(piece.categoryEnum.displayName, systemImage: "music.note")
@@ -237,8 +245,11 @@ struct PracticeHeaderView: View {
                         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: piece.isFavorite)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel(piece.isFavorite ? "Remove from favorites" : "Add to favorites")
+                .accessibilityHint("Double tap to toggle favorite status")
             }
         }
+        .accessibilityElement(children: .contain)
     }
 }
 

@@ -34,12 +34,16 @@ struct PracticeCarousel: View {
                             }
                         )
                         .frame(width: cardWidth)
-                        .offset(x: cardOffset(for: index, cardWidth: totalCardWidth))
+                        .offset(x: cardOffset(for: index, cardWidth: totalCardWidth, in: geometry))
                         .opacity(cardOpacity(for: index))
                         .zIndex(index == currentIndex ? 1 : 0)
                     }
                 }
-                .frame(height: geometry.size.height * 0.6)
+                .frame(width: geometry.size.width, height: geometry.size.height * 0.6)
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Practice carousel")
+                .accessibilityHint("Swipe left or right to browse pieces. Currently showing piece \(currentIndex + 1) of \(pieces.count)")
+                .accessibilityValue("\(pieces[safe: currentIndex]?.title ?? "Unknown piece")")
                 .gesture(
                     DragGesture()
                         .onChanged { value in
@@ -77,11 +81,16 @@ struct PracticeCarousel: View {
                                 withAnimation(.spring()) {
                                     currentIndex = index
                                     dragOffset = 0
+                                    announceCurrentPiece()
                                 }
                             }
+                            .accessibilityLabel("Page \(index + 1) of \(pieces.count)")
+                            .accessibilityAddTraits(index == currentIndex ? [.isSelected] : [])
+                            .accessibilityHint("Tap to jump to this piece")
                     }
                 }
                 .padding(.top, 20)
+                .accessibilityElement(children: .contain)
                 
                 // Navigation hints (show only when navigation is possible)
                 if pieces.count > 1 {
@@ -105,10 +114,14 @@ struct PracticeCarousel: View {
         }
     }
     
-    private func cardOffset(for index: Int, cardWidth: CGFloat) -> CGFloat {
+    private func cardOffset(for index: Int, cardWidth: CGFloat, in geometry: GeometryProxy) -> CGFloat {
         let indexDifference = CGFloat(index - currentIndex)
         let baseOffset = indexDifference * cardWidth
-        return baseOffset + dragOffset
+        
+        // Center adjustment: when there's only one card or to ensure proper centering
+        let centeringOffset: CGFloat = 0 // Cards are already centered by the ZStack
+        
+        return baseOffset + dragOffset + centeringOffset
     }
     
     private func cardOpacity(for index: Int) -> Double {
@@ -126,6 +139,7 @@ struct PracticeCarousel: View {
     private func handleDragEnd(translation: CGFloat, velocity: CGFloat, cardWidth: CGFloat) {
         let threshold = cardWidth * 0.3
         let velocityThreshold: CGFloat = 500
+        let previousIndex = currentIndex
         
         // Use gentler spring animation
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
@@ -151,6 +165,25 @@ struct PracticeCarousel: View {
             // Always reset drag offset
             dragOffset = 0
         }
+        
+        // Announce change if index changed
+        if currentIndex != previousIndex {
+            announceCurrentPiece()
+        }
+    }
+    
+    private func announceCurrentPiece() {
+        guard let piece = pieces[safe: currentIndex] else { return }
+        let announcement = "Showing \(piece.title), piece \(currentIndex + 1) of \(pieces.count)"
+        UIAccessibility.post(notification: .announcement, argument: announcement)
+    }
+}
+
+// Safe array subscript extension
+private extension Array {
+    subscript(safe index: Int) -> Element? {
+        guard index >= 0, index < count else { return nil }
+        return self[index]
     }
 }
 

@@ -15,8 +15,7 @@ struct PracticeCarouselCard: View {
     @State private var isPressed = false
     
     var body: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
                 // Header with title and category
                 VStack(alignment: .leading, spacing: 8) {
                     Text(piece.title)
@@ -70,36 +69,38 @@ struct PracticeCarouselCard: View {
                         .foregroundColor(.accentColor)
                         .opacity(isSelected ? 1 : 0.6)
                 }
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+        )
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: isPressed)
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = true
             }
-            .padding(24)
-            .frame(width: geometry.size.width * 0.8)
-            .frame(maxHeight: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-            )
-            .scaleEffect(isPressed ? 0.95 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: isPressed)
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPressed = true
-                }
-                
-                // Haptic feedback
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.impactOccurred()
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    isPressed = false
-                    onTap()
-                }
+            
+            // Haptic feedback
+            let impact = UIImpactFeedbackGenerator(style: .medium)
+            impact.impactOccurred()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isPressed = false
+                onTap()
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(piece.title), \(piece.categoryEnum.displayName)\(piece.isFavorite ? ", Favorite" : "")")
+        .accessibilityHint("Double tap to practice this piece")
+        .accessibilityAddTraits(.isButton)
     }
 }
 

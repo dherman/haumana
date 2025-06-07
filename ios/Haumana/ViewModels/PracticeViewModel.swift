@@ -30,6 +30,7 @@ final class PracticeViewModel {
     private let suggestionQueueSize = 7
     private var lastPracticedPieceId: UUID?
     private var carouselMetrics = CarouselMetrics()
+    private var lastEligiblePieceIds: Set<UUID> = []
     
     // UI State
     var isLoading = false
@@ -75,12 +76,46 @@ final class PracticeViewModel {
             practiceEligibleCount = allPieces.filter { $0.includeInPractice }.count
             currentStreak = try await sessionRepository.getStreak()
             
+            // Track eligible piece IDs
+            let currentEligibleIds = Set(allPieces.filter { $0.includeInPractice }.map { $0.id })
+            if lastEligiblePieceIds.isEmpty {
+                lastEligiblePieceIds = currentEligibleIds
+            }
+            
             // Initialize suggestion queue if needed
             if suggestionQueue.isEmpty && practiceEligibleCount > 0 {
                 await loadSuggestionQueue()
             }
         } catch {
             print("Error loading statistics: \(error)")
+        }
+    }
+    
+    func refreshCarousel() async {
+        do {
+            let allPieces = try pieceRepository.fetchAll()
+            let eligiblePieces = allPieces.filter { $0.includeInPractice }
+            let currentEligibleIds = Set(eligiblePieces.map { $0.id })
+            
+            // Check if the set of eligible pieces has changed
+            if currentEligibleIds != lastEligiblePieceIds {
+                print("Eligible pieces changed: \(lastEligiblePieceIds.count) -> \(currentEligibleIds.count)")
+                
+                // Update tracked state
+                lastEligiblePieceIds = currentEligibleIds
+                practiceEligibleCount = eligiblePieces.count
+                totalPieces = allPieces.count
+                
+                // Clear and reload suggestion queue
+                suggestionQueue.removeAll()
+                currentCarouselIndex = 0
+                
+                if practiceEligibleCount > 0 {
+                    await loadSuggestionQueue()
+                }
+            }
+        } catch {
+            print("Error refreshing carousel: \(error)")
         }
     }
     

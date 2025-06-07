@@ -13,6 +13,7 @@ struct PracticeTabView: View {
     @State private var viewModel: PracticeViewModel?
     @State private var showingPracticeScreen = false
     @State private var showCarouselTooltip = false
+    @State private var isTransitioningToPractice = false
     @AppStorage("hasSeenCarouselTooltip") private var hasSeenCarouselTooltip = false
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var recentSessions: [PracticeSession]
     @Query private var pieces: [Piece]
@@ -29,9 +30,14 @@ struct PracticeTabView: View {
                 if let vm = viewModel {
                     if vm.practiceEligibleCount > 0 && !vm.suggestionQueue.isEmpty {
                         PracticeCarouselWrapper(viewModel: vm) { piece, index in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isTransitioningToPractice = true
+                            }
+                            
                             Task {
                                 await vm.selectPieceFromCarousel(at: index)
                                 showingPracticeScreen = true
+                                isTransitioningToPractice = false
                             }
                         }
                         .overlay(alignment: .top) {
@@ -96,6 +102,32 @@ struct PracticeTabView: View {
                 }
             }
             .navigationTitle("Practice")
+            .overlay {
+                if isTransitioningToPractice {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .transition(.opacity)
+                        
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.2)
+                            
+                            Text("Starting practice...")
+                                .font(.callout)
+                                .foregroundColor(.white)
+                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.2), radius: 20)
+                        )
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                }
+            }
             .fullScreenCover(isPresented: $showingPracticeScreen, onDismiss: {
                 Task {
                     await viewModel?.updateCarouselAfterPractice()
@@ -119,6 +151,18 @@ struct PracticeTabView: View {
                         showCarouselTooltip = true
                     }
                 }
+            }
+        }
+        .onChange(of: pieces) { _, _ in
+            // Reload carousel when pieces change (e.g., includeInPractice toggled)
+            Task {
+                await viewModel?.refreshCarousel()
+            }
+        }
+        .onAppear {
+            // Check for changes when tab becomes visible
+            Task {
+                await viewModel?.refreshCarousel()
             }
         }
     }
@@ -162,6 +206,7 @@ struct PracticeCarouselWrapper: View {
 
 struct EmptyPracticeView: View {
     @State private var selectedTab = 0
+    @State private var isAnimating = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -169,6 +214,8 @@ struct EmptyPracticeView: View {
                 .font(.system(size: 60))
                 .foregroundColor(.secondary)
                 .symbolEffect(.pulse, options: .repeating)
+                .scaleEffect(isAnimating ? 1.1 : 1.0)
+                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isAnimating)
             
             Text("No pieces available for practice")
                 .font(.headline)
@@ -179,13 +226,34 @@ struct EmptyPracticeView: View {
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
             
-            // Add navigation hint
-            Text("Go to the Repertoire tab to get started")
-                .font(.caption)
+            // Add navigation hint with tap action
+            Button(action: {
+                // This would need to be connected to the tab selection
+                // For now, just provide visual feedback
+                let impact = UIImpactFeedbackGenerator(style: .light)
+                impact.impactOccurred()
+            }) {
+                HStack {
+                    Text("Go to the Repertoire tab to get started")
+                        .font(.caption)
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.caption)
+                }
                 .foregroundColor(.accentColor)
-                .padding(.top, 8)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule()
+                        .fill(Color.accentColor.opacity(0.1))
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.top, 8)
         }
         .padding()
+        .onAppear {
+            isAnimating = true
+        }
     }
 }
 
