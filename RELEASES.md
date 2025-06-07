@@ -6,6 +6,100 @@ Haumana is an iOS app designed to help students of Hawaiian art and culture mana
 
 ---
 
+## Version 0.3.0 - Milestone 3 (Practice Carousel)
+*Released: June 2025*
+
+This release introduces a carousel interface that allows browsing through piece suggestions before starting practice, providing better control and more accurate practice metrics.
+
+### New Features
+
+#### Practice Carousel
+- **Browse before practice**: Swipe through suggested pieces in the carousel
+- **Visual preview**: See piece title, category, and first few lines
+- **Piece suggestions**: Algorithm selects 5-7 pieces based on practice history
+- **Page indicators**: Dots show current position and total pieces
+- **Tap to select**: Choose any piece from the carousel to practice
+
+#### Simplified Practice Screen
+- **Single exit gesture**: Swipe right to finish practice
+- **Focused interface**: Removed multi-directional navigation during practice
+- **Clear workflow**: Browse pieces first, then practice without distractions
+
+#### User Guidance
+- **First-use tooltip**: "Swipe to browse pieces" appears for new users
+- **Swipe hint**: Visual indicator shows how to exit practice
+- **Practice guide**: Instructions available in Profile tab under "How to Use"
+
+#### Improved Metrics
+- **Accurate timing**: Practice duration excludes browsing time
+- **Better tracking**: Carousel browsing tracked separately from practice
+
+### Improvements
+
+#### Dynamic Updates
+- **Live refresh**: Carousel updates when repertoire changes
+- **Smart detection**: Tracks changes to eligible pieces
+- **Tab synchronization**: Updates when returning to Practice tab
+
+#### Visual Updates
+- **Loading indicator**: Shows progress when starting practice
+- **Empty state**: Enhanced with animation and helpful button
+- **Proper centering**: Fixed alignment issues in carousel
+
+#### Accessibility
+- **VoiceOver support**: Navigation works with screen reader
+- **Descriptive labels**: Clear text for all interactive elements
+- **Alternative gestures**: Escape gesture exits practice for VoiceOver users
+
+### Bug Fixes
+
+- Fixed carousel not updating when pieces added/removed from practice
+- Fixed cards appearing off-center with multiple pieces
+- Fixed single card not centered in carousel
+- Fixed practice metrics including browsing time
+
+### Performance
+
+- Carousel handles large repertoires smoothly
+- Efficient memory usage with limited queue size
+- Stable behavior with rapid swiping
+
+### Technical Details
+
+#### New Components
+- `PracticeCarousel`: Horizontal scrolling card view
+- `PracticeCarouselCard`: Individual piece preview cards
+- `CarouselMetrics`: Separate tracking for browsing behavior
+
+#### Architecture Updates
+- State management for carousel position
+- Change detection for repertoire updates
+- Separation of browsing and practice states
+
+### Using the Carousel
+
+1. **Browse**: Swipe left/right through suggested pieces
+2. **Preview**: View title, category, and lyrics preview
+3. **Select**: Tap any card to begin practice
+4. **Exit**: Swipe right during practice to return
+
+### For Existing Users
+
+- Practice data and history preserved
+- Favorites and settings unchanged
+- Tooltips guide through new interface
+
+### Known Limitations
+
+Features planned for future releases:
+- No authentication yet
+- No cloud synchronization
+- No audio recording
+- No practice goals or timers
+- No sharing features
+
+---
+
 ## Version 0.2.0 - Milestone 2 (Start Practicing)
 *Released: June 2025*
 
@@ -265,5 +359,6 @@ Aloha ♥️
 
 | Version | Release Date | Theme |
 |---------|--------------|-------|
+| 0.3.0 | June 2025 | Practice Carousel |
 | 0.2.0 | June 2025 | Start Practicing |
 | 0.1.0 | June 2025 | Build Your Repertoire |
