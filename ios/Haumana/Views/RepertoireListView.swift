@@ -33,7 +33,7 @@ struct RepertoireListView: View {
                     listView
                 }
             }
-            .navigationTitle("Haumana")
+            .navigationTitle("Repertoire")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
