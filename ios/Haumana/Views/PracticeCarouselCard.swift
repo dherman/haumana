@@ -31,7 +31,7 @@ struct PracticeCarouselCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(piece.categoryEnum == .oli ? Color.blue : Color.purple)
+                            .background(piece.categoryEnum == .oli ? AppConstants.oliColor : AppConstants.meleColor)
                             .cornerRadius(20)
                         
                         Spacer()

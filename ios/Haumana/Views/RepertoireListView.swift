@@ -216,9 +216,9 @@ struct PieceCategoryBadge: View {
             .padding(.vertical, 4)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(category == .oli ? Color.blue.opacity(0.2) : Color.green.opacity(0.2))
+                    .fill(category == .oli ? AppConstants.oliColor.opacity(0.2) : AppConstants.meleColor.opacity(0.2))
             )
-            .foregroundColor(category == .oli ? .blue : .green)
+            .foregroundColor(category == .oli ? AppConstants.oliColor : AppConstants.meleColor)
     }
 }
 

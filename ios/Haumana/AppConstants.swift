@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum AppConstants {
     static let appName = "Haumana"
@@ -22,4 +23,8 @@ enum AppConstants {
     // UI Constants
     static let splashScreenDuration: TimeInterval = 3.0
     static let animationDuration: TimeInterval = 0.3
+    
+    // Category Colors
+    static let oliColor = Color.blue
+    static let meleColor = Color.purple
 }
