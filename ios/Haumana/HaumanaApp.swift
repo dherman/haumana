@@ -103,10 +103,23 @@ struct haumanaApp: App {
     /// Configure Google Sign-In
     private func configureGoogleSignIn() {
         // Load credentials from plist
-        guard let path = Bundle.main.path(forResource: "credentials", ofType: "plist"),
-              let dict = NSDictionary(contentsOfFile: path),
+        guard let path = Bundle.main.path(forResource: "credentials", ofType: "plist") else {
+            fatalError("""
+                credentials.plist not found in app bundle.
+                
+                To fix this:
+                1. In Xcode, right-click on the Haumana folder
+                2. Select 'Add Files to haumana'  
+                3. Navigate to assets/credentials.plist
+                4. Make sure 'Copy items if needed' is checked
+                5. Make sure the 'haumana' target is selected
+                6. Click 'Add'
+                """)
+        }
+        
+        guard let dict = NSDictionary(contentsOfFile: path),
               let clientID = dict["CLIENT_ID"] as? String else {
-            fatalError("Could not load Google Sign-In credentials")
+            fatalError("Could not parse Google Sign-In credentials from credentials.plist")
         }
         
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)

@@ -10,10 +10,10 @@ import SwiftData
 
 @MainActor
 protocol PracticeSelectionServiceProtocol {
-    func selectRandomPiece() throws -> Piece?
-    func getNextPiece(excluding: [UUID]) throws -> Piece?
-    func generateSuggestionQueue(count: Int) throws -> [Piece]
-    func refreshSuggestionQueue(currentQueue: [Piece], count: Int) throws -> [Piece]
+    func selectRandomPiece(userId: String?) throws -> Piece?
+    func getNextPiece(excluding: [UUID], userId: String?) throws -> Piece?
+    func generateSuggestionQueue(count: Int, userId: String?) throws -> [Piece]
+    func refreshSuggestionQueue(currentQueue: [Piece], count: Int, userId: String?) throws -> [Piece]
 }
 
 @MainActor
@@ -27,13 +27,13 @@ final class PracticeSelectionService: PracticeSelectionServiceProtocol {
         self.modelContext = modelContext
     }
     
-    func selectRandomPiece() throws -> Piece? {
-        return try getNextPiece(excluding: [])
+    func selectRandomPiece(userId: String? = nil) throws -> Piece? {
+        return try getNextPiece(excluding: [], userId: userId)
     }
     
-    func getNextPiece(excluding excludedIds: [UUID]) throws -> Piece? {
+    func getNextPiece(excluding excludedIds: [UUID], userId: String? = nil) throws -> Piece? {
         // Get all pieces eligible for practice
-        let allEligiblePieces = try pieceRepository.fetchPracticeEligible()
+        let allEligiblePieces = try pieceRepository.fetchPracticeEligible(userId: userId)
             .filter { !excludedIds.contains($0.id) }
         
         guard !allEligiblePieces.isEmpty else { return nil }
@@ -105,12 +105,12 @@ final class PracticeSelectionService: PracticeSelectionServiceProtocol {
         }
     }
     
-    func generateSuggestionQueue(count: Int) throws -> [Piece] {
+    func generateSuggestionQueue(count: Int, userId: String? = nil) throws -> [Piece] {
         recentlyShownIds.removeAll()
         var suggestions: [Piece] = []
         
         // Get all eligible pieces
-        let eligiblePieces = try pieceRepository.fetchPracticeEligible()
+        let eligiblePieces = try pieceRepository.fetchPracticeEligible(userId: userId)
         guard !eligiblePieces.isEmpty else { return [] }
         
         // If we have fewer pieces than requested, return all of them
@@ -120,7 +120,7 @@ final class PracticeSelectionService: PracticeSelectionServiceProtocol {
         
         // Generate suggestions ensuring variety
         for _ in 0..<count {
-            if let piece = try getNextPiece(excluding: Array(recentlyShownIds)) {
+            if let piece = try getNextPiece(excluding: Array(recentlyShownIds), userId: userId) {
                 suggestions.append(piece)
                 recentlyShownIds.insert(piece.id)
             } else {
@@ -132,14 +132,14 @@ final class PracticeSelectionService: PracticeSelectionServiceProtocol {
         return suggestions
     }
     
-    func refreshSuggestionQueue(currentQueue: [Piece], count: Int) throws -> [Piece] {
+    func refreshSuggestionQueue(currentQueue: [Piece], count: Int, userId: String? = nil) throws -> [Piece] {
         // Keep track of what's already in the queue
         for piece in currentQueue {
             recentlyShownIds.insert(piece.id)
         }
         
         // If recently shown set gets too large (>50% of eligible pieces), reset it
-        let eligibleCount = try pieceRepository.fetchPracticeEligible().count
+        let eligibleCount = try pieceRepository.fetchPracticeEligible(userId: userId).count
         if recentlyShownIds.count > eligibleCount / 2 {
             recentlyShownIds.removeAll()
             // Re-add current queue items

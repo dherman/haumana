@@ -10,6 +10,7 @@ import SwiftData
 
 struct PracticeTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.authService) private var authService
     @State private var viewModel: PracticeViewModel?
     @State private var showingPracticeScreen = false
     @State private var showCarouselTooltip = false
@@ -140,7 +141,7 @@ struct PracticeTabView: View {
         }
         .task {
             if viewModel == nil {
-                viewModel = PracticeViewModel(modelContext: modelContext)
+                viewModel = PracticeViewModel(modelContext: modelContext, authService: authService)
             }
             await viewModel?.loadStatistics()
             

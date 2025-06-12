@@ -16,14 +16,20 @@ final class RepertoireListViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     private let repository: PieceRepositoryProtocol
+    private let authService: AuthenticationService?
     
-    init(repository: PieceRepositoryProtocol) {
+    private var userId: String? {
+        authService?.currentUser?.id
+    }
+    
+    init(repository: PieceRepositoryProtocol, authService: AuthenticationService? = nil) {
         self.repository = repository
+        self.authService = authService
     }
     
     func loadPieces() {
         do {
-            pieces = try repository.fetchAll()
+            pieces = try repository.fetchAll(userId: userId)
             errorMessage = nil
         } catch {
             errorMessage = "Failed to load pieces: \(error.localizedDescription)"
@@ -37,7 +43,7 @@ final class RepertoireListViewModel: ObservableObject {
         }
         
         do {
-            pieces = try repository.search(query: searchText)
+            pieces = try repository.search(query: searchText, userId: userId)
             errorMessage = nil
         } catch {
             errorMessage = "Search failed: \(error.localizedDescription)"

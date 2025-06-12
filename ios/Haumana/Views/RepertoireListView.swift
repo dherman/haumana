@@ -3,6 +3,7 @@ import SwiftData
 
 struct RepertoireListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.authService) private var authService
     @Query private var pieces: [Piece]
     @State private var showingAddView = false
     @State private var searchText = ""
@@ -112,7 +113,16 @@ struct RepertoireListView: View {
     }
     
     private var filteredPieces: [Piece] {
-        var filtered = pieces
+        // Filter by user first
+        let userId = authService?.currentUser?.id
+        var filtered = pieces.filter { piece in
+            if let userId = userId {
+                return piece.userId == userId
+            } else {
+                // For unauthenticated users, show pieces without userId
+                return piece.userId == nil
+            }
+        }
         
         // Apply filter option
         switch selectedFilter {

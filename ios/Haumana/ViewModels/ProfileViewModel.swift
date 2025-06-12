@@ -54,17 +54,18 @@ final class ProfileViewModel {
         
         do {
             // Load practice statistics
-            currentStreak = try await sessionRepository.getStreak()
-            totalSessions = try await sessionRepository.getTotalSessionCount()
+            let userId = authService.currentUser?.id
+            currentStreak = try await sessionRepository.getStreak(userId: userId)
+            totalSessions = try await sessionRepository.getTotalSessionCount(userId: userId)
             
             // Load most practiced piece
-            if let (pieceId, count) = try await sessionRepository.getMostPracticedPiece() {
+            if let (pieceId, count) = try await sessionRepository.getMostPracticedPiece(userId: userId) {
                 mostPracticedPiece = try await pieceRepository.fetch(by: pieceId)
                 mostPracticedCount = count
             }
             
             // Load recent sessions
-            let sessions = try await sessionRepository.getRecentSessions(limit: 10)
+            let sessions = try await sessionRepository.getRecentSessions(limit: 10, userId: userId)
             var sessionsWithPieces: [SessionWithPiece] = []
             
             for session in sessions {

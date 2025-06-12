@@ -38,6 +38,7 @@ final class Piece: Identifiable {
     var isFavorite: Bool = false
     var includeInPractice: Bool = true
     var lastPracticed: Date?
+    var userId: String?
     
     init(
         title: String,

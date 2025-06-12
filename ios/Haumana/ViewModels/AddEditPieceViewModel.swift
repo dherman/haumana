@@ -24,11 +24,17 @@ final class AddEditPieceViewModel: ObservableObject {
     @Published var isSaving: Bool = false
     
     private let repository: PieceRepositoryProtocol
+    private let authService: AuthenticationService?
     private let existingPiece: Piece?
     let isEditing: Bool
     
-    init(piece: Piece? = nil, repository: PieceRepositoryProtocol) {
+    private var userId: String? {
+        authService?.currentUser?.id
+    }
+    
+    init(piece: Piece? = nil, repository: PieceRepositoryProtocol, authService: AuthenticationService? = nil) {
         self.repository = repository
+        self.authService = authService
         self.existingPiece = piece
         self.isEditing = piece != nil
         
@@ -121,7 +127,7 @@ final class AddEditPieceViewModel: ObservableObject {
                     notes: notes.isEmpty ? nil : notes
                 )
                 
-                try repository.add(newPiece)
+                try repository.add(newPiece, userId: userId)
             }
             
             return true

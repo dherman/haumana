@@ -17,6 +17,11 @@ final class PracticeViewModel {
     private let sessionRepository: PracticeSessionRepositoryProtocol
     private let selectionService: PracticeSelectionServiceProtocol
     private let modelContext: ModelContext
+    private let authService: AuthenticationService?
+    
+    private var userId: String? {
+        authService?.currentUser?.id
+    }
     
     // Current practice state
     var currentPiece: Piece?
@@ -41,8 +46,9 @@ final class PracticeViewModel {
     var practiceEligibleCount: Int = 0
     var currentStreak: Int = 0
     
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, authService: AuthenticationService? = nil) {
         self.modelContext = modelContext
+        self.authService = authService
         self.pieceRepository = PieceRepository(modelContext: modelContext)
         self.sessionRepository = PracticeSessionRepository(modelContext: modelContext)
         self.selectionService = PracticeSelectionService(
@@ -71,10 +77,10 @@ final class PracticeViewModel {
     
     func loadStatistics() async {
         do {
-            let allPieces = try pieceRepository.fetchAll()
+            let allPieces = try pieceRepository.fetchAll(userId: userId)
             totalPieces = allPieces.count
             practiceEligibleCount = allPieces.filter { $0.includeInPractice }.count
-            currentStreak = try await sessionRepository.getStreak()
+            currentStreak = try await sessionRepository.getStreak(userId: userId)
             
             // Track eligible piece IDs
             let currentEligibleIds = Set(allPieces.filter { $0.includeInPractice }.map { $0.id })
@@ -93,7 +99,7 @@ final class PracticeViewModel {
     
     func refreshCarousel() async {
         do {
-            let allPieces = try pieceRepository.fetchAll()
+            let allPieces = try pieceRepository.fetchAll(userId: userId)
             let eligiblePieces = allPieces.filter { $0.includeInPractice }
             let currentEligibleIds = Set(eligiblePieces.map { $0.id })
             
@@ -125,7 +131,7 @@ final class PracticeViewModel {
             errorMessage = nil
             
             // Get a random piece
-            guard let piece = try selectionService.selectRandomPiece() else {
+            guard let piece = try selectionService.selectRandomPiece(userId: userId) else {
                 errorMessage = "No pieces available for practice"
                 isLoading = false
                 return
@@ -151,9 +157,9 @@ final class PracticeViewModel {
             // Get a new random piece
             do {
                 let excludedIds = sessionHistory.map { $0.id }
-                guard let piece = try selectionService.getNextPiece(excluding: excludedIds) else {
+                guard let piece = try selectionService.getNextPiece(excluding: excludedIds, userId: userId) else {
                     // If no more pieces, wrap around
-                    guard let piece = try selectionService.selectRandomPiece() else {
+                    guard let piece = try selectionService.selectRandomPiece(userId: userId) else {
                         errorMessage = "No pieces available"
                         return
                     }
@@ -232,7 +238,7 @@ final class PracticeViewModel {
         
         // Save session
         do {
-            try await sessionRepository.save(session)
+            try await sessionRepository.save(session, userId: userId)
         } catch {
             print("Error saving session: \(error)")
         }
@@ -244,7 +250,7 @@ final class PracticeViewModel {
         session.end()
         
         do {
-            try await sessionRepository.save(session)
+            try await sessionRepository.save(session, userId: userId)
         } catch {
             print("Error ending session: \(error)")
         }
@@ -256,7 +262,7 @@ final class PracticeViewModel {
     
     func loadSuggestionQueue() async {
         do {
-            suggestionQueue = try selectionService.generateSuggestionQueue(count: suggestionQueueSize)
+            suggestionQueue = try selectionService.generateSuggestionQueue(count: suggestionQueueSize, userId: userId)
             currentCarouselIndex = 0
             
             // Reset carousel metrics for new browsing session
@@ -276,7 +282,8 @@ final class PracticeViewModel {
         do {
             suggestionQueue = try selectionService.refreshSuggestionQueue(
                 currentQueue: suggestionQueue,
-                count: suggestionQueueSize
+                count: suggestionQueueSize,
+                userId: userId
             )
         } catch {
             print("Error refreshing suggestion queue: \(error)")

@@ -4,6 +4,7 @@ import SwiftData
 struct AddEditPieceView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.authService) private var authService
     
     @State private var title: String = ""
     @State private var category: PieceCategory = .oli
@@ -262,6 +263,7 @@ struct AddEditPieceView: View {
             )
             newPiece.includeInPractice = includeInPractice
             newPiece.isFavorite = isFavorite
+            newPiece.userId = authService?.currentUser?.id
             modelContext.insert(newPiece)
         }
         
