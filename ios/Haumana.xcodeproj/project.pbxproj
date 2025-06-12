@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F8F596EA2DFA5A6E003FD9FB /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8F596E92DFA5A6E003FD9FB /* GoogleSignIn */; };
+		F8F596EC2DFA5A6E003FD9FB /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8F596EB2DFA5A6E003FD9FB /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F83E03AC2DE8C9A800DB7B61 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +34,22 @@
 		F83E03B52DE8C9A800DB7B61 /* UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F8F596F32DFA5FEE003FD9FB /* Exceptions for "Haumana" folder in "haumana" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F83E039B2DE8C9A700DB7B61 /* haumana */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F83E039E2DE8C9A700DB7B61 /* Haumana */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F8F596F32DFA5FEE003FD9FB /* Exceptions for "Haumana" folder in "haumana" target */,
+			);
 			path = Haumana;
 			sourceTree = "<group>";
 		};
@@ -52,6 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8F596EA2DFA5A6E003FD9FB /* GoogleSignIn in Frameworks */,
+				F8F596EC2DFA5A6E003FD9FB /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +132,8 @@
 			);
 			name = haumana;
 			packageProductDependencies = (
+				F8F596E92DFA5A6E003FD9FB /* GoogleSignIn */,
+				F8F596EB2DFA5A6E003FD9FB /* GoogleSignInSwift */,
 			);
 			productName = haumana;
 			productReference = F83E039C2DE8C9A700DB7B61 /* haumana.app */;
@@ -195,6 +217,9 @@
 			);
 			mainGroup = F83E03932DE8C9A700DB7B61;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F83E039D2DE8C9A700DB7B61 /* Products */;
 			projectDirPath = "";
@@ -398,6 +423,7 @@
 				DEVELOPMENT_TEAM = GCZUVZ47D2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Haumana/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Haumana;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -427,6 +453,7 @@
 				DEVELOPMENT_TEAM = GCZUVZ47D2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Haumana/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Haumana;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -554,6 +581,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F8F596E92DFA5A6E003FD9FB /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		F8F596EB2DFA5A6E003FD9FB /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F83E03942DE8C9A700DB7B61 /* Project object */;
 }

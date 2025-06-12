@@ -6,13 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SplashScreenView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var isActive = false
     @State private var opacity = 0.0
     @State private var scale = 0.8
     @State private var blossomOpacity = 0.0
     @State private var blossomScale = 1.2
+    @State private var authService: AuthenticationService?
     
     var body: some View {
         ZStack {
@@ -74,6 +77,9 @@ struct SplashScreenView: View {
             }
         }
         .onAppear {
+            // Initialize authentication service
+            authService = AuthenticationService(modelContext: modelContext)
+            
             // Animate blossom first
             withAnimation(.easeInOut(duration: 2.0)) {
                 blossomOpacity = 0.7  // Higher opacity for bitmap image
@@ -88,6 +94,11 @@ struct SplashScreenView: View {
                 }
             }
             
+            // Restore previous sign-in if available
+            Task {
+                await authService?.restorePreviousSignIn()
+            }
+            
             // Auto-transition after splash screen duration
             DispatchQueue.main.asyncAfter(deadline: .now() + AppConstants.splashScreenDuration) {
                 withAnimation(.easeInOut(duration: 0.8)) {
@@ -96,7 +107,10 @@ struct SplashScreenView: View {
             }
         }
         .fullScreenCover(isPresented: $isActive) {
-            MainTabView()
+            if let authService = authService {
+                MainTabView()
+                    .environment(\.authService, authService)
+            }
         }
     }
     

@@ -10,7 +10,9 @@ import SwiftData
 
 struct ProfileTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.authService) private var authService
     @State private var viewModel: ProfileViewModel?
+    @State private var showingSignInAlert = false
     
     // Use @Query to observe session changes
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var sessions: [PracticeSession]
@@ -26,8 +28,8 @@ struct ProfileTabView: View {
             }
         }
         .task {
-            if viewModel == nil {
-                viewModel = ProfileViewModel(modelContext: modelContext)
+            if viewModel == nil, let authService = authService {
+                viewModel = ProfileViewModel(modelContext: modelContext, authService: authService)
                 await viewModel?.loadProfileData()
             }
         }
@@ -44,22 +46,63 @@ struct ProfileTabView: View {
         List {
                 // User Section
                 Section {
-                    HStack {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.accentColor)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(viewModel.userName)
-                                .font(.headline)
-                            Text(viewModel.userEmail)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                    if viewModel.isSignedIn {
+                        HStack {
+                            if let photoUrl = viewModel.userPhotoUrl,
+                               let url = URL(string: photoUrl) {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    Image(systemName: "person.circle.fill")
+                                        .foregroundColor(.gray)
+                                }
+                                .frame(width: 60, height: 60)
+                                .clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.accentColor)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(viewModel.userName)
+                                    .font(.headline)
+                                Text(viewModel.userEmail)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
                         }
+                        .padding(.vertical, 8)
                         
-                        Spacer()
+                        Button("Sign Out") {
+                            viewModel.signOut()
+                        }
+                        .foregroundColor(.red)
+                    } else {
+                        VStack(spacing: 16) {
+                            Image(systemName: "person.circle.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.gray)
+                            
+                            Text("Sign in to sync your data across devices")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                            
+                            Button(action: {
+                                showingSignInAlert = true
+                            }) {
+                                Label("Sign in with Google", systemImage: "arrow.up.forward.app")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .padding(.vertical, 8)
                     }
-                    .padding(.vertical, 8)
                 }
                 
                 // Practice Stats Section
@@ -154,6 +197,20 @@ struct ProfileTabView: View {
                 Task {
                     await viewModel.loadProfileData()
                 }
+            }
+            .alert("Sign In", isPresented: $showingSignInAlert) {
+                Button("Sign In") {
+                    Task {
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let window = windowScene.windows.first,
+                           let rootViewController = window.rootViewController {
+                            await viewModel.signIn(presenting: rootViewController)
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("You'll be redirected to Google to sign in securely.")
             }
     }
 }

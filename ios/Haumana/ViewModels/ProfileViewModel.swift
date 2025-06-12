@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import Observation
+import UIKit
 
 @MainActor
 @Observable
@@ -15,10 +16,14 @@ final class ProfileViewModel {
     private let pieceRepository: PieceRepositoryProtocol
     private let sessionRepository: PracticeSessionRepositoryProtocol
     private let modelContext: ModelContext
+    let authService: AuthenticationService
     
-    // User info (placeholder for now)
-    var userName: String = "Haumana User"
-    var userEmail: String = "user@example.com"
+    // User info
+    var isSignedIn: Bool { authService.isSignedIn }
+    var currentUser: User? { authService.currentUser }
+    var userName: String { currentUser?.displayName ?? "Haumana User" }
+    var userEmail: String { currentUser?.email ?? "" }
+    var userPhotoUrl: String? { currentUser?.photoUrl }
     
     // Practice statistics
     var currentStreak: Int = 0
@@ -36,8 +41,9 @@ final class ProfileViewModel {
     // App info
     let appVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, authService: AuthenticationService) {
         self.modelContext = modelContext
+        self.authService = authService
         self.pieceRepository = PieceRepository(modelContext: modelContext)
         self.sessionRepository = PracticeSessionRepository(modelContext: modelContext)
     }
@@ -99,6 +105,32 @@ final class ProfileViewModel {
             return "\(minutes)m \(seconds)s"
         } else {
             return "\(seconds)s"
+        }
+    }
+    
+    func signIn(presenting viewController: UIViewController) async {
+        do {
+            try await authService.signIn(presenting: viewController)
+            await loadProfileData()
+        } catch {
+            errorMessage = "Sign in failed: \(error.localizedDescription)"
+        }
+    }
+    
+    func signOut() {
+        authService.signOut()
+        // Clear any cached data
+        currentStreak = 0
+        totalSessions = 0
+        mostPracticedPiece = nil
+        mostPracticedCount = 0
+        recentSessions = []
+    }
+    
+    func restorePreviousSignIn() async {
+        await authService.restorePreviousSignIn()
+        if authService.isSignedIn {
+            await loadProfileData()
         }
     }
 }

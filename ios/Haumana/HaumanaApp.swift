@@ -8,13 +8,15 @@
 import SwiftUI
 import SwiftData
 import CoreText
+import GoogleSignIn
 
 @main
 struct haumanaApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Piece.self,
-            PracticeSession.self
+            PracticeSession.self,
+            User.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -28,11 +30,17 @@ struct haumanaApp: App {
     init() {
         // Register custom fonts
         registerCustomFonts()
+        
+        // Configure Google Sign-In
+        configureGoogleSignIn()
     }
 
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
         .modelContainer(sharedModelContainer)
     }
@@ -90,5 +98,17 @@ struct haumanaApp: App {
                 print("Successfully registered \(name) font (legacy method)")
             }
         }
+    }
+    
+    /// Configure Google Sign-In
+    private func configureGoogleSignIn() {
+        // Load credentials from plist
+        guard let path = Bundle.main.path(forResource: "credentials", ofType: "plist"),
+              let dict = NSDictionary(contentsOfFile: path),
+              let clientID = dict["CLIENT_ID"] as? String else {
+            fatalError("Could not load Google Sign-In credentials")
+        }
+        
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
     }
 }
