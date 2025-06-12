@@ -11,206 +11,129 @@ import SwiftData
 struct ProfileTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.authService) private var authService
-    @State private var viewModel: ProfileViewModel?
-    @State private var showingSignInAlert = false
     
-    // Use @Query to observe session changes
+    @State private var profileViewModel: ProfileViewModel?
+    @State private var authViewModel: AuthenticationViewModel?
+    
+    // Use @Query to observe changes
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var sessions: [PracticeSession]
     @Query private var pieces: [Piece]
     
+    // Computed stats for unauthenticated view
+    private var localPiecesCount: Int {
+        pieces.filter { $0.userId == nil }.count
+    }
+    
+    private var localSessionsCount: Int {
+        sessions.filter { $0.userId == nil }.count
+    }
+    
     var body: some View {
         NavigationStack {
-            if let viewModel = viewModel {
-                profileContent(viewModel: viewModel)
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Group {
+                if let authViewModel = authViewModel,
+                   let profileViewModel = profileViewModel {
+                    profileContent(
+                        authViewModel: authViewModel,
+                        profileViewModel: profileViewModel
+                    )
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
+            .navigationTitle("Profile")
         }
         .task {
-            if viewModel == nil, let authService = authService {
-                viewModel = ProfileViewModel(modelContext: modelContext, authService: authService)
-                await viewModel?.loadProfileData()
+            if authViewModel == nil, let authService = authService {
+                authViewModel = AuthenticationViewModel(authService: authService)
+            }
+            
+            if profileViewModel == nil, let authService = authService {
+                profileViewModel = ProfileViewModel(
+                    modelContext: modelContext,
+                    authService: authService
+                )
+                await profileViewModel?.loadProfileData()
             }
         }
         .onChange(of: sessions.count) { _, _ in
             // Reload data when sessions change
             Task {
-                await viewModel?.loadProfileData()
+                await profileViewModel?.loadProfileData()
             }
+        }
+        .confirmationDialog(
+            "Sign Out",
+            isPresented: .init(
+                get: { authViewModel?.showingSignOutConfirmation ?? false },
+                set: { authViewModel?.showingSignOutConfirmation = $0 }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Sign Out", role: .destructive) {
+                authViewModel?.confirmSignOut()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to sign out? Your data will remain on this device.")
+        }
+        .alert(
+            "Error",
+            isPresented: .init(
+                get: { authViewModel?.errorMessage != nil },
+                set: { if !$0 { authViewModel?.errorMessage = nil } }
+            ),
+            presenting: authViewModel?.errorMessage
+        ) { _ in
+            Button("OK") {
+                authViewModel?.errorMessage = nil
+            }
+        } message: { error in
+            Text(error)
         }
     }
     
     @ViewBuilder
-    private func profileContent(viewModel: ProfileViewModel) -> some View {
+    private func profileContent(
+        authViewModel: AuthenticationViewModel,
+        profileViewModel: ProfileViewModel
+    ) -> some View {
         List {
-                // User Section
-                Section {
-                    if viewModel.isSignedIn {
-                        HStack {
-                            if let photoUrl = viewModel.userPhotoUrl,
-                               let url = URL(string: photoUrl) {
-                                AsyncImage(url: url) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } placeholder: {
-                                    Image(systemName: "person.circle.fill")
-                                        .foregroundColor(.gray)
-                                }
-                                .frame(width: 60, height: 60)
-                                .clipShape(Circle())
-                            } else {
-                                Image(systemName: "person.circle.fill")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.accentColor)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(viewModel.userName)
-                                    .font(.headline)
-                                Text(viewModel.userEmail)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                        
-                        Button("Sign Out") {
-                            viewModel.signOut()
-                        }
-                        .foregroundColor(.red)
-                    } else {
-                        VStack(spacing: 16) {
-                            Image(systemName: "person.circle.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.gray)
-                            
-                            Text("Sign in to sync your data across devices")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                            
-                            Button(action: {
-                                showingSignInAlert = true
-                            }) {
-                                Label("Sign in with Google", systemImage: "arrow.up.forward.app")
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
-                        .padding(.vertical, 8)
+            if authViewModel.isSignedIn,
+               let user = authViewModel.user {
+                // Authenticated view sections
+                AuthenticatedProfileView(
+                    user: user,
+                    profileStats: AuthenticatedProfileView.ProfileStats(
+                        currentStreak: profileViewModel.currentStreak,
+                        totalSessions: profileViewModel.totalSessions,
+                        mostPracticedPiece: profileViewModel.mostPracticedPiece,
+                        mostPracticedCount: profileViewModel.mostPracticedCount
+                    ),
+                    recentSessions: profileViewModel.recentSessions,
+                    onSignOut: {
+                        authViewModel.signOut()
                     }
-                }
-                
-                // Practice Stats Section
-                Section("Practice Statistics") {
-                    HStack {
-                        Label("Current Streak", systemImage: "flame")
-                        Spacer()
-                        Text("\(viewModel.currentStreak) days")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    HStack {
-                        Label("Total Sessions", systemImage: "music.note")
-                        Spacer()
-                        Text("\(viewModel.totalSessions)")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let mostPracticed = viewModel.mostPracticedPiece {
-                        HStack {
-                            Label("Most Practiced", systemImage: "star")
-                            Spacer()
-                            VStack(alignment: .trailing, spacing: 2) {
-                                Text(mostPracticed.title)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(1)
-                                Text("\(viewModel.mostPracticedCount) times")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-                
-                // Recent Practice History
-                if !viewModel.recentSessions.isEmpty {
-                    Section("Recent Practice") {
-                        ForEach(viewModel.recentSessions) { sessionWithPiece in
-                            NavigationLink(destination: PieceDetailView(piece: sessionWithPiece.piece)) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(sessionWithPiece.piece.title)
-                                            .font(.body)
-                                        Text(viewModel.formatSessionDate(sessionWithPiece.session.startTime))
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(viewModel.formatSessionDuration(sessionWithPiece.session))
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                    }
-                }
-                
-                // Help Section
-                Section("How to Use") {
-                    NavigationLink(destination: HelpView()) {
-                        Label("Practice Guide", systemImage: "questionmark.circle")
-                    }
-                }
-                
-                // App Info Section
-                Section("About") {
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text(viewModel.appVersion)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Link(destination: URL(string: "https://github.com/dherman/haumana")!) {
-                        HStack {
-                            Text("View on GitHub")
-                            Spacer()
-                            Image(systemName: "arrow.up.right.square")
-                        }
-                    }
-                }
+                )
+            } else {
+                // Unauthenticated view sections
+                UnauthenticatedProfileView(
+                    onSignIn: {
+                        await authViewModel.signIn()
+                    },
+                    totalLocalPieces: localPiecesCount,
+                    totalLocalSessions: localSessionsCount
+                )
             }
-            .navigationTitle("Profile")
-            .refreshable {
-                await viewModel.refresh()
+            
+            // Common footer sections
+            ProfileFooterView(appVersion: profileViewModel.appVersion)
+        }
+        .refreshable {
+            if authViewModel.isSignedIn {
+                await profileViewModel.refresh()
             }
-            .onAppear {
-                // Refresh when tab becomes visible
-                Task {
-                    await viewModel.loadProfileData()
-                }
-            }
-            .alert("Sign In", isPresented: $showingSignInAlert) {
-                Button("Sign In") {
-                    Task {
-                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                           let window = windowScene.windows.first,
-                           let rootViewController = window.rootViewController {
-                            await viewModel.signIn(presenting: rootViewController)
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("You'll be redirected to Google to sign in securely.")
-            }
+        }
     }
 }
