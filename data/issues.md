@@ -5,7 +5,7 @@
 - [x] Test data should be real oli or mele, not fake songs with fake Olelo
 - [x] Repertoire screen should say Repertoire at the top, not Haumana
 - [x] Update dev.herman.haumana.* to app.haumana.*
-- [ ] Drop Pearl Hirenha font from bundle
+- [x] Drop Pearl Hirenha font from bundle
 
 # Blocking 1.0 release
 

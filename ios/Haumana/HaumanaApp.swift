@@ -47,9 +47,6 @@ struct haumanaApp: App {
     
     /// Register custom fonts with the app
     private func registerCustomFonts() {
-        // Register Pearl Hirenha font
-        registerFont(resource: "pearl-hirenha", extension: "ttf", name: "Pearl Hirenha")
-        
         // Register Adelia font
         registerFont(resource: "adelia", extension: "ttf", name: "Adelia")
     }
