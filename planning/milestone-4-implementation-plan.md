@@ -8,8 +8,7 @@ This implementation plan details the technical steps to add Google Sign-In authe
 
 1. Apple Developer account with app identifier configured
 2. Google Cloud Console project for OAuth 2.0
-3. TestFlight configured for beta distribution
-4. Privacy policy and terms of service documents prepared
+3. Privacy policy and terms of service documents prepared
 
 ## Phase 1: Project Setup and Configuration (Day 1)
 
@@ -257,7 +256,7 @@ struct HaumanaApp: App {
 - Migration progress for existing data
 - Skeleton screens during authentication
 
-## Phase 6: Testing and TestFlight (Days 6-7)
+## Phase 6: Testing (Days 6-7)
 
 ### 6.1 Unit Tests
 ```swift
@@ -282,14 +281,7 @@ struct HaumanaApp: App {
 - testDataVisibilityAfterSignIn()
 ```
 
-### 6.3 TestFlight Deployment
-1. Update version to 0.4.0-beta.1
-2. Archive and upload to App Store Connect
-3. Configure external testing group
-4. Add beta testing notes
-5. Submit for beta review
-
-### 6.4 Beta Testing Checklist
+### 6.3 Manual Testing Checklist
 - [ ] Sign in with multiple Google accounts
 - [ ] Verify data separation between accounts
 - [ ] Test offline functionality
@@ -332,8 +324,7 @@ struct HaumanaApp: App {
 - [ ] Existing data migrated successfully
 - [ ] Profile tab shows correct state
 - [ ] No data leaks between users
-- [ ] TestFlight build approved
-- [ ] Beta testers can authenticate
+- [ ] All features tested on physical device
 
 ## Risk Mitigation
 
@@ -341,7 +332,6 @@ struct HaumanaApp: App {
 2. **Auth Failures**: Robust offline fallback
 3. **Privacy Concerns**: Minimal data collection
 4. **Migration Bugs**: Extensive testing, reversible process
-5. **Beta Issues**: Quick iteration based on feedback
 
 ## Timeline Summary
 
@@ -350,6 +340,6 @@ struct HaumanaApp: App {
 - **Day 3**: Profile tab UI updates
 - **Day 4**: Data migration and scoping
 - **Day 5**: Integration and polish
-- **Days 6-7**: Testing and TestFlight deployment
+- **Days 6-7**: Testing and final polish
 
 Total: 7 days (1 week) as specified in roadmap

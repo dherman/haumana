@@ -115,7 +115,6 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 - Secure local data per user
 - Sign out functionality
 - Privacy/terms links
-- TestFlight beta deployment
 
 **Screens:**
 - Welcome/sign-in screen
@@ -127,13 +126,11 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 - Keychain storage for auth
 - User-scoped data model
 - Prepare for cloud sync
-- TestFlight build and distribution
 
 **Success Metrics:**
 - Smooth sign-in flow
 - Data properly isolated per user
 - No data loss on sign-out/in
-- Beta build successfully deployed
 
 ---
 
@@ -214,9 +211,9 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ---
 
-### Milestone 8: Polish & Performance (Week 10)
+### Milestone 8: Gift Ready (Week 10)
 **Target: 1 week after M7**
-**Theme: "Production Ready"**
+**Theme: "Ready to Present"**
 
 **Features:**
 - Performance optimization
@@ -235,7 +232,7 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 - No crashes
 - <2s cold start
 - VoiceOver compliant
-- App Store ready
+- Beautiful, polished experience
 
 ---
 
@@ -281,19 +278,19 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 ## Success Criteria
 
 ### Milestone 1-3 (Local)
-- 10+ active beta testers
+- Personal testing complete
 - 50+ pieces created
 - 90% task completion rate
 
 ### Milestone 4-5 (Cloud)
 - Successful multi-device sync
 - <5% sync errors
-- 80% feature adoption
+- All features working smoothly
 
-### Milestone 6-7 (Polish)
-- 4.5+ star beta feedback
+### Milestone 6-8 (Polish)
+- Beautiful, polished experience
 - <1% crash rate
-- App Store approval
+- Ready for gift presentation
 
 ## Notes
 
