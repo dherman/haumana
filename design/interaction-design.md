@@ -8,26 +8,26 @@ This document defines the screen architecture and interaction patterns for Hauma
 
 ### 1. Authentication Screens
 
-#### 1.1 Welcome Screen
-- **Purpose**: First-time launch experience
+#### 1.1 Sign-In Screen
+- **Purpose**: Authentication gateway (shown when signed out)
 - **Elements**:
-  - App logo and branding
-  - Brief tagline about the app
-  - "Sign in with Google" button
-  - Privacy policy and terms links
+  - Full-screen red background (lehua flower color)
+  - "Sign in with Google" button (centered)
+  - No tab bar visible
 - **Navigation**: 
-  - Success → Home Screen
-  - First-time user → Onboarding (optional)
+  - Success with empty repertoire → Repertoire Tab
+  - Success with existing repertoire → Practice Tab
 
 ### 2. Main App Screens
 
 #### 2.1 Home Screen (Tab Bar)
-- **Purpose**: Primary navigation hub
+- **Purpose**: Primary navigation hub (only visible when authenticated)
 - **Tab Bar Items**:
   1. Practice (random selection)
   2. Repertoire (browse/manage)
   3. History (practice sessions)
   4. Profile (settings)
+- **Note**: Tab bar is hidden on sign-in screen
 
 #### 2.2 Practice Tab
 - **Purpose**: Quick access to practice session with preview
@@ -152,9 +152,9 @@ This document defines the screen architecture and interaction patterns for Hauma
 ### 5. Profile/Settings Screens
 
 #### 5.1 Profile Tab
-- **Purpose**: Account and app settings
+- **Purpose**: Account and app settings (authenticated users only)
 - **Sections**:
-  - Account info (name, email)
+  - Account info (name, email, profile photo)
   - Statistics:
     - Total pieces
     - Practice streak
@@ -168,12 +168,16 @@ This document defines the screen architecture and interaction patterns for Hauma
     - Privacy policy
     - Terms of service
   - Sign out button
+- **Sign Out Action**:
+  - Shows confirmation dialog
+  - On confirmation → Navigate to Sign-In Screen
 
 ## Navigation Patterns
 
 ### Primary Navigation
-- **Tab Bar**: Always visible, 4 tabs
+- **Tab Bar**: Visible when authenticated, 4 tabs
 - **Modal Presentations**: 
+  - Sign-In Screen (full screen, no tab bar)
   - Practice Screen (full screen)
   - Add/Edit Piece (navigation stack)
 
@@ -185,24 +189,35 @@ This document defines the screen architecture and interaction patterns for Hauma
 
 ## Interaction Patterns
 
-### 1. Quick Practice Flow
+### 1. Authentication Flow
 ```
-Home → Practice Tab (piece already shown) → Swipe carousel (optional) → Tap piece → Practice Screen → Swipe right to end → Practice Tab
+App Launch → Sign-In Screen → Google Auth → Empty repertoire? → Repertoire Tab
+                                        → Has pieces? → Practice Tab
 ```
 
-### 2. Add Piece Flow
+### 2. Quick Practice Flow
+```
+Practice Tab (piece already shown) → Swipe carousel (optional) → Tap piece → Practice Screen → Swipe right to end → Practice Tab
+```
+
+### 3. Add Piece Flow
 ```
 Repertoire Tab → Tap Add Button → Fill Form → Add Thumbnail → Save → View New Piece
 ```
 
-### 3. Browse and Practice Specific Piece
+### 4. Browse and Practice Specific Piece
 ```
 Repertoire Tab → Search/Filter → Tap Piece → View Details → Practice Now → Practice Screen
 ```
 
-### 4. Review History Flow
+### 5. Review History Flow
 ```
 History Tab → View Calendar → Tap Date → See Sessions → Tap Session → View Piece
+```
+
+### 6. Sign Out Flow
+```
+Profile Tab → Sign Out → Confirmation Dialog → Confirm → Sign-In Screen
 ```
 
 ## Design Principles
@@ -233,6 +248,7 @@ History Tab → View Calendar → Tap Date → See Sessions → Tap Session → 
 - Illustration of lehua flower
 - "Start building your repertoire"
 - "Add your first oli or mele" button
+- Note: After sign-in with empty repertoire, user lands here
 
 ### No Practice History
 - Encouraging message
@@ -245,6 +261,11 @@ History Tab → View Calendar → Tap Date → See Sessions → Tap Session → 
 - Clear error message
 - Retry button
 - Offline mode indication
+
+### Authentication Error
+- "Sign-in failed" message
+- "Try again" button
+- Remains on Sign-In Screen
 
 ### Sync Conflict
 - Last synced timestamp

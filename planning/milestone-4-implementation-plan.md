@@ -184,77 +184,173 @@ struct ProfileFooterView: View {
 }
 ```
 
-## Phase 4: Data Migration and Scoping (Day 4)
+## Phase 4: Sign-In Screen Implementation (Day 4)
 
-### 4.1 User Migration Service
+### 4.1 Create Sign-In Screen
 ```swift
-// Services/UserMigrationService.swift
-class UserMigrationService {
-    private let modelContext: ModelContext
+// Views/SignInView.swift
+import SwiftUI
+import GoogleSignIn
+
+struct SignInView: View {
+    @Environment(AuthenticationViewModel.self) private var authViewModel
     
-    // Migrate existing local pieces to authenticated user
-    func migrateLocalDataToUser(_ userId: String) async throws
-    
-    // Filter queries by current user
-    func piecesForCurrentUser() -> [Piece]
-    
-    // Handle account switching
-    func handleUserChange(from oldUserId: String?, to newUserId: String?) async
-}
-```
-
-### 4.2 Update Repositories
-```swift
-// Repositories/PieceRepository.swift
-extension PieceRepository {
-    func fetchAll(for userId: String?) throws -> [Piece]
-    func search(query: String, for userId: String?) throws -> [Piece]
-}
-
-// Repositories/PracticeSessionRepository.swift  
-extension PracticeSessionRepository {
-    func fetchSessions(for piece: Piece, userId: String?) throws -> [PracticeSession]
-}
-```
-
-### 4.3 Update ViewModels
-All ViewModels need to respect user context:
-- RepertoireListViewModel
-- PracticeViewModel
-- AddEditPieceViewModel
-- ProfileViewModel
-
-## Phase 5: Integration and Polish (Day 5)
-
-### 5.1 App Startup Flow
-```swift
-// HaumanaApp.swift
-@main
-struct HaumanaApp: App {
-    @State private var authViewModel = AuthenticationViewModel()
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environment(authViewModel)
-                .task {
-                    await authViewModel.restoreAuthentication()
+    var body: some View {
+        ZStack {
+            // Full-screen red background (lehua color)
+            Color(red: 0.8, green: 0.2, blue: 0.2)
+                .ignoresSafeArea()
+            
+            // Centered sign-in button
+            VStack {
+                Button(action: { 
+                    Task { await authViewModel.signIn() }
+                }) {
+                    // Google Sign-In button styling
+                    HStack {
+                        Image("google_logo")
+                        Text("Sign in with Google")
+                    }
                 }
+                .buttonStyle(.borderedProminent)
+                .disabled(authViewModel.isLoading)
+            }
+            
+            // Loading overlay
+            if authViewModel.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .scaleEffect(1.5)
+            }
         }
     }
 }
 ```
 
-### 5.2 Error Handling
-- Network errors during sign-in
-- Google Sign-In cancellation
-- Account already exists scenarios
-- Migration failures
+### 4.2 Update App Entry Point
+```swift
+// HaumanaApp.swift
+@main
+struct HaumanaApp: App {
+    @State private var authService = AuthenticationService()
+    @State private var showingSignIn = false
+    
+    var body: some Scene {
+        WindowGroup {
+            Group {
+                if authService.isSignedIn {
+                    MainTabView()
+                        .environment(\.authService, authService)
+                } else {
+                    SignInView()
+                        .environment(AuthenticationViewModel(authService: authService))
+                }
+            }
+            .task {
+                // Check for existing authentication
+                await authService.restorePreviousSignIn()
+            }
+        }
+    }
+}
+```
 
-### 5.3 Loading States
-- Sign-in progress indicator
-- Migration progress for existing data
-- Skeleton screens during authentication
+### 4.3 Smart Navigation After Sign-In
+```swift
+// AuthenticationViewModel.swift - Update signIn method
+func signIn() async {
+    guard !isLoading else { return }
+    
+    isLoading = true
+    errorMessage = nil
+    
+    do {
+        // ... existing sign-in logic ...
+        try await authService.signIn(presenting: rootViewController)
+        
+        // After successful sign-in, check repertoire
+        let pieceRepository = PieceRepository(modelContext: modelContext)
+        let userPieces = try pieceRepository.fetchAll(userId: authService.currentUser?.id)
+        
+        // Navigate based on repertoire state
+        if userPieces.isEmpty {
+            // Will be handled by MainTabView to show Repertoire tab
+            shouldNavigateToRepertoire = true
+        }
+    } catch {
+        errorMessage = "Sign in failed: \(error.localizedDescription)"
+    }
+    
+    isLoading = false
+}
+```
+
+### 4.4 Update MainTabView
+```swift
+// Views/MainTabView.swift
+struct MainTabView: View {
+    @Environment(\.authService) private var authService
+    @State private var selectedTab = 0
+    @Query private var pieces: [Piece]
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            PracticeTabView()
+                .tabItem { 
+                    Label("Practice", systemImage: "music.note") 
+                }
+                .tag(0)
+            
+            RepertoireListView()
+                .tabItem { 
+                    Label("Repertoire", systemImage: "music.note.list") 
+                }
+                .tag(1)
+            
+            // History and Profile tabs...
+        }
+        .onAppear {
+            // If user just signed in and has no pieces, show Repertoire
+            if pieces.filter({ $0.userId == authService.currentUser?.id }).isEmpty {
+                selectedTab = 1
+            }
+        }
+    }
+}
+```
+
+## Phase 5: Simplify Authenticated Experience (Day 5)
+
+### 5.1 Remove Signed-Out States from Views
+All main app views can now assume the user is authenticated:
+
+```swift
+// Update PracticeTabView, RepertoireListView, HistoryTabView
+// Remove any checks for authentication state
+// Remove "sign in to sync" messages
+// Always use authService.currentUser!.id for queries
+```
+
+### 5.2 Update Profile Tab Sign-Out Flow
+```swift
+// ProfileTabView.swift - Update sign-out handling
+func confirmSignOut() {
+    authService.signOut()
+    // App will automatically show SignInView due to authService.isSignedIn change
+}
+```
+
+### 5.3 Error Handling
+- Network errors during sign-in (show on SignInView)
+- Google Sign-In cancellation (remain on SignInView)
+- Authentication token expiry (return to SignInView)
+
+### 5.4 Polish Sign-In Screen
+- Add app logo or title above button
+- Ensure proper Google Sign-In button styling
+- Test on different screen sizes
+- Add subtle animation during loading
 
 ## Phase 6: Testing (Days 6-7)
 
@@ -276,18 +372,24 @@ struct HaumanaApp: App {
 ```swift
 // AuthenticationUITests
 - testSignInFlow()
-- testSignOutWithConfirmation()
-- testProfileDisplaysUserInfo()
-- testDataVisibilityAfterSignIn()
+- testSignInWithEmptyRepertoire() // Should navigate to Repertoire
+- testSignInWithExistingPieces() // Should navigate to Practice
+- testSignOutFromProfile() // Should return to SignInView
+- testSignInCancellation() // Should remain on SignInView
+- testNetworkErrorDuringSignIn()
 ```
 
 ### 6.3 Manual Testing Checklist
-- [ ] Sign in with multiple Google accounts
-- [ ] Verify data separation between accounts
-- [ ] Test offline functionality
-- [ ] Confirm migration of existing data
-- [ ] Validate sign-out clears user data
-- [ ] Check privacy policy and terms links
+- [ ] App launches to Sign-In screen when not authenticated
+- [ ] Sign-In screen has proper red background
+- [ ] Google Sign-In button is properly styled and centered
+- [ ] Loading state shows during authentication
+- [ ] Empty repertoire navigates to Repertoire tab
+- [ ] Existing pieces navigate to Practice tab
+- [ ] Sign out from Profile returns to Sign-In screen
+- [ ] Tab bar is never visible on Sign-In screen
+- [ ] All authenticated views work without checking auth state
+- [ ] Privacy and Terms links work from Profile
 
 ## Implementation Notes
 
@@ -312,17 +414,19 @@ struct HaumanaApp: App {
 
 ### UI/UX Guidelines
 1. Follow Google Sign-In branding rules
-2. Show clear loading indicators
-3. Provide helpful error messages
-4. Maintain app usability when signed out
-5. Respect system dark mode
+2. Show clear loading indicators on Sign-In screen
+3. Provide helpful error messages on Sign-In screen
+4. No signed-out states in main app views
+5. Respect system dark mode (except Sign-In screen stays red)
 
 ## Success Criteria
 
+- [ ] Sign-In screen displays with red background
 - [ ] Google Sign-In works reliably
 - [ ] User data properly scoped
-- [ ] Existing data migrated successfully
-- [ ] Profile tab shows correct state
+- [ ] Smart navigation after sign-in based on repertoire
+- [ ] Profile tab shows authenticated user info
+- [ ] Sign-out returns to Sign-In screen
 - [ ] No data leaks between users
 - [ ] All features tested on physical device
 
@@ -335,11 +439,12 @@ struct HaumanaApp: App {
 
 ## Timeline Summary
 
-- **Day 1**: Project setup and configuration
-- **Day 2**: Core authentication implementation  
-- **Day 3**: Profile tab UI updates
-- **Day 4**: Data migration and scoping
-- **Day 5**: Integration and polish
-- **Days 6-7**: Testing and final polish
+- **Day 1**: Project setup and configuration ✓
+- **Day 2**: Core authentication implementation ✓
+- **Day 3**: Profile tab UI updates ✓
+- **Day 4**: Sign-In screen implementation
+- **Day 5**: Simplify authenticated experience
+- **Day 6**: Integration and navigation flow
+- **Days 7-8**: Testing and final polish
 
-Total: 7 days (1 week) as specified in roadmap
+Total: 8 days (slightly extended due to design changes)

@@ -8,17 +8,17 @@ Milestone 4 introduces user authentication to Haumana using Google Sign-In, esta
 
 1. **Enable secure user authentication** through Google Sign-In
 2. **Scope data to individual users** to prepare for cloud sync
-3. **Maintain offline functionality** for users who choose not to sign in
-4. **Deploy to TestFlight** for beta testing with real users
+3. **Create dedicated sign-in screen** as the entry point for unauthenticated users
+4. **Simplify authenticated experience** by removing signed-out states from main screens
 5. **Establish privacy and security foundations** for future cloud features
 
 ## User Stories
 
 ### Core Authentication
-1. **As a new user**, I want to sign in with my Google account so that my data can be saved securely
+1. **As a new user**, I want to see a clean sign-in screen when I first launch the app
 2. **As a returning user**, I want to stay signed in between app launches so I don't have to authenticate repeatedly
-3. **As a privacy-conscious user**, I want to use the app without signing in and keep my data local-only
-4. **As a signed-in user**, I want to sign out to protect my privacy on shared devices
+3. **As a new user with no repertoire**, I want to be taken directly to add my first piece after signing in
+4. **As a signed-in user**, I want to sign out and return to the sign-in screen to protect my privacy
 
 ### Profile Management
 5. **As a signed-in user**, I want to see my profile information so I know which account I'm using
@@ -32,40 +32,31 @@ Milestone 4 introduces user authentication to Haumana using Google Sign-In, esta
 
 ## Features
 
-### 1. Google Sign-In Integration
-- **Sign-In Button**: Prominent but not intrusive placement on Profile tab
+### 1. Sign-In Screen
+- **Full-screen experience**: Red background matching lehua flower color
+- **Minimal design**: Only the "Sign in with Google" button, centered
+- **No tab bar**: Authentication happens before main app navigation
 - **Authentication Flow**: 
   - Native Google Sign-In SDK integration
   - Smooth transition between app and authentication
   - Clear loading states during authentication
-- **Account Display**: Show user's name, email, and profile photo when signed in
-- **Sign-Out**: Clear option to sign out with confirmation dialog
+- **Post-sign-in navigation**:
+  - Empty repertoire → Navigate to Repertoire tab
+  - Has pieces → Navigate to Practice tab
 
-### 2. Profile Tab Enhancement
-Transform the existing Profile tab into a comprehensive account management center:
+### 2. Profile Tab (Authenticated Only)
+The Profile tab is only accessible to signed-in users:
 
-#### Signed-Out State
 ```
-[Profile Tab - Signed Out]
-├── App Logo & Name
-├── Sign In Section
-│   ├── "Sign in to sync across devices"
-│   └── [Sign in with Google] button
-├── Local Data Info
-│   └── "Your data is stored locally on this device"
-└── Links Section
-    ├── Privacy Policy
-    ├── Terms of Service
-    └── Send Feedback
-```
-
-#### Signed-In State
-```
-[Profile Tab - Signed In]
+[Profile Tab]
 ├── User Profile Section
 │   ├── Profile Photo
 │   ├── User Name
 │   └── Email Address
+├── Practice Statistics
+│   ├── Current Streak
+│   ├── Total Sessions
+│   └── Most Practiced Piece
 ├── Account Actions
 │   └── [Sign Out] button
 ├── Data Status
@@ -76,11 +67,13 @@ Transform the existing Profile tab into a comprehensive account management cente
     └── Send Feedback
 ```
 
+**Sign-out behavior**: Confirmation dialog → Navigate to Sign-In Screen
+
 ### 3. User-Scoped Data
-- **Data Migration**: Associate existing local pieces with signed-in user
 - **User Context**: Add userId field to Piece and PracticeSession models
 - **Data Filtering**: Show only current user's data when signed in
-- **Guest Mode**: Continue supporting local-only data for non-authenticated users
+- **No guest mode**: Authentication is required to use the app
+- **First-time user flow**: Detect empty repertoire and navigate to Repertoire tab
 
 ### 4. Privacy & Legal
 - **Privacy Policy**: Link to external privacy policy webpage
@@ -88,10 +81,11 @@ Transform the existing Profile tab into a comprehensive account management cente
 - **Data Disclosure**: Clear messaging about what data is collected
 - **Compliance**: COPPA and GDPR considerations for data handling
 
-### 5. TestFlight Deployment
-- **Beta Program**: Set up TestFlight for beta testing
-- **Feedback Integration**: In-app feedback link for beta testers
-- **Version Management**: Clear versioning for beta releases
+### 5. App Navigation Structure
+- **Entry point**: Sign-In Screen (no tab bar)
+- **Main app**: Tab bar with Practice, Repertoire, History, Profile
+- **Authentication gate**: All features require sign-in
+- **Smart landing**: Navigate based on repertoire state after sign-in
 
 ## Technical Implementation
 
@@ -138,28 +132,33 @@ final class User {
 ## UX Design
 
 ### Visual Design
+- **Sign-In Screen**: Full-screen red (#FF0000 or lehua-appropriate shade)
 - **Google Branding**: Follow Google Sign-In branding guidelines
-- **Profile Photos**: Circular crop with fallback initials
-- **Loading States**: Skeleton screens during authentication
+- **Button styling**: Prominent white button with Google branding
+- **Loading States**: Overlay during authentication
 - **Error States**: Clear messaging for authentication failures
 
 ### Interaction Patterns
 - **Sign-In Flow**:
-  1. Tap "Sign in with Google"
-  2. Native Google authentication sheet
-  3. Return to app with loading state
-  4. Show success and update UI
+  1. App launch → Sign-In Screen
+  2. Tap "Sign in with Google"
+  3. Native Google authentication sheet
+  4. Return to app with loading state
+  5. Check repertoire:
+     - Empty → Navigate to Repertoire tab
+     - Has pieces → Navigate to Practice tab
   
 - **Sign-Out Flow**:
-  1. Tap "Sign Out"
+  1. Profile tab → Tap "Sign Out"
   2. Confirmation alert: "Sign out of Haumana?"
-  3. Clear authentication and show signed-out state
+  3. Clear authentication
+  4. Navigate to Sign-In Screen
 
 ### Edge Cases
-- **Network Errors**: Graceful handling with retry options
-- **Cancelled Sign-In**: Return to previous state cleanly
-- **Account Switching**: Clear data separation between accounts
-- **Migration Conflicts**: Strategy for handling existing local data
+- **Network Errors**: Show error on Sign-In Screen with retry
+- **Cancelled Sign-In**: Remain on Sign-In Screen
+- **Account Switching**: Clear previous user data completely
+- **App killed during auth**: Return to Sign-In Screen on restart
 
 ## Success Metrics
 
@@ -196,9 +195,8 @@ final class User {
 ### Deployment
 - [ ] Create privacy policy webpage
 - [ ] Create terms of service webpage
-- [ ] Set up TestFlight
-- [ ] Configure beta testing group
-- [ ] Prepare beta testing instructions
+- [ ] Test on physical device
+- [ ] Verify all navigation flows
 
 ## Future Considerations
 
@@ -228,7 +226,7 @@ This milestone lays the groundwork for:
 - **Duration**: 1 week
 - **Dependencies**: Completion of Milestone 3
 - **Deliverables**: 
-  - Functional Google Sign-In
-  - Updated Profile tab
-  - TestFlight beta release
+  - Sign-In Screen with Google authentication
+  - Updated Profile tab (authenticated only)
+  - Smart navigation after sign-in
   - Privacy/Terms pages
