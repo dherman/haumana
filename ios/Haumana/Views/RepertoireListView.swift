@@ -28,7 +28,7 @@ struct RepertoireListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if pieces.isEmpty {
+                if filteredPieces.isEmpty && searchText.isEmpty {
                     emptyStateView
                 } else {
                     listView
@@ -102,12 +102,27 @@ struct RepertoireListView: View {
             Divider()
             
             List {
-                ForEach(filteredPieces) { piece in
-                    NavigationLink(destination: PieceDetailView(piece: piece)) {
-                        PieceRowView(piece: piece)
+                if filteredPieces.isEmpty && !searchText.isEmpty {
+                    // Search returned no results
+                    VStack(spacing: 16) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 48))
+                            .foregroundColor(.secondary)
+                        Text("No results for \"\(searchText)\"")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                    .listRowBackground(Color.clear)
+                } else {
+                    ForEach(filteredPieces) { piece in
+                        NavigationLink(destination: PieceDetailView(piece: piece)) {
+                            PieceRowView(piece: piece)
+                        }
+                    }
+                    .onDelete(perform: deletePieces)
                 }
-                .onDelete(perform: deletePieces)
             }
         }
     }

@@ -6,6 +6,7 @@
 - [x] Repertoire screen should say Repertoire at the top, not Haumana
 - [x] Update dev.herman.haumana.* to app.haumana.*
 - [x] Drop Pearl Hirenha font from bundle
+- [ ] Cancelled sign-in could probably have a better error message or even just not show the error at all
 
 # Blocking 1.0 release
 

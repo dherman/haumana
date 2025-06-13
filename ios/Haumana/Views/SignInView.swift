@@ -11,19 +11,26 @@ import GoogleSignIn
 struct SignInView: View {
     @Environment(\.authService) private var authService
     @State private var authViewModel: AuthenticationViewModel?
+    @State private var titleScale: CGFloat = 0.8
+    @State private var titleOpacity: Double = 0.0
+    @State private var buttonScale: CGFloat = 0.9
+    @State private var buttonOpacity: Double = 0.0
     
     var body: some View {
         ZStack {
             // Full-screen red background (lehua color)
-            Color(red: 0.8, green: 0.2, blue: 0.2)
+            Color.lehuaRed
                 .ignoresSafeArea()
             
-            // Centered sign-in button
-            VStack(spacing: 40) {
-                // App title
+            // Centered content
+            VStack(spacing: 50) {
+                // App title with animation
                 Text("Haumana")
                     .font(.custom("Adelia", size: 60))
                     .foregroundColor(.white)
+                    .scaleEffect(titleScale)
+                    .opacity(titleOpacity)
+                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                 
                 // Google Sign-In button
                 if let authViewModel = authViewModel {
@@ -39,44 +46,71 @@ struct SignInView: View {
                             
                             Text("Sign in with Google")
                                 .font(.system(size: 17, weight: .medium))
+                                .foregroundColor(.black.opacity(0.54))
                         }
                         .frame(width: 280, height: 50)
                         .background(Color.white)
-                        .foregroundColor(.black)
-                        .cornerRadius(8)
-                        .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
+                        .cornerRadius(25)
+                        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
                     }
                     .disabled(authViewModel.isLoading)
+                    .scaleEffect(buttonScale)
+                    .opacity(buttonOpacity)
                     
-                    // Loading indicator
+                    // Loading state text
                     if authViewModel.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(1.2)
+                        Text("Signing in...")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white.opacity(0.8))
                             .padding(.top, 20)
+                            .transition(.opacity)
                     }
                 }
             }
             
-            // Error alert
-            .alert(
-                "Sign-In Error",
-                isPresented: .init(
-                    get: { authViewModel?.errorMessage != nil },
-                    set: { if !$0 { authViewModel?.errorMessage = nil } }
-                ),
-                presenting: authViewModel?.errorMessage
-            ) { _ in
-                Button("OK") {
-                    authViewModel?.errorMessage = nil
-                }
-            } message: { error in
-                Text(error)
+            // Loading overlay
+            if authViewModel?.isLoading == true {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+                    .transition(.scale.combined(with: .opacity))
             }
+        }
+        .animation(.easeInOut(duration: 0.3), value: authViewModel?.isLoading)
+        .alert(
+            "Sign-In Error",
+            isPresented: .init(
+                get: { authViewModel?.errorMessage != nil },
+                set: { if !$0 { authViewModel?.errorMessage = nil } }
+            ),
+            presenting: authViewModel?.errorMessage
+        ) { _ in
+            Button("OK") {
+                authViewModel?.errorMessage = nil
+            }
+        } message: { error in
+            Text(error)
         }
         .task {
             if authViewModel == nil, let authService = authService {
                 authViewModel = AuthenticationViewModel(authService: authService)
+            }
+        }
+        .onAppear {
+            // Animate in the title
+            withAnimation(.easeOut(duration: 0.8)) {
+                titleScale = 1.0
+                titleOpacity = 1.0
+            }
+            
+            // Animate in the button after a delay
+            withAnimation(.easeOut(duration: 0.6).delay(0.3)) {
+                buttonScale = 1.0
+                buttonOpacity = 1.0
             }
         }
     }

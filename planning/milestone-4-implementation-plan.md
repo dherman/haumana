@@ -390,30 +390,30 @@ func confirmSignOut() {
 ### 6.3 Manual Testing Checklist
 
 #### Authentication Flow
-- [ ] App launches with splash screen animation
-- [ ] Splash screen transitions to Sign-In screen when not authenticated
-- [ ] Splash screen transitions to MainTabView when authenticated
-- [ ] Sign-In screen has red background (lehua color)
-- [ ] Google Sign-In button is properly styled and centered
-- [ ] Loading indicator shows during authentication
-- [ ] Error messages display correctly on sign-in failure
+- [x] App launches with splash screen animation
+- [x] Splash screen transitions to Sign-In screen when not authenticated
+- [x] Splash screen transitions to MainTabView when authenticated
+- [x] Sign-In screen has red background (lehua color)
+- [x] Google Sign-In button is properly styled and centered
+- [x] Loading indicator shows during authentication
+- [x] Error messages display correctly on sign-in failure
 
 #### Navigation After Sign-In
-- [ ] First-time user (empty repertoire) lands on Repertoire tab
-- [ ] Returning user (has pieces) lands on Practice tab
-- [ ] Tab bar appears only after successful authentication
+- [x] First-time user (empty repertoire) lands on Repertoire tab
+- [x] Returning user (has pieces) lands on Practice tab
+- [x] Tab bar appears only after successful authentication
 
 #### Data Scoping
-- [ ] User only sees their own pieces in Repertoire
-- [ ] Practice carousel only shows user's pieces
-- [ ] New pieces are assigned to current user
-- [ ] Sign out and sign in with different account shows different data
+- [x] User only sees their own pieces in Repertoire
+- [x] Practice carousel only shows user's pieces
+- [x] New pieces are assigned to current user
+- [x] Sign out and sign in with different account shows different data
 
 #### Sign-Out Flow  
-- [ ] Sign-out button in Profile shows confirmation dialog
-- [ ] Confirming sign-out returns to Sign-In screen
-- [ ] Tab bar disappears after sign-out
-- [ ] No user data visible after sign-out
+- [x] Sign-out button in Profile shows confirmation dialog
+- [x] Confirming sign-out returns to Sign-In screen
+- [x] Tab bar disappears after sign-out
+- [x] No user data visible after sign-out
 
 ## Implementation Notes
 
