@@ -7,7 +7,7 @@ class AuthenticationService {
     private(set) var currentUser: User?
     private(set) var isSignedIn: Bool = false
     
-    private let modelContext: ModelContext
+    let modelContext: ModelContext
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext

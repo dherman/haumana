@@ -6,24 +6,41 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
+    @Environment(\.authService) private var authService
+    @State private var selectedTab = 0
+    @Query private var pieces: [Piece]
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             PracticeTabView()
                 .tabItem {
                     Label("Practice", systemImage: "music.note.list")
                 }
+                .tag(0)
             
             RepertoireListView()
                 .tabItem {
                     Label("Repertoire", systemImage: "square.text.square.fill")
                 }
+                .tag(1)
             
             ProfileTabView()
                 .tabItem {
                     Label("Profile", systemImage: "person.circle.fill")
                 }
+                .tag(2)
+        }
+        .onAppear {
+            // If user just signed in and has no pieces, show Repertoire tab
+            if let authService = authService,
+               let userId = authService.currentUser?.id {
+                let userPieces = pieces.filter { $0.userId == userId }
+                if userPieces.isEmpty {
+                    selectedTab = 1
+                }
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ final class AuthenticationViewModel {
     var isLoading = false
     var showingSignOutConfirmation = false
     var errorMessage: String?
+    var shouldNavigateToRepertoire = false
     
     init(authService: AuthenticationService) {
         self.authService = authService
@@ -33,6 +34,15 @@ final class AuthenticationViewModel {
             }
             
             try await authService.signIn(presenting: rootViewController)
+            
+            // After successful sign-in, check if user has any pieces
+            if let userId = authService.currentUser?.id {
+                let pieceRepository = PieceRepository(modelContext: authService.modelContext)
+                let userPieces = try pieceRepository.fetchAll(userId: userId)
+                
+                // Set flag for navigation if repertoire is empty
+                shouldNavigateToRepertoire = userPieces.isEmpty
+            }
         } catch {
             errorMessage = "Sign in failed: \(error.localizedDescription)"
         }

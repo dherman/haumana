@@ -50,24 +50,14 @@ struct SplashScreenView: View {
                 
                 // Main app title with serif font hierarchy
                 Text("Haumana")
-                    .font(serifFont)
-                    .fontWeight(.medium)
+                    .font(.custom("Adelia", size: 60))
+                    .fontWeight(.light)
                     .foregroundColor(.black) // Changed to black for better readability
                     .opacity(opacity)
                     .scaleEffect(scale)
                     .shadow(color: .white.opacity(0.8), radius: 4, x: 0, y: 0) // White shadow for definition
                     .tracking(0.5) // Reduced kerning for better spacing
-                
-                // Subtle subtitle
-                Text("Practice assistant")
-                    .font(UIFont(name: "Adelia", size: 24) != nil ? .custom("Adelia", size: 24) : .custom("Georgia", size: 16))
-                    .fontWeight(.light)
-                    .foregroundColor(.black) // Changed to black with slight transparency
-                    .opacity(opacity)
-                    .shadow(color: .white.opacity(0.8), radius: 4, x: 0, y: 0) // White shadow for definition
-                    .padding(.top, 12)
-                    .tracking(0.3) // Reduced kerning for subtitle too
-                
+                                
                 Spacer()
                 
                 // Bottom spacing for safe area
@@ -108,27 +98,13 @@ struct SplashScreenView: View {
         }
         .fullScreenCover(isPresented: $isActive) {
             if let authService = authService {
-                MainTabView()
-                    .environment(\.authService, authService)
-            }
-        }
-    }
-    
-    /// Preferred serif font with fallbacks
-    private var serifFont: Font {
-        // Try custom Pearl Hirenha font first
-        if UIFont(name: "Pearl Hirenha DEMO VERSION", size: 68) != nil {
-            return .custom("Pearl Hirenha DEMO VERSION", size: 68)
-        } else {
-            // Use fallback serif fonts
-            if UIFont(name: "Cochin", size: 68) != nil {
-                return .custom("Cochin", size: 68)
-            } else if UIFont(name: "HoeflerText-Regular", size: 68) != nil {
-                return .custom("HoeflerText-Regular", size: 68)
-            } else if UIFont(name: "Palatino", size: 68) != nil {
-                return .custom("Palatino", size: 68)
-            } else {
-                return .custom("Georgia", size: 68)
+                if authService.isSignedIn {
+                    MainTabView()
+                        .environment(\.authService, authService)
+                } else {
+                    SignInView()
+                        .environment(\.authService, authService)
+                }
             }
         }
     }
