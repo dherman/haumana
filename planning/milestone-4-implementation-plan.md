@@ -361,35 +361,59 @@ func confirmSignOut() {
 - testSignInCancellation()
 - testSignOut()
 - testUserPersistence()
+- testRestorePreviousSignIn()
 
-// UserMigrationServiceTests
-- testLocalDataMigration()
-- testUserDataFiltering()
-- testAccountSwitching()
+// DataScopingTests
+- testPiecesFilteredByUserId()
+- testSessionsFilteredByUserId()
+- testNewPieceAssignedToCurrentUser()
+- testDataIsolationBetweenUsers()
 ```
 
 ### 6.2 UI Tests
 ```swift
 // AuthenticationUITests
+- testSplashToSignInFlow()
 - testSignInFlow()
-- testSignInWithEmptyRepertoire() // Should navigate to Repertoire
-- testSignInWithExistingPieces() // Should navigate to Practice
+- testSignInWithEmptyRepertoire() // Should navigate to Repertoire tab
+- testSignInWithExistingPieces() // Should navigate to Practice tab
 - testSignOutFromProfile() // Should return to SignInView
 - testSignInCancellation() // Should remain on SignInView
-- testNetworkErrorDuringSignIn()
+- testErrorMessageDisplay()
+
+// AuthenticatedFlowTests  
+- testAllTabsRequireAuthentication()
+- testAddPieceAssignedToUser()
+- testUserOnlySeesOwnPieces()
 ```
 
 ### 6.3 Manual Testing Checklist
-- [ ] App launches to Sign-In screen when not authenticated
-- [ ] Sign-In screen has proper red background
+
+#### Authentication Flow
+- [ ] App launches with splash screen animation
+- [ ] Splash screen transitions to Sign-In screen when not authenticated
+- [ ] Splash screen transitions to MainTabView when authenticated
+- [ ] Sign-In screen has red background (lehua color)
 - [ ] Google Sign-In button is properly styled and centered
-- [ ] Loading state shows during authentication
-- [ ] Empty repertoire navigates to Repertoire tab
-- [ ] Existing pieces navigate to Practice tab
-- [ ] Sign out from Profile returns to Sign-In screen
-- [ ] Tab bar is never visible on Sign-In screen
-- [ ] All authenticated views work without checking auth state
-- [ ] Privacy and Terms links work from Profile
+- [ ] Loading indicator shows during authentication
+- [ ] Error messages display correctly on sign-in failure
+
+#### Navigation After Sign-In
+- [ ] First-time user (empty repertoire) lands on Repertoire tab
+- [ ] Returning user (has pieces) lands on Practice tab
+- [ ] Tab bar appears only after successful authentication
+
+#### Data Scoping
+- [ ] User only sees their own pieces in Repertoire
+- [ ] Practice carousel only shows user's pieces
+- [ ] New pieces are assigned to current user
+- [ ] Sign out and sign in with different account shows different data
+
+#### Sign-Out Flow  
+- [ ] Sign-out button in Profile shows confirmation dialog
+- [ ] Confirming sign-out returns to Sign-In screen
+- [ ] Tab bar disappears after sign-out
+- [ ] No user data visible after sign-out
 
 ## Implementation Notes
 
@@ -432,10 +456,10 @@ func confirmSignOut() {
 
 ## Risk Mitigation
 
-1. **Data Loss**: Implement backup before migration
-2. **Auth Failures**: Robust offline fallback
-3. **Privacy Concerns**: Minimal data collection
-4. **Migration Bugs**: Extensive testing, reversible process
+1. **Data Isolation**: Ensure proper userId filtering in all queries
+2. **Auth Failures**: Clear error messages and retry options
+3. **Privacy Concerns**: Minimal data collection, only essential user info
+4. **Navigation Bugs**: Thorough testing of all auth state transitions
 
 ## Timeline Summary
 
