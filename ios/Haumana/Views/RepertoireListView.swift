@@ -113,15 +113,13 @@ struct RepertoireListView: View {
     }
     
     private var filteredPieces: [Piece] {
-        // Filter by user first
-        let userId = authService?.currentUser?.id
+        // Filter by authenticated user
+        guard let userId = authService?.currentUser?.id else {
+            return []
+        }
+        
         var filtered = pieces.filter { piece in
-            if let userId = userId {
-                return piece.userId == userId
-            } else {
-                // For unauthenticated users, show pieces without userId
-                return piece.userId == nil
-            }
+            piece.userId == userId
         }
         
         // Apply filter option
@@ -162,15 +160,21 @@ struct RepertoireListView: View {
     }
     
     private func getFilterCount(for filter: FilterOption) -> Int {
+        guard let userId = authService?.currentUser?.id else {
+            return 0
+        }
+        
+        let userPieces = pieces.filter { $0.userId == userId }
+        
         switch filter {
         case .all:
-            return pieces.count
+            return userPieces.count
         case .oli:
-            return pieces.filter { $0.categoryEnum == .oli }.count
+            return userPieces.filter { $0.categoryEnum == .oli }.count
         case .mele:
-            return pieces.filter { $0.categoryEnum == .mele }.count
+            return userPieces.filter { $0.categoryEnum == .mele }.count
         case .favorites:
-            return pieces.filter { $0.isFavorite }.count
+            return userPieces.filter { $0.isFavorite }.count
         }
     }
 }

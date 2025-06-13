@@ -17,16 +17,6 @@ struct ProfileTabView: View {
     
     // Use @Query to observe changes
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var sessions: [PracticeSession]
-    @Query private var pieces: [Piece]
-    
-    // Computed stats for unauthenticated view
-    private var localPiecesCount: Int {
-        pieces.filter { $0.userId == nil }.count
-    }
-    
-    private var localSessionsCount: Int {
-        sessions.filter { $0.userId == nil }.count
-    }
     
     var body: some View {
         NavigationStack {
@@ -100,9 +90,8 @@ struct ProfileTabView: View {
         profileViewModel: ProfileViewModel
     ) -> some View {
         List {
-            if authViewModel.isSignedIn,
-               let user = authViewModel.user {
-                // Authenticated view sections
+            // User is always authenticated when viewing Profile tab
+            if let user = authViewModel.user {
                 AuthenticatedProfileView(
                     user: user,
                     profileStats: AuthenticatedProfileView.ProfileStats(
@@ -116,24 +105,13 @@ struct ProfileTabView: View {
                         authViewModel.signOut()
                     }
                 )
-            } else {
-                // Unauthenticated view sections
-                UnauthenticatedProfileView(
-                    onSignIn: {
-                        await authViewModel.signIn()
-                    },
-                    totalLocalPieces: localPiecesCount,
-                    totalLocalSessions: localSessionsCount
-                )
             }
             
             // Common footer sections
             ProfileFooterView(appVersion: profileViewModel.appVersion)
         }
         .refreshable {
-            if authViewModel.isSignedIn {
-                await profileViewModel.refresh()
-            }
+            await profileViewModel.refresh()
         }
     }
 }
