@@ -357,17 +357,17 @@ func confirmSignOut() {
 ### 6.1 Unit Tests
 ```swift
 // AuthenticationServiceTests
-- testSuccessfulSignIn()
-- testSignInCancellation()
-- testSignOut()
-- testUserPersistence()
-- testRestorePreviousSignIn()
+- [x] testSuccessfulSignIn()
+- [x] testSignInCancellation()
+- [x] testSignOut()
+- [x] testUserPersistence()
+- [x] testRestorePreviousSignIn()
 
 // DataScopingTests
-- testPiecesFilteredByUserId()
-- testSessionsFilteredByUserId()
-- testNewPieceAssignedToCurrentUser()
-- testDataIsolationBetweenUsers()
+- [x] testPiecesFilteredByUserId()
+- [x] testSessionsFilteredByUserId()
+- [x] testNewPieceAssignedToCurrentUser()
+- [x] testDataIsolationBetweenUsers()
 ```
 
 ### 6.2 UI Tests
@@ -445,14 +445,14 @@ func confirmSignOut() {
 
 ## Success Criteria
 
-- [ ] Sign-In screen displays with red background
-- [ ] Google Sign-In works reliably
-- [ ] User data properly scoped
-- [ ] Smart navigation after sign-in based on repertoire
-- [ ] Profile tab shows authenticated user info
-- [ ] Sign-out returns to Sign-In screen
-- [ ] No data leaks between users
-- [ ] All features tested on physical device
+- [x] Sign-In screen displays with red background
+- [x] Google Sign-In works reliably
+- [x] User data properly scoped
+- [x] Smart navigation after sign-in based on repertoire
+- [x] Profile tab shows authenticated user info
+- [x] Sign-out returns to Sign-In screen
+- [x] No data leaks between users
+- [x] All features tested on physical device
 
 ## Risk Mitigation
 

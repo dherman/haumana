@@ -75,11 +75,10 @@ The Profile tab is only accessible to signed-in users:
 - **No guest mode**: Authentication is required to use the app
 - **First-time user flow**: Detect empty repertoire and navigate to Repertoire tab
 
-### 4. Privacy & Legal
-- **Privacy Policy**: Link to external privacy policy webpage
-- **Terms of Service**: Link to external terms of service webpage
-- **Data Disclosure**: Clear messaging about what data is collected
-- **Compliance**: COPPA and GDPR considerations for data handling
+### 4. Privacy & Legal (Deferred to Post-Launch)
+- **Note**: Privacy policy and terms of service links are included in the UI but commented out
+- **Rationale**: Not needed for private gift release, will be added before public App Store release
+- **Data Collection**: Minimal - only Google user ID, email, display name, and photo URL
 
 ### 5. App Navigation Structure
 - **Entry point**: Sign-In Screen (no tab bar)
@@ -171,32 +170,30 @@ final class User {
 ## Development Checklist
 
 ### Setup
-- [ ] Add Google Sign-In SDK dependency
-- [ ] Configure Google Cloud project
-- [ ] Add OAuth client ID for iOS
-- [ ] Update Info.plist with URL schemes
+- [x] Add Google Sign-In SDK dependency
+- [x] Configure Google Cloud project
+- [x] Add OAuth client ID for iOS
+- [x] Update Info.plist with URL schemes
 
 ### Implementation
-- [ ] Create AuthService with Google Sign-In
-- [ ] Build AuthViewModel for state management
-- [ ] Update Profile tab UI for both states
-- [ ] Add userId to data models
-- [ ] Implement data filtering by user
-- [ ] Create migration service for existing data
-- [ ] Add sign-out confirmation flow
+- [x] Create AuthService with Google Sign-In
+- [x] Build AuthViewModel for state management
+- [x] Update Profile tab UI for authenticated state only
+- [x] Add userId to data models
+- [x] Implement data filtering by user
+- [x] Add sign-out confirmation flow
+- [x] Create dedicated Sign-In screen
 
 ### Testing
-- [ ] Unit tests for AuthService
-- [ ] UI tests for sign-in/sign-out flows
-- [ ] Test data migration scenarios
-- [ ] Verify offline functionality preserved
-- [ ] Test account switching
+- [x] Unit tests for AuthService
+- [x] UI tests for sign-in/sign-out flows
+- [x] Test data isolation between users
+- [x] Test account switching
+- [x] All manual tests passed
 
 ### Deployment
-- [ ] Create privacy policy webpage
-- [ ] Create terms of service webpage
-- [ ] Test on physical device
-- [ ] Verify all navigation flows
+- [x] Test on physical device
+- [x] Verify all navigation flows
 
 ## Future Considerations
 

@@ -20,6 +20,7 @@ final class LaunchUITests: XCTestCase {
     @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["-UITestMode"]
         app.launch()
         
         // MARK: - Launch State Assertions
@@ -35,16 +36,15 @@ final class LaunchUITests: XCTestCase {
         
         // MARK: - Initial Content Assertions
         
-        // 4. Navigation bar should be present (after splash)
-        let navBar = app.navigationBars.firstMatch
-        XCTAssertTrue(navBar.waitForExistence(timeout: 5), "Navigation bar should appear within 5 seconds")
+        // 4. Wait for app to get past splash screen
+        sleep(4)
         
         // 5. Check for essential UI elements
-        // Either we see splash screen elements OR main screen elements
+        // In test mode, we should see sign-in screen elements
         let splashTitle = app.staticTexts["Haumana"]
-        let mainNavTitle = app.navigationBars["Haumana"]
-        let hasValidContent = splashTitle.exists || mainNavTitle.exists
-        XCTAssertTrue(hasValidContent, "Should see either splash screen or main navigation")
+        let signInButton = app.buttons["Sign in with Google"]
+        let hasValidContent = splashTitle.exists || signInButton.exists
+        XCTAssertTrue(hasValidContent, "Should see either splash screen or sign-in screen")
         
         // MARK: - Accessibility Assertions
         
@@ -95,6 +95,7 @@ final class LaunchUITests: XCTestCase {
     @MainActor
     func testLaunchInDifferentOrientations() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["-UITestMode"]
         
         // Test portrait launch
         XCUIDevice.shared.orientation = .portrait
@@ -121,7 +122,7 @@ final class LaunchUITests: XCTestCase {
     func testLaunchWithDifferentLanguages() throws {
         // Test with Hawaiian locale
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(haw)"]
+        app.launchArguments = ["-UITestMode", "-AppleLanguages", "(haw)"]
         app.launch()
         
         // Could verify Hawaiian-specific UI elements here

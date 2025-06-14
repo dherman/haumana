@@ -22,7 +22,8 @@ struct ProfileFooterView: View {
                 }
             }
             
-            // Legal Section
+            // Legal Section - Hidden until public release
+            /*
             Section("Legal") {
                 Link(destination: URL(string: "https://haumana.app/privacy")!) {
                     HStack {
@@ -44,6 +45,7 @@ struct ProfileFooterView: View {
                     }
                 }
             }
+            */
             
             // About Section
             Section("About") {

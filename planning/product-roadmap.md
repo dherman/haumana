@@ -238,6 +238,14 @@ This roadmap breaks down the Haumana app development into manageable milestones,
 
 ## Future Milestones (Post-Launch)
 
+### Phase 1: App Store Preparation
+- Create privacy policy webpage
+- Create terms of service webpage  
+- Implement COPPA compliance for users under 13
+- App Store listing and screenshots
+- TestFlight beta program
+- App Store submission and review
+
 ### Phase 2: Practice Analytics
 - History tab with calendar view
 - Practice streak visualization

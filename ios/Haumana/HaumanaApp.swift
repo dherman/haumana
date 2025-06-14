@@ -99,8 +99,23 @@ struct haumanaApp: App {
     
     /// Configure Google Sign-In
     private func configureGoogleSignIn() {
+        // Check if we're in UI test mode
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("-UITestMode")
+        
+        if isUITesting {
+            // Skip Google Sign-In configuration for UI tests
+            print("Running in UI test mode - skipping Google Sign-In configuration")
+            return
+        }
+        
         // Load Google Sign-In configuration from plist
         guard let path = Bundle.main.path(forResource: "GoogleSignIn", ofType: "plist") else {
+            // In test environments, the plist might not be available
+            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+                print("Running in test environment - Google Sign-In plist not found")
+                return
+            }
+            
             fatalError("""
                 GoogleSignIn.plist not found in app bundle.
                 
