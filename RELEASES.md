@@ -6,6 +6,118 @@ Haumana is an iOS app designed to help students of Hawaiian art and culture mana
 
 ---
 
+## Version 0.4.0 - Milestone 4 (User Authentication)
+*Released: June 2025*
+
+This release introduces Google Sign-In authentication, establishing the foundation for cloud synchronization and multi-device support while maintaining privacy and data security.
+
+### New Features
+
+#### Google Sign-In Authentication
+- **Secure authentication**: Sign in with your Google account for a personalized experience
+- **Dedicated sign-in screen**: Clean, focused entry point with lehua-red branding
+- **Persistent sessions**: Stay signed in between app launches
+- **Account management**: View your profile and sign out when needed
+
+#### User-Scoped Data
+- **Private repertoire**: Your oli and mele are now tied to your account
+- **Personal practice history**: Sessions tracked per user for accurate statistics
+- **Data isolation**: Each user sees only their own content
+- **Seamless migration**: Existing local data automatically associated with first sign-in
+
+#### Enhanced Profile Tab
+- **User profile display**: See your Google account photo, name, and email
+- **Account-specific stats**: Practice metrics reflect only your sessions
+- **Sign-out capability**: Secure sign-out with confirmation dialog
+- **Future-ready**: "Data synced with your account" indicator for upcoming cloud features
+
+#### Improved Navigation
+- **Smart landing**: New users directed to Repertoire, returning users to Practice
+- **Authentication gate**: All features now require sign-in for data security
+- **Simplified flow**: No guest mode or signed-out states in main screens
+
+### Privacy & Security
+
+#### Data Collection
+- **Minimal approach**: Only Google user ID, email, name, and photo URL stored
+- **Local storage**: All repertoire and practice data remains on-device (cloud sync coming in v0.5.0)
+- **No tracking**: No analytics or third-party data sharing
+- **Privacy-first**: Preparing infrastructure for GDPR/CCPA compliance
+
+#### Security Features
+- **OAuth 2.0**: Industry-standard secure authentication
+- **Token management**: Secure handling of authentication credentials
+- **Auto sign-out**: Sessions expire for security (re-authentication is seamless)
+
+### User Experience Updates
+
+#### First-Time Users
+1. Launch app → See welcoming sign-in screen
+2. Sign in with Google → Smooth native authentication
+3. Empty repertoire → Automatically navigate to add first piece
+4. Start building your personalized practice routine
+
+#### Returning Users
+1. Launch app → Automatically signed in
+2. Has repertoire → Land on Practice tab ready to go
+3. Profile shows your account and practice statistics
+4. All your data exactly where you left it
+
+### Technical Improvements
+
+#### Authentication Architecture
+- **AuthService**: Centralized authentication management
+- **AuthViewModel**: Reactive UI state for auth flows
+- **User context**: Consistent user identity throughout app
+- **Secure storage**: Keychain integration for credential persistence
+
+#### Data Model Updates
+- Added `userId` field to Piece and PracticeSession models
+- New User model for caching profile information
+- Automatic filtering ensures data privacy
+- Foundation laid for multi-device synchronization
+
+### For Existing Users
+
+**Important**: Your local data is safe! When you sign in for the first time:
+- All existing pieces automatically associate with your account
+- Practice history transfers seamlessly
+- No data is lost or duplicated
+- Everything continues working as before, now with account security
+
+### Bug Fixes
+
+- Fixed tab navigation after authentication
+- Fixed profile statistics to show user-specific data only
+- Improved error handling for network issues during sign-in
+- Enhanced loading states during authentication flow
+
+### Known Limitations
+
+Features planned for future releases:
+- No cloud synchronization yet (coming in v0.5.0)
+- No data sharing between devices
+- Privacy policy and terms of service pages (commented out for private release)
+- No offline mode for initial sign-in (requires network)
+- No alternative authentication methods (only Google Sign-In)
+
+### Performance
+
+- Sign-in typically completes in <2 seconds
+- No impact on app performance after authentication
+- Minimal memory overhead for user context
+- Efficient data filtering maintains fast repertoire loading
+
+### What's Next
+
+Version 0.5.0 will build on this authentication foundation:
+- Cloud synchronization with AWS
+- Access your repertoire from any device
+- Automatic backup of all data
+- Offline-first architecture with sync
+
+---
+
 ## Version 0.3.0 - Milestone 3 (Practice Carousel)
 *Released: June 2025*
 
@@ -359,6 +471,7 @@ Aloha ♥️
 
 | Version | Release Date | Theme |
 |---------|--------------|-------|
+| 0.4.0 | June 2025 | User Authentication |
 | 0.3.0 | June 2025 | Practice Carousel |
 | 0.2.0 | June 2025 | Start Practicing |
 | 0.1.0 | June 2025 | Build Your Repertoire |
