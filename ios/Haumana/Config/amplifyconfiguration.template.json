@@ -1,0 +1,51 @@
+{
+  "auth": {
+    "plugins": {
+      "awsCognitoAuthPlugin": {
+        "IdentityManager": {
+          "Default": {}
+        },
+        "CredentialsProvider": {
+          "CognitoIdentity": {
+            "Default": {
+              "PoolId": "YOUR_IDENTITY_POOL_ID",
+              "Region": "us-west-2"
+            }
+          }
+        },
+        "CognitoUserPool": {
+          "Default": {
+            "PoolId": "YOUR_USER_POOL_ID",
+            "AppClientId": "YOUR_APP_CLIENT_ID",
+            "Region": "us-west-2"
+          }
+        },
+        "Auth": {
+          "Default": {
+            "OAuth": {
+              "WebDomain": "YOUR_COGNITO_DOMAIN.auth.us-west-2.amazoncognito.com",
+              "AppClientId": "YOUR_APP_CLIENT_ID",
+              "SignInRedirectURI": "haumana://signin",
+              "SignOutRedirectURI": "haumana://signout",
+              "Scopes": ["openid", "email", "profile"],
+              "IdentityProvider": "Google"
+            },
+            "authenticationFlowType": "USER_SRP_AUTH"
+          }
+        }
+      }
+    }
+  },
+  "api": {
+    "plugins": {
+      "awsAPIPlugin": {
+        "haumanaAPI": {
+          "endpointType": "REST",
+          "endpoint": "https://YOUR_API_ID.execute-api.us-west-2.amazonaws.com/prod",
+          "region": "us-west-2",
+          "authorizationType": "AMAZON_COGNITO_USER_POOLS"
+        }
+      }
+    }
+  }
+}

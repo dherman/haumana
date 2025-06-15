@@ -1,0 +1,25 @@
+{
+  "TableName": "haumana-pieces",
+  "KeySchema": [
+    { "AttributeName": "userId", "KeyType": "HASH" },
+    { "AttributeName": "pieceId", "KeyType": "RANGE" }
+  ],
+  "AttributeDefinitions": [
+    { "AttributeName": "userId", "AttributeType": "S" },
+    { "AttributeName": "pieceId", "AttributeType": "S" },
+    { "AttributeName": "modifiedAt", "AttributeType": "S" }
+  ],
+  "GlobalSecondaryIndexes": [{
+    "IndexName": "userId-modifiedAt-index",
+    "Keys": [
+      { "AttributeName": "userId", "KeyType": "HASH" },
+      { "AttributeName": "modifiedAt", "KeyType": "RANGE" }
+    ],
+    "Projection": { "ProjectionType": "ALL" },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 5,
+      "WriteCapacityUnits": 5
+    }
+  }],
+  "BillingMode": "PAY_PER_REQUEST"
+}

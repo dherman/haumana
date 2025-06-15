@@ -1,0 +1,26 @@
+{
+  "TableName": "haumana-sessions",
+  "KeySchema": [
+    { "AttributeName": "pk", "KeyType": "HASH" },
+    { "AttributeName": "sk", "KeyType": "RANGE" }
+  ],
+  "AttributeDefinitions": [
+    { "AttributeName": "pk", "AttributeType": "S" },
+    { "AttributeName": "sk", "AttributeType": "S" },
+    { "AttributeName": "pieceId", "AttributeType": "S" },
+    { "AttributeName": "startedAt", "AttributeType": "S" }
+  ],
+  "GlobalSecondaryIndexes": [{
+    "IndexName": "pieceId-startedAt-index",
+    "Keys": [
+      { "AttributeName": "pieceId", "KeyType": "HASH" },
+      { "AttributeName": "startedAt", "KeyType": "RANGE" }
+    ],
+    "Projection": { "ProjectionType": "ALL" },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 5,
+      "WriteCapacityUnits": 5
+    }
+  }],
+  "BillingMode": "PAY_PER_REQUEST"
+}

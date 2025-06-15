@@ -1,0 +1,29 @@
+{
+  "name": "lambdas",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:prod": "npm run build && npm run bundle",
+    "bundle": "npm run bundle:pieces && npm run bundle:sessions",
+    "bundle:pieces": "esbuild src/sync-pieces-lambda.ts --bundle --minify --platform=node --target=es2020 --outfile=dist/sync-pieces-lambda.js",
+    "bundle:sessions": "esbuild src/sync-sessions-lambda.ts --bundle --minify --platform=node --target=es2020 --outfile=dist/sync-sessions-lambda.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "@types/node": "^24.0.1",
+    "esbuild": "^0.25.5",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.828.0",
+    "@aws-sdk/lib-dynamodb": "^3.828.0",
+    "@types/uuid": "^10.0.0",
+    "uuid": "^11.1.0"
+  }
+}
