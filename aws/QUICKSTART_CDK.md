@@ -7,8 +7,9 @@ This guide will have your entire AWS infrastructure deployed in about 25 minutes
 1. **AWS Account** with appropriate permissions
 2. **AWS CLI** installed and configured (`aws configure`)
 3. **Node.js 18+** and npm installed
-4. **Google OAuth 2.0 credentials** (Client ID and Secret)
-   - If you don't have these, see "Creating Google OAuth Credentials" below
+4. **Google OAuth 2.0 Web Application credentials** (Client ID and Secret)
+   - ⚠️ **Important**: You need a "Web application" client, not "iOS" or "Android"
+   - If you only have an iOS client, see "Creating Google OAuth Credentials" below
 
 ## Step 1: Install AWS CDK (2 minutes)
 
@@ -155,7 +156,7 @@ Edit `aws/infrastructure/cdk/lib/haumana-stack.ts` and run `cdk deploy` again.
 
 ## Creating Google OAuth Credentials
 
-If you don't have Google OAuth credentials yet:
+You need a **Web application** OAuth client for Cognito (even though this is a mobile app):
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing
@@ -166,11 +167,17 @@ If you don't have Google OAuth credentials yet:
 4. Create credentials:
    - Go to **APIs & Services → Credentials**
    - Click **+ CREATE CREDENTIALS → OAuth client ID**
-   - Application type: **Web application**
-   - Name: "Haumana OAuth"
+   - Application type: **Web application** (NOT iOS!)
+   - Name: "Haumana Web (for Cognito)"
    - For now, don't add any redirect URIs (we'll add after CDK deployment)
    - Click **CREATE**
-5. Copy the Client ID and Client Secret
+5. **Important**: Save both the Client ID and Client Secret
+
+### Why Web Application?
+- AWS Cognito acts as a backend service and needs a client secret
+- Your iOS app will authenticate through Cognito, not directly with Google
+- This is the secure, recommended approach for mobile apps using Cognito
+- If you already have an iOS client, keep it (you might use it in the future)
 
 ## Environment-Specific Deployments
 
