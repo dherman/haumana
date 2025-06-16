@@ -4,13 +4,13 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
 export interface HaumanaStackProps extends cdk.StackProps {
   googleClientId: string;
-  googleClientSecret: string;
 }
 
 export class HaumanaStack extends cdk.Stack {
@@ -92,11 +92,14 @@ export class HaumanaStack extends cdk.Stack {
       },
     });
 
+    // ===== Get Google Client Secret from Secrets Manager =====
+    const googleClientSecret = secretsmanager.Secret.fromSecretNameV2(this, 'GoogleClientSecret', 'haumana-oauth');
+
     // ===== Google Identity Provider =====
     const googleProvider = new cognito.UserPoolIdentityProviderGoogle(this, 'GoogleProvider', {
       userPool,
       clientId: props.googleClientId,
-      clientSecretValue: cdk.SecretValue.unsafePlainText(props.googleClientSecret),
+      clientSecretValue: googleClientSecret.secretValue,
       scopes: ['profile', 'email', 'openid'],
       attributeMapping: {
         email: cognito.ProviderAttribute.GOOGLE_EMAIL,

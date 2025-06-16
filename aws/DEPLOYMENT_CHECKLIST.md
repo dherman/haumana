@@ -45,14 +45,30 @@ cd ../infrastructure/cdk
 ```
 - [ ] Lambda functions built successfully
 
-### 7. Set Google Credentials
+### 7. Store Google Client Secret in AWS Secrets Manager
+```bash
+# If creating new secret:
+aws secretsmanager create-secret \
+  --name haumana-oauth \
+  --description "Google OAuth Client Secret" \
+  --secret-string "your-actual-client-secret" \
+  --region us-west-2
+
+# If updating existing secret:
+aws secretsmanager put-secret-value \
+  --secret-id haumana-oauth \
+  --secret-string "your-actual-client-secret" \
+  --region us-west-2
+```
+- [ ] Client Secret stored in Secrets Manager
+
+### 8. Set Google Client ID
 ```bash
 export GOOGLE_CLIENT_ID="your-actual-client-id.apps.googleusercontent.com"
-export GOOGLE_CLIENT_SECRET="your-actual-client-secret"
 ```
-- [ ] Environment variables set
+- [ ] Environment variable set
 
-### 8. Deploy Stack
+### 9. Deploy Stack
 ```bash
 cdk deploy
 ```

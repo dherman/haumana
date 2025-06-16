@@ -7,8 +7,9 @@ This guide will have your entire AWS infrastructure deployed in about 25 minutes
 1. **AWS Account** with appropriate permissions
 2. **AWS CLI** installed and configured (`aws configure`)
 3. **Node.js 18+** and npm installed
-4. **Google OAuth 2.0 Web Application credentials** (Client ID and Secret)
+4. **Google OAuth 2.0 Web Application Client ID**
    - ⚠️ **Important**: You need a "Web application" client, not "iOS" or "Android"
+   - The Client Secret should be stored in AWS Secrets Manager as `haumana-oauth`
    - If you only have an iOS client, see "Creating Google OAuth Credentials" below
 
 ## Step 1: Install AWS CDK (2 minutes)
@@ -47,13 +48,32 @@ npm run build:prod
 cd ../infrastructure/cdk
 ```
 
-## Step 4: Deploy Everything (15 minutes)
+## Step 4: Store Google Client Secret in AWS Secrets Manager (2 minutes)
 
-Set your Google credentials as environment variables:
+Store your Google Client Secret securely:
+
+```bash
+aws secretsmanager create-secret \
+  --name haumana-oauth \
+  --description "Google OAuth Client Secret for Haumana" \
+  --secret-string "your-google-client-secret" \
+  --region us-west-2
+```
+
+If the secret already exists, update it:
+```bash
+aws secretsmanager put-secret-value \
+  --secret-id haumana-oauth \
+  --secret-string "your-google-client-secret" \
+  --region us-west-2
+```
+
+## Step 5: Deploy Everything (15 minutes)
+
+Set your Google Client ID as an environment variable:
 
 ```bash
 export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
-export GOOGLE_CLIENT_SECRET="your-client-secret"
 ```
 
 Deploy the stack:
@@ -172,6 +192,8 @@ You need a **Web application** OAuth client for Cognito (even though this is a m
    - For now, don't add any redirect URIs (we'll add after CDK deployment)
    - Click **CREATE**
 5. **Important**: Save both the Client ID and Client Secret
+   - Store the Client Secret in AWS Secrets Manager (see Step 4)
+   - Keep the Client ID for the deployment step
 
 ### Why Web Application?
 - AWS Cognito acts as a backend service and needs a client secret

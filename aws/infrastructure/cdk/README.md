@@ -15,8 +15,9 @@ This CDK application deploys all AWS infrastructure for Haumana's cloud sync fun
 
 1. AWS CLI configured with credentials
 2. Node.js 18+ and npm
-3. Google OAuth 2.0 credentials (Client ID and Secret)
-4. AWS CDK CLI: `npm install -g aws-cdk`
+3. Google OAuth 2.0 Web Application Client ID
+4. Google Client Secret stored in AWS Secrets Manager as `haumana-oauth`
+5. AWS CDK CLI: `npm install -g aws-cdk`
 
 ## Setup Instructions
 
@@ -42,23 +43,30 @@ npm run build:prod
 cd ../infrastructure/cdk
 ```
 
-### 4. Deploy Stack
+### 4. Store Google Client Secret
 
-Option A: Using environment variables
+```bash
+aws secretsmanager create-secret \
+  --name haumana-oauth \
+  --description "Google OAuth Client Secret" \
+  --secret-string "your-google-client-secret" \
+  --region us-west-2
+```
+
+### 5. Deploy Stack
+
+Option A: Using environment variable
 ```bash
 export GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
-export GOOGLE_CLIENT_SECRET="your-google-client-secret"
 npm run deploy
 ```
 
 Option B: Using CDK context
 ```bash
-npm run deploy -- \
-  -c googleClientId=your-google-client-id.apps.googleusercontent.com \
-  -c googleClientSecret=your-google-client-secret
+npm run deploy -- -c googleClientId=your-google-client-id.apps.googleusercontent.com
 ```
 
-### 5. Note the Outputs
+### 6. Note the Outputs
 
 After deployment, CDK will output:
 - User Pool ID
@@ -68,7 +76,7 @@ After deployment, CDK will output:
 - Cognito Domain
 - **Google Redirect URI** - Add this to Google OAuth settings!
 
-### 6. Update Google OAuth
+### 7. Update Google OAuth
 
 1. Copy the `GoogleRedirectUri` from the output
 2. Go to Google Cloud Console → APIs & Services → Credentials
