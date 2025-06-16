@@ -5,16 +5,16 @@ Follow these steps to deploy your AWS infrastructure using CDK.
 ## Pre-Deployment Setup
 
 ### 1. Verify Prerequisites
-- [ ] AWS CLI is installed: `aws --version`
-- [ ] AWS CLI is configured: `aws sts get-caller-identity`
-- [ ] Node.js 18+ is installed: `node --version`
-- [ ] You have Google OAuth Client ID and Secret ready
+- [x] AWS CLI is installed: `aws --version`
+- [x] AWS CLI is configured: `aws sts get-caller-identity`
+- [x] Node.js 18+ is installed: `node --version`
+- [x] You have Google OAuth Client ID and Secret ready
 
 ### 2. Install AWS CDK
 ```bash
 npm install -g aws-cdk
 ```
-- [ ] Verify: `cdk --version`
+- [x] Verify: `cdk --version`
 
 ## Deployment Steps
 
@@ -22,13 +22,13 @@ npm install -g aws-cdk
 ```bash
 cd aws/infrastructure/cdk
 ```
-- [ ] You're in the correct directory
+- [x] You're in the correct directory
 
 ### 4. Install Dependencies
 ```bash
 npm install
 ```
-- [ ] Dependencies installed successfully
+- [x] Dependencies installed successfully
 
 ### 5. Bootstrap CDK (First Time Only)
 ```bash

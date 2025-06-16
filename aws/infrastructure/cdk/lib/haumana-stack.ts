@@ -29,7 +29,7 @@ export class HaumanaStack extends cdk.Stack {
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'pieceId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      pointInTimeRecovery: true,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
     });
 
     piecesTable.addGlobalSecondaryIndex({
@@ -43,7 +43,7 @@ export class HaumanaStack extends cdk.Stack {
       partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      pointInTimeRecovery: true,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
     });
 
     sessionsTable.addGlobalSecondaryIndex({
@@ -96,14 +96,14 @@ export class HaumanaStack extends cdk.Stack {
     const googleProvider = new cognito.UserPoolIdentityProviderGoogle(this, 'GoogleProvider', {
       userPool,
       clientId: props.googleClientId,
-      clientSecretValue: cdk.SecretValue.plainText(props.googleClientSecret),
+      clientSecretValue: cdk.SecretValue.unsafePlainText(props.googleClientSecret),
       scopes: ['profile', 'email', 'openid'],
       attributeMapping: {
         email: cognito.ProviderAttribute.GOOGLE_EMAIL,
         fullname: cognito.ProviderAttribute.GOOGLE_NAME,
         profilePicture: cognito.ProviderAttribute.GOOGLE_PICTURE,
         custom: {
-          googleSub: cognito.ProviderAttribute.GOOGLE_SUB,
+          googleSub: cognito.ProviderAttribute.other("sub"),
         },
       },
     });
@@ -232,13 +232,13 @@ export class HaumanaStack extends cdk.Stack {
     const piecesResource = api.root.addResource('pieces');
     piecesResource.addMethod('POST', new apigateway.LambdaIntegration(syncPiecesFunction), {
       authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO_USER_POOLS,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     const sessionsResource = api.root.addResource('sessions');
     sessionsResource.addMethod('POST', new apigateway.LambdaIntegration(syncSessionsFunction), {
       authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO_USER_POOLS,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // ===== Outputs =====
@@ -252,7 +252,7 @@ export class HaumanaStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'UserPoolClientId', { value: this.userPoolClientId });
     new cdk.CfnOutput(this, 'IdentityPoolId', { value: this.identityPoolId });
     new cdk.CfnOutput(this, 'ApiEndpoint', { value: this.apiEndpoint });
-    new cdk.CfnOutput(this, 'CognitoDomain', { value: this.cognitoDomain });
+    new cdk.CfnOutput(this, 'CognitoDomainUrl', { value: this.cognitoDomain });
     new cdk.CfnOutput(this, 'GoogleRedirectUri', { 
       value: `${this.cognitoDomain}/oauth2/idpresponse`,
       description: 'Add this to Google OAuth Authorized redirect URIs' 
