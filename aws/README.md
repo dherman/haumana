@@ -2,13 +2,35 @@
 
 This directory contains the AWS infrastructure components for Haumana's cloud sync functionality.
 
+## 🚀 Recommended: CDK Quick Start
+
+**Deploy everything in 25 minutes using AWS CDK:**
+See [QUICKSTART_CDK.md](QUICKSTART_CDK.md) for the streamlined setup process.
+
 ## Prerequisites
 
 1. AWS CLI configured with appropriate credentials
 2. Node.js 18+ and npm
-3. An existing Google OAuth 2.0 client ID
+3. Google OAuth 2.0 client ID and Secret
+4. AWS CDK CLI: `npm install -g aws-cdk`
 
-## Quick Start
+## Quick Start (CDK - Recommended)
+
+```bash
+# 1. Install CDK and deploy everything
+cd infrastructure/cdk
+npm install
+export GOOGLE_CLIENT_ID="your-client-id"
+export GOOGLE_CLIENT_SECRET="your-secret"
+cdk deploy
+
+# 2. Update Google OAuth with the redirect URI from output
+# 3. Done! See QUICKSTART_CDK.md for details
+```
+
+## Manual Setup (Alternative)
+
+If you prefer manual setup or want to understand what CDK creates:
 
 ### 1. Create DynamoDB Tables
 

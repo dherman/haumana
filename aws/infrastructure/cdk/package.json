@@ -1,0 +1,26 @@
+{
+  "name": "haumana-infrastructure",
+  "version": "1.0.0",
+  "description": "AWS CDK infrastructure for Haumana app",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "deploy": "cdk deploy --require-approval never",
+    "diff": "cdk diff",
+    "synth": "cdk synth",
+    "destroy": "cdk destroy",
+    "bootstrap": "cdk bootstrap"
+  },
+  "devDependencies": {
+    "@types/node": "20.x",
+    "aws-cdk": "2.x",
+    "ts-node": "^10.9.0",
+    "typescript": "~5.x"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.x",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
