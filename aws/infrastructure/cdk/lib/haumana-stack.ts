@@ -105,9 +105,6 @@ export class HaumanaStack extends cdk.Stack {
         email: cognito.ProviderAttribute.GOOGLE_EMAIL,
         fullname: cognito.ProviderAttribute.GOOGLE_NAME,
         profilePicture: cognito.ProviderAttribute.GOOGLE_PICTURE,
-        custom: {
-          googleSub: cognito.ProviderAttribute.other("sub"),
-        },
       },
     });
 

@@ -10,3 +10,7 @@ CLAUDE.local.md
 
 # macOS
 .DS_Store
+
+# AWS configuration files (contain sensitive data)
+aws/aws-config.json
+ios/Haumana/Config/amplifyconfiguration.json
