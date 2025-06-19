@@ -15,7 +15,7 @@ struct SplashScreenView: View {
     @State private var scale = 0.8
     @State private var blossomOpacity = 0.0
     @State private var blossomScale = 1.2
-    @State private var authService: AuthenticationService?
+    @State private var authService: AuthenticationServiceProtocol?
     
     var body: some View {
         ZStack {
@@ -68,7 +68,8 @@ struct SplashScreenView: View {
         }
         .onAppear {
             // Initialize authentication service
-            authService = AuthenticationService(modelContext: modelContext)
+            // TODO: Add a feature flag to switch between services
+            authService = HybridAuthenticationService(modelContext: modelContext)
             
             // Animate blossom first
             withAnimation(.easeInOut(duration: 2.0)) {
@@ -98,13 +99,14 @@ struct SplashScreenView: View {
         }
         .fullScreenCover(isPresented: $isActive) {
             if let authService = authService {
-                if authService.isSignedIn {
-                    MainTabView()
-                        .environment(\.authService, authService)
-                } else {
-                    SignInView()
-                        .environment(\.authService, authService)
+                Group {
+                    if authService.isSignedIn {
+                        MainTabView()
+                    } else {
+                        SignInView()
+                    }
                 }
+                .environment(\.authService, authService)
             }
         }
     }

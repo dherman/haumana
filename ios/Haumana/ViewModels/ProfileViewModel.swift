@@ -16,7 +16,7 @@ final class ProfileViewModel {
     private let pieceRepository: PieceRepositoryProtocol
     private let sessionRepository: PracticeSessionRepositoryProtocol
     private let modelContext: ModelContext
-    let authService: AuthenticationService
+    let authService: AuthenticationServiceProtocol
     
     // User info
     var isSignedIn: Bool { authService.isSignedIn }
@@ -41,7 +41,7 @@ final class ProfileViewModel {
     // App info
     let appVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     
-    init(modelContext: ModelContext, authService: AuthenticationService) {
+    init(modelContext: ModelContext, authService: AuthenticationServiceProtocol) {
         self.modelContext = modelContext
         self.authService = authService
         self.pieceRepository = PieceRepository(modelContext: modelContext)
@@ -60,7 +60,7 @@ final class ProfileViewModel {
             
             // Load most practiced piece
             if let (pieceId, count) = try await sessionRepository.getMostPracticedPiece(userId: userId) {
-                mostPracticedPiece = try await pieceRepository.fetch(by: pieceId)
+                mostPracticedPiece = try pieceRepository.fetch(by: pieceId)
                 mostPracticedCount = count
             }
             
@@ -69,7 +69,7 @@ final class ProfileViewModel {
             var sessionsWithPieces: [SessionWithPiece] = []
             
             for session in sessions {
-                if let piece = try await pieceRepository.fetch(by: session.pieceId) {
+                if let piece = try pieceRepository.fetch(by: session.pieceId) {
                     sessionsWithPieces.append(SessionWithPiece(session: session, piece: piece))
                 }
             }
@@ -119,13 +119,15 @@ final class ProfileViewModel {
     }
     
     func signOut() {
-        authService.signOut()
-        // Clear any cached data
-        currentStreak = 0
-        totalSessions = 0
-        mostPracticedPiece = nil
-        mostPracticedCount = 0
-        recentSessions = []
+        Task {
+            await authService.signOut()
+            // Clear any cached data
+            currentStreak = 0
+            totalSessions = 0
+            mostPracticedPiece = nil
+            mostPracticedCount = 0
+            recentSessions = []
+        }
     }
     
     func restorePreviousSignIn() async {

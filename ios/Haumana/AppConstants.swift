@@ -27,4 +27,7 @@ enum AppConstants {
     // Category Colors
     static let oliColor = Color.blue
     static let meleColor = Color.purple
+    
+    // AWS Configuration
+    static let cognitoIdentityPoolId = "us-west-2:1e15f866-c1e9-4cef-8c8b-87b1b36311cf"
 }

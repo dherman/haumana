@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F8F596EA2DFA5A6E003FD9FB /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8F596E92DFA5A6E003FD9FB /* GoogleSignIn */; };
-		F8F596EC2DFA5A6E003FD9FB /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F8F596EB2DFA5A6E003FD9FB /* GoogleSignInSwift */; };
+		F8F598ED2E00FD81003FD9FB /* AWSAPIPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = F8F598EC2E00FD81003FD9FB /* AWSAPIPlugin */; };
+		F8F598EF2E00FD81003FD9FB /* AWSCognitoAuthPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = F8F598EE2E00FD81003FD9FB /* AWSCognitoAuthPlugin */; };
+		F8F598F12E00FD81003FD9FB /* Amplify in Frameworks */ = {isa = PBXBuildFile; productRef = F8F598F02E00FD81003FD9FB /* Amplify */; };
+		F8F598FC2E028E8C003FD9FB /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F8F598FB2E028E8C003FD9FB /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,8 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F8F596EA2DFA5A6E003FD9FB /* GoogleSignIn in Frameworks */,
-				F8F596EC2DFA5A6E003FD9FB /* GoogleSignInSwift in Frameworks */,
+				F8F598ED2E00FD81003FD9FB /* AWSAPIPlugin in Frameworks */,
+				F8F598FC2E028E8C003FD9FB /* GoogleSignIn in Frameworks */,
+				F8F598F12E00FD81003FD9FB /* Amplify in Frameworks */,
+				F8F598EF2E00FD81003FD9FB /* AWSCognitoAuthPlugin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,8 +136,10 @@
 			);
 			name = haumana;
 			packageProductDependencies = (
-				F8F596E92DFA5A6E003FD9FB /* GoogleSignIn */,
-				F8F596EB2DFA5A6E003FD9FB /* GoogleSignInSwift */,
+				F8F598EC2E00FD81003FD9FB /* AWSAPIPlugin */,
+				F8F598EE2E00FD81003FD9FB /* AWSCognitoAuthPlugin */,
+				F8F598F02E00FD81003FD9FB /* Amplify */,
+				F8F598FB2E028E8C003FD9FB /* GoogleSignIn */,
 			);
 			productName = haumana;
 			productReference = F83E039C2DE8C9A700DB7B61 /* haumana.app */;
@@ -218,7 +224,8 @@
 			mainGroup = F83E03932DE8C9A700DB7B61;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				F8F598EB2E00FD81003FD9FB /* XCRemoteSwiftPackageReference "amplify-swift" */,
+				F8F598FA2E028E8C003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F83E039D2DE8C9A700DB7B61 /* Products */;
@@ -583,7 +590,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+		F8F598EB2E00FD81003FD9FB /* XCRemoteSwiftPackageReference "amplify-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aws-amplify/amplify-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.48.1;
+			};
+		};
+		F8F598FA2E028E8C003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
 			requirement = {
@@ -594,15 +609,25 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F8F596E92DFA5A6E003FD9FB /* GoogleSignIn */ = {
+		F8F598EC2E00FD81003FD9FB /* AWSAPIPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
+			package = F8F598EB2E00FD81003FD9FB /* XCRemoteSwiftPackageReference "amplify-swift" */;
+			productName = AWSAPIPlugin;
 		};
-		F8F596EB2DFA5A6E003FD9FB /* GoogleSignInSwift */ = {
+		F8F598EE2E00FD81003FD9FB /* AWSCognitoAuthPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F8F596E82DFA5A6E003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignInSwift;
+			package = F8F598EB2E00FD81003FD9FB /* XCRemoteSwiftPackageReference "amplify-swift" */;
+			productName = AWSCognitoAuthPlugin;
+		};
+		F8F598F02E00FD81003FD9FB /* Amplify */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8F598EB2E00FD81003FD9FB /* XCRemoteSwiftPackageReference "amplify-swift" */;
+			productName = Amplify;
+		};
+		F8F598FB2E028E8C003FD9FB /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F8F598FA2E028E8C003FD9FB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

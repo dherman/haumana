@@ -6,11 +6,11 @@
 //
 
 import SwiftUI
-import GoogleSignIn
 
 struct SignInView: View {
     @Environment(\.authService) private var authService
-    @State private var authViewModel: AuthenticationViewModel?
+    @State private var isLoading = false
+    @State private var errorMessage: String?
     @State private var titleScale: CGFloat = 0.8
     @State private var titleOpacity: Double = 0.0
     @State private var buttonScale: CGFloat = 0.9
@@ -33,43 +33,37 @@ struct SignInView: View {
                     .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                 
                 // Google Sign-In button
-                if let authViewModel = authViewModel {
-                    Button(action: {
-                        Task {
-                            await authViewModel.signIn()
-                        }
-                    }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "g.circle.fill")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                            
-                            Text("Sign in with Google")
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundColor(.black.opacity(0.54))
-                        }
-                        .frame(width: 280, height: 50)
-                        .background(Color.white)
-                        .cornerRadius(25)
-                        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+                Button(action: signIn) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "g.circle.fill")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                        
+                        Text("Sign in with Google")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(.black.opacity(0.54))
                     }
-                    .disabled(authViewModel.isLoading)
-                    .scaleEffect(buttonScale)
-                    .opacity(buttonOpacity)
-                    
-                    // Loading state text
-                    if authViewModel.isLoading {
-                        Text("Signing in...")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white.opacity(0.8))
-                            .padding(.top, 20)
-                            .transition(.opacity)
-                    }
+                    .frame(width: 280, height: 50)
+                    .background(Color.white)
+                    .cornerRadius(25)
+                    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+                }
+                .disabled(isLoading)
+                .scaleEffect(buttonScale)
+                .opacity(buttonOpacity)
+                
+                // Loading state text
+                if isLoading {
+                    Text("Signing in...")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white.opacity(0.8))
+                        .padding(.top, 20)
+                        .transition(.opacity)
                 }
             }
             
             // Loading overlay
-            if authViewModel?.isLoading == true {
+            if isLoading {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
                     .transition(.opacity)
@@ -80,25 +74,20 @@ struct SignInView: View {
                     .transition(.scale.combined(with: .opacity))
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: authViewModel?.isLoading)
+        .animation(.easeInOut(duration: 0.3), value: isLoading)
         .alert(
             "Sign-In Error",
             isPresented: .init(
-                get: { authViewModel?.errorMessage != nil },
-                set: { if !$0 { authViewModel?.errorMessage = nil } }
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
             ),
-            presenting: authViewModel?.errorMessage
+            presenting: errorMessage
         ) { _ in
             Button("OK") {
-                authViewModel?.errorMessage = nil
+                errorMessage = nil
             }
         } message: { error in
             Text(error)
-        }
-        .task {
-            if authViewModel == nil, let authService = authService {
-                authViewModel = AuthenticationViewModel(authService: authService)
-            }
         }
         .onAppear {
             // Animate in the title
@@ -112,6 +101,30 @@ struct SignInView: View {
                 buttonScale = 1.0
                 buttonOpacity = 1.0
             }
+        }
+    }
+    
+    private func signIn() {
+        guard let authService = authService else { return }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        Task {
+            do {
+                // Get the root view controller for presentation
+                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let window = windowScene.windows.first,
+                      let rootViewController = window.rootViewController else {
+                    throw NSError(domain: "SignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unable to find window for sign in"])
+                }
+                
+                try await authService.signIn(presenting: rootViewController)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            
+            isLoading = false
         }
     }
 }

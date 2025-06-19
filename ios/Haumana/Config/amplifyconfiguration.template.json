@@ -27,8 +27,7 @@
               "AppClientId": "YOUR_APP_CLIENT_ID",
               "SignInRedirectURI": "haumana://signin",
               "SignOutRedirectURI": "haumana://signout",
-              "Scopes": ["openid", "email", "profile"],
-              "IdentityProvider": "Google"
+              "Scopes": ["openid", "email", "profile", "aws.cognito.signin.user.admin"]
             },
             "authenticationFlowType": "USER_SRP_AUTH"
           }

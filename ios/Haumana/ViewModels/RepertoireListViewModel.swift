@@ -16,13 +16,13 @@ final class RepertoireListViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     private let repository: PieceRepositoryProtocol
-    private let authService: AuthenticationService?
+    private let authService: AuthenticationServiceProtocol?
     
     private var userId: String? {
         authService?.currentUser?.id
     }
     
-    init(repository: PieceRepositoryProtocol, authService: AuthenticationService? = nil) {
+    init(repository: PieceRepositoryProtocol, authService: AuthenticationServiceProtocol? = nil) {
         self.repository = repository
         self.authService = authService
     }

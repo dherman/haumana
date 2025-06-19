@@ -14,3 +14,7 @@ CLAUDE.local.md
 # AWS configuration files (contain sensitive data)
 aws/aws-config.json
 ios/Haumana/Config/amplifyconfiguration.json
+
+# Build directories
+build/
+DerivedData/

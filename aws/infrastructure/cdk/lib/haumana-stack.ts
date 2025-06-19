@@ -53,23 +53,24 @@ export class HaumanaStack extends cdk.Stack {
     });
 
     // ===== Cognito User Pool =====
-    const userPool = new cognito.UserPool(this, 'UserPool', {
-      userPoolName: 'haumana-users',
-      selfSignUpEnabled: true,
+    const userPool = new cognito.UserPool(this, 'UserPoolV2', {
+      userPoolName: 'haumana-users-v2',
+      selfSignUpEnabled: false, // Only allow federated sign-in for now
       signInAliases: {
-        email: true,
-        username: false,
+        email: false,
+        username: true, // Use username for federated users
       },
       autoVerify: {
         email: true,
       },
       standardAttributes: {
-        email: {
-          required: true,
-          mutable: false,
-        },
+        // Don't require email as standard attribute since it causes issues with federated users
         fullname: {
-          required: true,
+          required: false,
+          mutable: true,
+        },
+        email: {
+          required: false,
           mutable: true,
         },
       },
@@ -81,14 +82,14 @@ export class HaumanaStack extends cdk.Stack {
         requireSymbols: false,
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-      removalPolicy: cdk.RemovalPolicy.RETAIN, // Don't delete user pool on stack deletion
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // Allow deletion since we're in development
     });
 
     // ===== Cognito Domain =====
     const cognitoDomain = new cognito.UserPoolDomain(this, 'CognitoDomain', {
       userPool,
       cognitoDomain: {
-        domainPrefix: `haumana-${cdk.Stack.of(this).account}`, // Ensures uniqueness
+        domainPrefix: `haumana-v2-${cdk.Stack.of(this).account}`, // Ensures uniqueness
       },
     });
 
@@ -113,23 +114,11 @@ export class HaumanaStack extends cdk.Stack {
       userPool,
       userPoolClientName: 'haumana-ios',
       generateSecret: false, // Mobile apps don't use secrets
-      oAuth: {
-        flows: {
-          authorizationCodeGrant: true,
-          implicitCodeGrant: false,
-        },
-        scopes: [
-          cognito.OAuthScope.OPENID,
-          cognito.OAuthScope.EMAIL,
-          cognito.OAuthScope.PROFILE,
-        ],
-        callbackUrls: ['haumana://signin'],
-        logoutUrls: ['haumana://signout'],
+      // No OAuth configuration needed since we're using hybrid auth
+      authFlows: {
+        adminUserPassword: true,
+        custom: true,
       },
-      supportedIdentityProviders: [
-        cognito.UserPoolClientIdentityProvider.GOOGLE,
-        cognito.UserPoolClientIdentityProvider.COGNITO,
-      ],
     });
 
     // Ensure Google provider is created before client
@@ -199,6 +188,27 @@ export class HaumanaStack extends cdk.Stack {
       memorySize: 256,
     });
 
+    // Auth Sync Lambda Function
+    const authSyncFunction = new NodejsFunction(this, 'AuthSyncFunction', {
+      functionName: 'haumana-auth-sync',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '../../../lambda/auth-sync/index.ts'),
+      handler: 'handler',
+      environment: {
+        USER_POOL_ID: userPool.userPoolId,
+        GOOGLE_CLIENT_ID: props.googleClientId,
+      },
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 256,
+    });
+
+    // Grant permissions to auth sync function
+    userPool.grant(authSyncFunction, 
+      'cognito-idp:AdminCreateUser',
+      'cognito-idp:AdminUpdateUserAttributes',
+      'cognito-idp:AdminGetUser'
+    );
+
     // Grant Lambda permissions to DynamoDB
     piecesTable.grantReadWriteData(syncPiecesFunction);
     sessionsTable.grantReadWriteData(syncSessionsFunction);
@@ -240,6 +250,11 @@ export class HaumanaStack extends cdk.Stack {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
+
+    // Auth sync endpoint (no authorizer needed - it handles its own auth)
+    const authResource = api.root.addResource('auth');
+    const authSyncResource = authResource.addResource('sync');
+    authSyncResource.addMethod('POST', new apigateway.LambdaIntegration(authSyncFunction));
 
     // ===== Outputs =====
     this.userPoolId = userPool.userPoolId;

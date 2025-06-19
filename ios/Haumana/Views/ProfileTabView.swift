@@ -13,7 +13,8 @@ struct ProfileTabView: View {
     @Environment(\.authService) private var authService
     
     @State private var profileViewModel: ProfileViewModel?
-    @State private var authViewModel: AuthenticationViewModel?
+    @State private var showingSignOutConfirmation = false
+    @State private var errorMessage: String?
     
     // Use @Query to observe changes
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var sessions: [PracticeSession]
@@ -21,10 +22,10 @@ struct ProfileTabView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if let authViewModel = authViewModel,
-                   let profileViewModel = profileViewModel {
+                if let profileViewModel = profileViewModel,
+                   let authService = authService {
                     profileContent(
-                        authViewModel: authViewModel,
+                        authService: authService,
                         profileViewModel: profileViewModel
                     )
                 } else {
@@ -35,10 +36,6 @@ struct ProfileTabView: View {
             .navigationTitle("Profile")
         }
         .task {
-            if authViewModel == nil, let authService = authService {
-                authViewModel = AuthenticationViewModel(authService: authService)
-            }
-            
             if profileViewModel == nil, let authService = authService {
                 profileViewModel = ProfileViewModel(
                     modelContext: modelContext,
@@ -55,14 +52,13 @@ struct ProfileTabView: View {
         }
         .confirmationDialog(
             "Sign Out",
-            isPresented: .init(
-                get: { authViewModel?.showingSignOutConfirmation ?? false },
-                set: { authViewModel?.showingSignOutConfirmation = $0 }
-            ),
+            isPresented: $showingSignOutConfirmation,
             titleVisibility: .visible
         ) {
             Button("Sign Out", role: .destructive) {
-                authViewModel?.confirmSignOut()
+                Task {
+                    await authService?.signOut()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -71,13 +67,13 @@ struct ProfileTabView: View {
         .alert(
             "Error",
             isPresented: .init(
-                get: { authViewModel?.errorMessage != nil },
-                set: { if !$0 { authViewModel?.errorMessage = nil } }
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
             ),
-            presenting: authViewModel?.errorMessage
+            presenting: errorMessage
         ) { _ in
             Button("OK") {
-                authViewModel?.errorMessage = nil
+                errorMessage = nil
             }
         } message: { error in
             Text(error)
@@ -86,12 +82,12 @@ struct ProfileTabView: View {
     
     @ViewBuilder
     private func profileContent(
-        authViewModel: AuthenticationViewModel,
+        authService: AuthenticationServiceProtocol,
         profileViewModel: ProfileViewModel
     ) -> some View {
         List {
             // User is always authenticated when viewing Profile tab
-            if let user = authViewModel.user {
+            if let user = authService.currentUser {
                 AuthenticatedProfileView(
                     user: user,
                     profileStats: AuthenticatedProfileView.ProfileStats(
@@ -102,7 +98,7 @@ struct ProfileTabView: View {
                     ),
                     recentSessions: profileViewModel.recentSessions,
                     onSignOut: {
-                        authViewModel.signOut()
+                        showingSignOutConfirmation = true
                     }
                 )
             }

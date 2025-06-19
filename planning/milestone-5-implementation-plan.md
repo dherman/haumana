@@ -4,6 +4,8 @@
 
 This implementation plan details the technical steps to add cloud synchronization via AWS services to Haumana, enabling multi-device access and automatic data backup.
 
+> **Update (June 2025)**: Due to issues with Cognito Hosted UI causing automatic re-authentication after sign-out, we are migrating to a hybrid authentication approach. See [Cognito Hybrid Authentication Migration Plan](./cognito-hybrid-auth-migration.md) for details.
+
 ## Prerequisites
 
 1. AWS account with appropriate permissions
@@ -191,6 +193,103 @@ EOF
 ```
 
 #### 2.2 Create Lambda Functions
+
+#### auth-sync-lambda.ts (Hybrid Authentication)
+```typescript
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { CognitoIdentityProviderClient, AdminCreateUserCommand, AdminUpdateUserAttributesCommand, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { OAuth2Client } from 'google-auth-library';
+
+const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
+const googleClient = new OAuth2Client();
+const USER_POOL_ID = process.env.USER_POOL_ID || '';
+
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const body = JSON.parse(event.body || '{}');
+    const { googleIdToken } = body;
+    
+    if (!googleIdToken) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing googleIdToken' })
+      };
+    }
+    
+    // Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: googleIdToken,
+      audience: [
+        process.env.GOOGLE_CLIENT_ID || '', // Web client ID
+        '872799888201-rdv0c48nup16mo4b19jjred0jgpjoltc.apps.googleusercontent.com' // iOS client ID
+      ]
+    });
+    
+    const payload = ticket.getPayload();
+    if (!payload) {
+      throw new Error('Invalid token payload');
+    }
+    
+    const { sub: googleUserId, email, name, picture } = payload;
+    
+    // Check if user exists in Cognito
+    const listUsersResponse = await cognitoClient.send(new ListUsersCommand({
+      UserPoolId: USER_POOL_ID,
+      Filter: `email = "${email}"`
+    }));
+    
+    let cognitoUser;
+    if (listUsersResponse.Users && listUsersResponse.Users.length > 0) {
+      // Update existing user
+      cognitoUser = listUsersResponse.Users[0];
+      await cognitoClient.send(new AdminUpdateUserAttributesCommand({
+        UserPoolId: USER_POOL_ID,
+        Username: cognitoUser.Username!,
+        UserAttributes: [
+          { Name: 'name', Value: name || '' },
+          { Name: 'picture', Value: picture || '' },
+          { Name: 'updated_at', Value: Math.floor(Date.now() / 1000).toString() }
+        ]
+      }));
+    } else {
+      // Create new user
+      const createUserResponse = await cognitoClient.send(new AdminCreateUserCommand({
+        UserPoolId: USER_POOL_ID,
+        Username: googleUserId,
+        UserAttributes: [
+          { Name: 'email', Value: email || '' },
+          { Name: 'name', Value: name || '' },
+          { Name: 'picture', Value: picture || '' }
+        ],
+        MessageAction: 'SUPPRESS'
+      }));
+      cognitoUser = createUserResponse.User;
+    }
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        user: {
+          id: cognitoUser?.Username,
+          email,
+          name,
+          picture
+        }
+      })
+    };
+  } catch (error) {
+    console.error('Lambda error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      })
+    };
+  }
+};
+```
 
 #### sync-pieces-lambda.ts
 ```typescript
@@ -540,18 +639,8 @@ dependencies: [
             "Region": "us-west-2"
           }
         },
-        "Auth": {
-          "Default": {
-            "OAuth": {
-              "WebDomain": "YOUR_COGNITO_DOMAIN",
-              "AppClientId": "YOUR_APP_CLIENT_ID",
-              "SignInRedirectURI": "haumana://signin",
-              "SignOutRedirectURI": "haumana://signout",
-              "Scopes": ["openid", "email", "profile"]
-            },
-            "authenticationFlowType": "USER_SRP_AUTH"
-          }
-        }
+        // Note: No Auth configuration needed
+        // We use Google Sign-In SDK directly, not Cognito Hosted UI
       }
     }
   },

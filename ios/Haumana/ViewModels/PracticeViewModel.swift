@@ -17,7 +17,7 @@ final class PracticeViewModel {
     private let sessionRepository: PracticeSessionRepositoryProtocol
     private let selectionService: PracticeSelectionServiceProtocol
     private let modelContext: ModelContext
-    private let authService: AuthenticationService?
+    private let authService: AuthenticationServiceProtocol?
     
     private var userId: String? {
         authService?.currentUser?.id
@@ -46,7 +46,7 @@ final class PracticeViewModel {
     var practiceEligibleCount: Int = 0
     var currentStreak: Int = 0
     
-    init(modelContext: ModelContext, authService: AuthenticationService? = nil) {
+    init(modelContext: ModelContext, authService: AuthenticationServiceProtocol? = nil) {
         self.modelContext = modelContext
         self.authService = authService
         self.pieceRepository = PieceRepository(modelContext: modelContext)

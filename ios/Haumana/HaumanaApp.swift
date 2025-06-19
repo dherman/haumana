@@ -8,7 +8,9 @@
 import SwiftUI
 import SwiftData
 import CoreText
-import GoogleSignIn
+import Amplify
+import AWSCognitoAuthPlugin
+import AWSAPIPlugin
 
 @main
 struct haumanaApp: App {
@@ -31,16 +33,17 @@ struct haumanaApp: App {
         // Register custom fonts
         registerCustomFonts()
         
-        // Configure Google Sign-In
-        configureGoogleSignIn()
+        // Skip configuration if running tests
+        let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        
+        if !isRunningTests {
+            configureAmplify()
+        }
     }
 
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
-                .onOpenURL { url in
-                    GIDSignIn.sharedInstance.handle(url)
-                }
         }
         .modelContainer(sharedModelContainer)
     }
@@ -97,43 +100,37 @@ struct haumanaApp: App {
         }
     }
     
-    /// Configure Google Sign-In
-    private func configureGoogleSignIn() {
+    
+    /// Configure AWS Amplify
+    private func configureAmplify() {
         // Check if we're in UI test mode
         let isUITesting = ProcessInfo.processInfo.arguments.contains("-UITestMode")
         
         if isUITesting {
-            // Skip Google Sign-In configuration for UI tests
-            print("Running in UI test mode - skipping Google Sign-In configuration")
+            // Skip Amplify configuration for UI tests
+            print("Running in UI test mode - skipping AWS Amplify configuration")
             return
         }
         
-        // Load Google Sign-In configuration from plist
-        guard let path = Bundle.main.path(forResource: "GoogleSignIn", ofType: "plist") else {
-            // In test environments, the plist might not be available
-            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
-                print("Running in test environment - Google Sign-In plist not found")
-                return
-            }
+        // Check if we're in test environment
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            print("Running in test environment - skipping AWS Amplify configuration")
+            return
+        }
+        
+        do {
+            // Add Auth plugin
+            try Amplify.add(plugin: AWSCognitoAuthPlugin())
             
-            fatalError("""
-                GoogleSignIn.plist not found in app bundle.
-                
-                To fix this:
-                1. In Xcode, right-click on the Haumana folder
-                2. Select 'Add Files to haumana'  
-                3. Navigate to ios/Haumana/GoogleSignIn.plist
-                4. Make sure 'Copy items if needed' is checked
-                5. Make sure the 'haumana' target is selected
-                6. Click 'Add'
-                """)
+            // Add API plugin
+            try Amplify.add(plugin: AWSAPIPlugin())
+            
+            // Configure Amplify
+            try Amplify.configure()
+            
+            print("Amplify configured successfully")
+        } catch {
+            print("Failed to configure Amplify: \(error)")
         }
-        
-        guard let dict = NSDictionary(contentsOfFile: path),
-              let clientID = dict["CLIENT_ID"] as? String else {
-            fatalError("Could not parse Google Sign-In credentials from GoogleSignIn.plist")
-        }
-        
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
     }
 }
