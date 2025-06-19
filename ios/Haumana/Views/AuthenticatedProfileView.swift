@@ -5,6 +5,7 @@ struct AuthenticatedProfileView: View {
     let profileStats: ProfileStats
     let recentSessions: [SessionWithPiece]
     let onSignOut: () -> Void
+    @Environment(\.syncService) private var syncService
     
     struct ProfileStats {
         let currentStreak: Int
@@ -83,6 +84,46 @@ struct AuthenticatedProfileView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                }
+            }
+            
+            // Sync Status Section
+            if let syncService = syncService {
+                Section("Sync Status") {
+                    HStack {
+                        Label("Status", systemImage: "arrow.triangle.2.circlepath")
+                        Spacer()
+                        SyncStatusView()
+                    }
+                    
+                    if let lastSync = syncService.lastSyncedAt {
+                        StatRow(
+                            icon: "clock",
+                            title: "Last synced",
+                            value: lastSync.formatted(date: .abbreviated, time: .shortened)
+                        )
+                    }
+                    
+                    if syncService.pendingChanges > 0 {
+                        StatRow(
+                            icon: "exclamationmark.circle",
+                            title: "Pending changes",
+                            value: "\(syncService.pendingChanges)"
+                        )
+                    }
+                    
+                    Button(action: {
+                        Task {
+                            await syncService.syncNow()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.clockwise")
+                            Text("Sync Now")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .disabled(syncService.syncStatus == .syncing)
                 }
             }
             

@@ -8,6 +8,8 @@
 - [x] Drop Pearl Hirenha font from bundle
 - [ ] Cancelled sign-in could probably have a better error message or even just not show the error at all
 - [ ] Auth sync lambda is sloppy about web vs ios client IDs
+- [ ] Clean up all the random .md files that Claude created under aws/ and aws/infrastructure/
+- [ ] Why do we have aws/lambda and aws/lambdas?
 
 # Blocking 1.0 release
 

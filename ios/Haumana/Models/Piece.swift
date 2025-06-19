@@ -40,6 +40,11 @@ final class Piece: Identifiable {
     var lastPracticed: Date?
     var userId: String?
     
+    // Sync-related properties
+    var lastSyncedAt: Date?
+    var locallyModified: Bool = true
+    var version: Int = 1
+    
     init(
         title: String,
         category: PieceCategory = .oli,

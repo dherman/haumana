@@ -16,6 +16,9 @@ final class PracticeSession: Identifiable {
     var endTime: Date?
     var userId: String?
     
+    // Sync-related properties
+    var syncedAt: Date?
+    
     init(pieceId: UUID, startTime: Date = Date()) {
         self.id = UUID()
         self.pieceId = pieceId

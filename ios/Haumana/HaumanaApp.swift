@@ -18,7 +18,8 @@ struct haumanaApp: App {
         let schema = Schema([
             Piece.self,
             PracticeSession.self,
-            User.self
+            User.self,
+            SyncQueueItem.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

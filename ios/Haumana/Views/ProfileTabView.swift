@@ -11,6 +11,7 @@ import SwiftData
 struct ProfileTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.authService) private var authService
+    @Environment(\.syncService) private var syncService
     
     @State private var profileViewModel: ProfileViewModel?
     @State private var showingSignOutConfirmation = false

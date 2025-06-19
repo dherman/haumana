@@ -4,6 +4,7 @@ import SwiftData
 struct RepertoireListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.authService) private var authService
+    @Environment(\.syncService) private var syncService
     @Query private var pieces: [Piece]
     @State private var showingAddView = false
     @State private var searchText = ""
@@ -36,6 +37,9 @@ struct RepertoireListView: View {
             }
             .navigationTitle("Repertoire")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    SyncStatusView()
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingAddView = true
@@ -47,6 +51,9 @@ struct RepertoireListView: View {
             .searchable(text: $searchText)
             .sheet(isPresented: $showingAddView) {
                 AddEditPieceView(piece: nil)
+            }
+            .refreshable {
+                await syncService?.syncNow()
             }
         }
     }

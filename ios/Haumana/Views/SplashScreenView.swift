@@ -16,6 +16,7 @@ struct SplashScreenView: View {
     @State private var blossomOpacity = 0.0
     @State private var blossomScale = 1.2
     @State private var authService: AuthenticationServiceProtocol?
+    @State private var syncService: SyncService?
     
     var body: some View {
         ZStack {
@@ -71,6 +72,11 @@ struct SplashScreenView: View {
             // TODO: Add a feature flag to switch between services
             authService = HybridAuthenticationService(modelContext: modelContext)
             
+            // Initialize sync service
+            if let authService = authService {
+                syncService = SyncService(modelContext: modelContext, authService: authService)
+            }
+            
             // Animate blossom first
             withAnimation(.easeInOut(duration: 2.0)) {
                 blossomOpacity = 0.7  // Higher opacity for bitmap image
@@ -107,6 +113,7 @@ struct SplashScreenView: View {
                     }
                 }
                 .environment(\.authService, authService)
+                .environment(\.syncService, syncService)
             }
         }
     }

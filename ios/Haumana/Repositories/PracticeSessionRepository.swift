@@ -33,6 +33,9 @@ final class PracticeSessionRepository: PracticeSessionRepositoryProtocol {
         session.userId = userId
         modelContext.insert(session)
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
     
     func getRecentSessions(limit: Int = AppConstants.recentSessionsLimit, userId: String? = nil) throws -> [PracticeSession] {
@@ -174,6 +177,27 @@ final class PracticeSessionRepository: PracticeSessionRepositoryProtocol {
         }
         
         return (pieceId: mostPracticed.key, count: mostPracticed.value)
+    }
+    
+    func fetchUnsyncedSessions(userId: String? = nil) throws -> [PracticeSession] {
+        let descriptor: FetchDescriptor<PracticeSession>
+        if let userId = userId {
+            descriptor = FetchDescriptor<PracticeSession>(
+                predicate: #Predicate { session in
+                    session.userId == userId && session.syncedAt == nil
+                },
+                sortBy: [SortDescriptor(\.startTime)]
+            )
+        } else {
+            descriptor = FetchDescriptor<PracticeSession>(
+                predicate: #Predicate { session in
+                    session.userId == nil && session.syncedAt == nil
+                },
+                sortBy: [SortDescriptor(\.startTime)]
+            )
+        }
+        
+        return try modelContext.fetch(descriptor)
     }
 }
 

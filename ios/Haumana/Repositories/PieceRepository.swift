@@ -65,16 +65,27 @@ final class PieceRepository: PieceRepositoryProtocol {
         piece.userId = userId
         modelContext.insert(piece)
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
     
     func update(_ piece: Piece) throws {
         piece.updatedAt = Date()
+        piece.locallyModified = true
+        piece.version += 1
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
     
     func delete(_ piece: Piece) throws {
         modelContext.delete(piece)
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
     
     func search(query: String, userId: String? = nil) throws -> [Piece] {
@@ -146,18 +157,33 @@ final class PieceRepository: PieceRepositoryProtocol {
     func toggleFavorite(_ piece: Piece) throws {
         piece.isFavorite.toggle()
         piece.updatedAt = Date()
+        piece.locallyModified = true
+        piece.version += 1
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
     
     func toggleIncludeInPractice(_ piece: Piece) throws {
         piece.includeInPractice.toggle()
         piece.updatedAt = Date()
+        piece.locallyModified = true
+        piece.version += 1
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
     
     func updateLastPracticed(_ piece: Piece) throws {
         piece.lastPracticed = Date()
         piece.updatedAt = Date()
+        piece.locallyModified = true
+        piece.version += 1
         try modelContext.save()
+        
+        // Notify sync service
+        NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
     }
 }
