@@ -213,6 +213,21 @@ export class HaumanaStack extends cdk.Stack {
     piecesTable.grantReadWriteData(syncPiecesFunction);
     sessionsTable.grantReadWriteData(syncSessionsFunction);
 
+    // ===== Google Token Authorizer Lambda =====
+    const googleTokenAuthorizerFunction = new lambda.Function(this, 'GoogleTokenAuthorizer', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../../lambda/google-token-authorizer')),
+      handler: 'index.handler',
+      environment: {
+        GOOGLE_WEB_CLIENT_ID: '872799888201-51c9jb50nkdl2cl4vu8fp9h5cs7tdmuj.apps.googleusercontent.com',
+      },
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+    });
+
+    // Grant permission for API Gateway to invoke the authorizer
+    googleTokenAuthorizerFunction.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));
+
     // ===== API Gateway =====
     const api = new apigateway.RestApi(this, 'HaumanaApi', {
       restApiName: 'haumana-api',
@@ -232,23 +247,26 @@ export class HaumanaStack extends cdk.Stack {
       },
     });
 
-    // Cognito Authorizer
-    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'ApiAuthorizer', {
-      cognitoUserPools: [userPool],
-      authorizerName: 'CognitoAuthorizer',
+    // Google Token Authorizer
+    const googleAuthorizer = new apigateway.TokenAuthorizer(this, 'GoogleApiAuthorizer', {
+      handler: googleTokenAuthorizerFunction,
+      authorizerName: 'GoogleTokenAuthorizer',
+      identitySource: 'method.request.header.Authorization',
+      resultsCacheTtl: cdk.Duration.minutes(5), // Cache auth results for 5 minutes
     });
+
 
     // API Resources
     const piecesResource = api.root.addResource('pieces');
     piecesResource.addMethod('POST', new apigateway.LambdaIntegration(syncPiecesFunction), {
-      authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO,
+      authorizer: googleAuthorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
     });
 
     const sessionsResource = api.root.addResource('sessions');
     sessionsResource.addMethod('POST', new apigateway.LambdaIntegration(syncSessionsFunction), {
-      authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO,
+      authorizer: googleAuthorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
     });
 
     // Auth sync endpoint (no authorizer needed - it handles its own auth)

@@ -37,9 +37,6 @@ struct RepertoireListView: View {
             }
             .navigationTitle("Repertoire")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    SyncStatusView()
-                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingAddView = true

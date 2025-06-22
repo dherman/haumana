@@ -12,4 +12,5 @@ protocol AuthenticationServiceProtocol: AnyObject, Observable {
     func signIn(presenting viewController: UIViewController) async throws
     func signOut() async
     func restorePreviousSignIn() async
+    func getCurrentIdToken() async throws -> String?
 }

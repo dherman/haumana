@@ -36,7 +36,10 @@ interface SyncRequest {
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const body: SyncRequest = JSON.parse(event.body || '{}');
-    const userId = event.requestContext.authorizer?.claims?.sub;
+    
+    // Extract userId from custom authorizer context
+    // The authorizer passes userId in the context
+    const userId = event.requestContext.authorizer?.userId || event.requestContext.authorizer?.claims?.sub;
     
     if (!userId) {
       return {
@@ -172,12 +175,12 @@ async function handleSync(
   
   // Upload client changes
   const changesToUpload = clientPieces.filter(piece => piece.locallyModified);
-  let uploadedCount = 0;
+  let uploadedPieces: string[] = [];
   
   if (changesToUpload.length > 0) {
     const uploadResponse = await handleUpload(userId, changesToUpload);
     const uploadData = JSON.parse(uploadResponse.body);
-    uploadedCount = uploadData.uploadedPieces.length;
+    uploadedPieces = uploadData.uploadedPieces;
   }
   
   return {
@@ -188,7 +191,7 @@ async function handleSync(
     },
     body: JSON.stringify({
       serverPieces,
-      uploadedCount,
+      uploadedPieces,
       syncedAt: new Date().toISOString()
     })
   };

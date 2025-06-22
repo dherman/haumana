@@ -152,17 +152,6 @@ struct AuthenticatedProfileView: View {
                     }
                 }
             }
-            
-            // Sync Status Section (Placeholder for future)
-            Section("Data Sync") {
-                HStack {
-                    Label("Sync Status", systemImage: "icloud")
-                    Spacer()
-                    Text("Coming Soon")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
         }
     }
     

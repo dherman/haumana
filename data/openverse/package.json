@@ -1,0 +1,29 @@
+{
+  "name": "openverse",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Download images from Openverse with full metadata and Creative Commons licenses",
+  "main": "openverse.js",
+  "bin": {
+    "openverse": "./openverse.js"
+  },
+  "scripts": {
+    "start": "node openverse.js download images.json"
+  },
+  "keywords": [
+    "openverse",
+    "flickr",
+    "creative-commons",
+    "image-downloader"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "cheerio": "^1.1.0",
+    "cli-progress": "^3.12.0",
+    "fs-extra": "^11.3.0",
+    "ora": "^8.2.0",
+    "puppeteer": "^24.10.2"
+  }
+}

@@ -23,7 +23,10 @@ interface SyncSessionsRequest {
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const body: SyncSessionsRequest = JSON.parse(event.body || '{}');
-    const userId = event.requestContext.authorizer?.claims?.sub;
+    
+    // Extract userId from custom authorizer context
+    // The authorizer passes userId in the context
+    const userId = event.requestContext.authorizer?.userId || event.requestContext.authorizer?.claims?.sub;
     
     if (!userId) {
       return {

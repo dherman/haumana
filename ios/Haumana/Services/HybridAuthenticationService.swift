@@ -295,4 +295,42 @@ class HybridAuthenticationService: AuthenticationServiceProtocol {
             isSignedIn = false
         }
     }
+    
+    // Get current Google ID token for API authentication
+    func getCurrentIdToken() async throws -> String? {
+        // If in test mode, return a mock token
+        if ProcessInfo.processInfo.arguments.contains("-UITestMode") {
+            return "mock-google-id-token"
+        }
+        
+        // Get current user from Google Sign-In
+        guard let currentGoogleUser = GIDSignIn.sharedInstance.currentUser else {
+            print("No current Google user found")
+            return nil
+        }
+        
+        // Check if token needs refresh
+        if currentGoogleUser.idToken?.expirationDate ?? Date.distantPast < Date() {
+            print("Google ID token expired, refreshing...")
+            do {
+                let freshUser = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<GIDGoogleUser, Error>) in
+                    currentGoogleUser.refreshTokensIfNeeded { user, error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                        } else if let user = user {
+                            continuation.resume(returning: user)
+                        } else {
+                            continuation.resume(throwing: NSError(domain: "HybridAuth", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to refresh tokens"]))
+                        }
+                    }
+                }
+                return freshUser.idToken?.tokenString
+            } catch {
+                print("Error refreshing Google tokens: \(error)")
+                throw error
+            }
+        }
+        
+        return currentGoogleUser.idToken?.tokenString
+    }
 }

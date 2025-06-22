@@ -30,4 +30,5 @@ enum AppConstants {
     
     // AWS Configuration
     static let cognitoIdentityPoolId = "us-west-2:1e15f866-c1e9-4cef-8c8b-87b1b36311cf"
+    static let apiEndpoint = "https://vageu42qbg.execute-api.us-west-2.amazonaws.com/prod"
 }

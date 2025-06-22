@@ -79,18 +79,22 @@ class SyncService {
         do {
             print("SyncService: Starting sync...")
             
-            // TODO: Implement proper API authentication for hybrid approach
-            // For now, we'll simulate a successful sync
-            print("SyncService: Sync temporarily disabled - API authentication needs to be updated for hybrid auth")
+            // Get Google ID token for authentication
+            guard let idToken = try await authService.getCurrentIdToken() else {
+                throw NSError(domain: "SyncService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authentication token available"])
+            }
             
-            // Simulate a delay
-            try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+            // Sync pieces
+            try await syncPieces(token: idToken)
+            
+            // Sync practice sessions
+            try await syncSessions(token: idToken)
             
             lastSyncedAt = Date()
             syncStatus = .synced
             pendingChanges = 0
             
-            print("SyncService: Simulated sync completed")
+            print("SyncService: Sync completed successfully")
         } catch {
             print("SyncService: Sync error: \(error)")
             syncStatus = .error(error.localizedDescription)
@@ -154,9 +158,7 @@ class SyncService {
     
     // MARK: - Sync Methods
     
-    /*
-    // TODO: Re-implement these methods with proper authentication
-    private func syncPieces() async throws {
+    private func syncPieces(token: String) async throws {
         let userId = authService.currentUser?.id ?? ""
         let repository = PieceRepository(modelContext: modelContext)
         let localPieces = try repository.fetchAll(userId: userId)
@@ -192,8 +194,22 @@ class SyncService {
         let requestData = try encoder.encode(syncRequest)
         
         // Make API request
-        // TODO: Implement with proper authentication
-        let data = Data() // Placeholder
+        guard let url = URL(string: "\(AppConstants.apiEndpoint)/pieces") else {
+            throw NSError(domain: "SyncService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid API URL"])
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        
+        let (data, httpResponse) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = httpResponse as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw NSError(domain: "SyncService", code: -1, userInfo: [NSLocalizedDescriptionKey: "API request failed"])
+        }
         
         // Process response
         let decoder = JSONDecoder()
@@ -254,7 +270,7 @@ class SyncService {
         try modelContext.save()
     }
     
-    private func syncSessions() async throws {
+    private func syncSessions(token: String) async throws {
         let userId = authService.currentUser?.id ?? ""
         let repository = PracticeSessionRepository(modelContext: modelContext)
         
@@ -284,15 +300,29 @@ class SyncService {
         let requestData = try encoder.encode(syncRequest)
         
         // Make API request
-        // TODO: Implement with proper authentication
-        let data = Data() // Placeholder
+        guard let url = URL(string: "\(AppConstants.apiEndpoint)/sessions") else {
+            throw NSError(domain: "SyncService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid API URL"])
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = requestData
+        
+        let (data, httpResponse) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = httpResponse as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw NSError(domain: "SyncService", code: -1, userInfo: [NSLocalizedDescriptionKey: "API request failed"])
+        }
         
         // Process response
         let decoder = JSONDecoder()
-        let response = try decoder.decode(SessionsSyncResponse.self, from: data)
+        let syncResponse = try decoder.decode(SessionsSyncResponse.self, from: data)
         
         // Mark sessions as synced
-        for sessionId in response.uploadedSessions {
+        for sessionId in syncResponse.uploadedSessions {
             if let sessionUUID = UUID(uuidString: sessionId),
                let session = unsyncedSessions.first(where: { $0.id == sessionUUID }) {
                 session.syncedAt = Date()
@@ -301,7 +331,6 @@ class SyncService {
         
         try modelContext.save()
     }
-    */
 }
 
 // MARK: - Data Models
