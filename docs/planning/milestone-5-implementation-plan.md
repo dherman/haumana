@@ -1326,6 +1326,155 @@ struct SyncErrorHandler {
 4. **Authentication Migration Issues**
    - Mitigation: Thorough testing, gradual rollout
 
+## Phase 7: Fix Sync Issues (Days 15-16)
+
+### Day 15: Fix Sync Filter and Bidirectional Sync
+
+#### 15.1 Fix LocallyModified Filter Issue
+- Remove the filter that only syncs pieces where `locallyModified = true`
+- Implement proper tracking of what needs to be synced
+- Ensure all pieces are included in sync operations
+
+#### 15.2 Implement Pull Sync
+- Add functionality to fetch all remote pieces on initial sync
+- Implement periodic pull of remote changes
+- Handle merging of remote changes with local data
+
+### Day 16: Complete Bidirectional Sync
+
+#### 16.1 Update Sync Logic
+- Modify sync to send all pieces, not just modified ones
+- Implement proper change tracking without filtering
+- Ensure sync state is properly maintained
+
+#### 16.2 Test Bidirectional Sync
+- Verify data flows both ways between devices
+- Test initial sync scenarios
+- Ensure no data is lost due to filtering
+
+## Phase 8: Multi-Device Sync with Conflict Resolution (Days 17-18)
+
+### Day 17: Implement Conflict Resolution
+
+#### 17.1 Last-Write-Wins Implementation
+- Enhance conflict resolver with proper timestamp comparison
+- Handle edge cases where timestamps are identical
+- Implement version tracking for optimistic concurrency
+
+#### 17.2 Multi-Device Testing Framework
+- Set up testing scenarios for multiple devices
+- Create test cases for concurrent modifications
+- Verify conflict resolution works correctly
+
+### Day 18: Multi-Device Sync Polish
+
+#### 18.1 Sync State Management
+- Implement device tracking for sync operations
+- Handle sync state across multiple devices
+- Ensure consistent state after conflicts
+
+#### 18.2 Performance Optimization
+- Optimize sync for multiple simultaneous devices
+- Implement intelligent sync scheduling
+- Reduce unnecessary sync operations
+
+## Phase 9: Offline Mode Implementation (Days 19-20)
+
+### Day 19: Network Monitoring
+
+#### 19.1 Implement Network Reachability
+- Replace TODO comment with actual network monitoring
+- Use iOS Network framework for reachability
+- Update sync status based on network state
+
+#### 19.2 Offline Queue Enhancement
+- Improve offline queue processing
+- Handle network state transitions gracefully
+- Implement retry logic with exponential backoff
+
+### Day 20: Offline Mode UI/UX
+
+#### 20.1 Offline Indicators
+- Show clear offline status in UI
+- Display pending changes count
+- Implement offline mode notifications
+
+#### 20.2 Offline Data Management
+- Ensure full app functionality while offline
+- Queue all changes for later sync
+- Handle offline-to-online transitions smoothly
+
+## Phase 10: Pull-to-Refresh Implementation (Day 21)
+
+### Day 21: Pull-to-Refresh Feature
+
+#### 21.1 Implement Pull-to-Refresh UI
+- Add pull-to-refresh to RepertoireListView
+- Add pull-to-refresh to practice views
+- Implement proper loading states
+
+#### 21.2 Refresh Logic
+- Trigger full sync on pull-to-refresh
+- Update UI with fresh data
+- Handle errors during refresh gracefully
+
+## Phase 11: Fix Test Mode Issues (Day 22)
+
+### Day 22: Test Mode Authentication
+
+#### 11.1 Fix Mock Token Handling
+- Update SyncService to detect test mode
+- Prevent real API calls with mock tokens
+- Implement proper test mode behavior
+
+#### 11.2 Test Environment Setup
+- Create separate test configuration
+- Implement mock sync service for tests
+- Ensure tests don't affect production data
+
+## Phase 12: Build System Selection (Day 23)
+
+### Day 23: Evaluate and Implement Build System
+
+#### 12.1 Build System Evaluation
+- Evaluate Bazel for iOS builds
+- Evaluate CMake for iOS builds
+- Consider simple shell script alternative
+
+#### 12.2 Implement Chosen Build System
+- Set up build configuration
+- Create build scripts
+- Document build process
+- Integrate with existing Xcode workflow
+
+## Phase 13: Web Deployment and Safe Script (Days 24-25)
+
+### Day 24: Fix Deployment Script
+
+#### 13.1 Analyze Current Script Issues
+- Review scripts/deploy-web.sh problems
+- Understand why it removed uncommitted changes
+- Identify why it included too many files in gh-pages
+
+#### 13.2 Create Safe Deployment Script
+- Implement safeguards against data loss
+- Use worktree or separate clone for deployment
+- Ensure only web/ contents are deployed
+- Add checks to prevent IDE/process crashes
+
+### Day 25: Web Hosting Setup
+
+#### 25.1 GitHub Pages Configuration
+- Set up proper GitHub Pages deployment
+- Configure custom domain (haumana.app)
+- Ensure clean gh-pages branch
+
+#### 25.2 Legal Documents Website
+- Deploy static website from web/ directory
+- Verify legal documents are accessible
+- Test deployment process end-to-end
+- Document deployment procedure
+
 ## Timeline Summary
 
 - **Days 1-2**: AWS infrastructure setup
@@ -1334,5 +1483,12 @@ struct SyncErrorHandler {
 - **Days 8-9**: UI integration
 - **Day 10**: Practice session sync
 - **Days 11-14**: Testing and polish
+- **Days 15-16**: Fix sync issues (filter and bidirectional)
+- **Days 17-18**: Multi-device sync with conflict resolution
+- **Days 19-20**: Offline mode implementation
+- **Day 21**: Pull-to-refresh
+- **Day 22**: Fix test mode issues
+- **Day 23**: Build system selection
+- **Days 24-25**: Web deployment and safe script
 
-Total: 14 days
+Total: 25 days
