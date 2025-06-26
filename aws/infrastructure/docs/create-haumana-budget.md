@@ -15,7 +15,7 @@ This document describes how to create an AWS Budget that tracks only Haumana-rel
 
 - **Day 1**: Deploy CDK with tags ✅ (Completed 2025-06-22)
 - **Day 2**: Activate cost allocation tags in AWS Console ✅ (Completed 2025-06-23)
-- **Day 3**: Create budget with tag filters (24 hours after activation)
+- **Day 3**: Create budget with tag filters (24 hours after activation) ✅ (Completed 2025-06-25)
 
 ## Step-by-Step Instructions
 
