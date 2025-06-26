@@ -1326,150 +1326,180 @@ struct SyncErrorHandler {
 4. **Authentication Migration Issues**
    - Mitigation: Thorough testing, gradual rollout
 
-## Phase 7: Fix Sync Issues (Days 15-16)
+## Phase 7: Fix Authentication and Configuration (Days 15-16)
 
-### Day 15: Fix Sync Filter and Bidirectional Sync
+### Day 15: Fix API Gateway Authorization
 
-#### 15.1 Fix LocallyModified Filter Issue
+#### 15.1 Implement Custom Authorizer (Option 1 from sync-authentication-todo.md)
+- Create Lambda authorizer function to validate Google ID tokens
+- Update API Gateway to use custom authorizer instead of Cognito User Pools
+- Extract user ID from Google token and pass to backend Lambda functions
+- Remove dependency on Cognito JWT tokens for API calls
+
+#### 15.2 Update iOS SyncService
+- Modify SyncService to include Google ID token in Authorization header
+- Update makeAuthenticatedRequest method to use Google tokens
+- Test API calls with new authorization mechanism
+- Ensure proper error handling for auth failures
+
+### Day 16: Create Amplify Configuration
+
+#### 16.1 Create amplifyconfiguration.json
+- Generate proper configuration file from template
+- Include correct Cognito pool IDs and API endpoint
+- Configure auth and API plugins properly
+- Ensure configuration matches AWS resources
+
+#### 16.2 Test End-to-End Sync
+- Verify authentication flow works with new authorizer
+- Test piece sync (upload and download)
+- Test practice session sync
+- Ensure sync status updates correctly in UI
+
+## Phase 8: Fix Sync Issues (Days 17-18)
+
+### Day 17: Fix Sync Filter and Bidirectional Sync
+
+#### 17.1 Fix LocallyModified Filter Issue
 - Remove the filter that only syncs pieces where `locallyModified = true`
 - Implement proper tracking of what needs to be synced
 - Ensure all pieces are included in sync operations
 
-#### 15.2 Implement Pull Sync
+#### 17.2 Implement Pull Sync
 - Add functionality to fetch all remote pieces on initial sync
 - Implement periodic pull of remote changes
 - Handle merging of remote changes with local data
 
-### Day 16: Complete Bidirectional Sync
+### Day 18: Complete Bidirectional Sync
 
-#### 16.1 Update Sync Logic
+#### 18.1 Update Sync Logic
 - Modify sync to send all pieces, not just modified ones
 - Implement proper change tracking without filtering
 - Ensure sync state is properly maintained
 
-#### 16.2 Test Bidirectional Sync
+#### 18.2 Test Bidirectional Sync
 - Verify data flows both ways between devices
 - Test initial sync scenarios
 - Ensure no data is lost due to filtering
 
-## Phase 8: Multi-Device Sync with Conflict Resolution (Days 17-18)
+## Phase 9: Multi-Device Sync with Conflict Resolution (Days 19-20)
 
-### Day 17: Implement Conflict Resolution
+### Day 19: Implement Conflict Resolution
 
-#### 17.1 Last-Write-Wins Implementation
+#### 19.1 Last-Write-Wins Implementation
 - Enhance conflict resolver with proper timestamp comparison
 - Handle edge cases where timestamps are identical
 - Implement version tracking for optimistic concurrency
 
-#### 17.2 Multi-Device Testing Framework
+#### 19.2 Multi-Device Testing Framework
 - Set up testing scenarios for multiple devices
 - Create test cases for concurrent modifications
 - Verify conflict resolution works correctly
 
-### Day 18: Multi-Device Sync Polish
+### Day 20: Multi-Device Sync Polish
 
-#### 18.1 Sync State Management
+#### 20.1 Sync State Management
 - Implement device tracking for sync operations
 - Handle sync state across multiple devices
 - Ensure consistent state after conflicts
 
-#### 18.2 Performance Optimization
+#### 20.2 Performance Optimization
 - Optimize sync for multiple simultaneous devices
 - Implement intelligent sync scheduling
 - Reduce unnecessary sync operations
 
-## Phase 9: Offline Mode Implementation (Days 19-20)
+## Phase 10: Offline Mode Implementation (Days 21-22)
 
-### Day 19: Network Monitoring
+### Day 21: Network Monitoring
 
-#### 19.1 Implement Network Reachability
+#### 21.1 Implement Network Reachability
 - Replace TODO comment with actual network monitoring
 - Use iOS Network framework for reachability
 - Update sync status based on network state
 
-#### 19.2 Offline Queue Enhancement
+#### 21.2 Offline Queue Enhancement
 - Improve offline queue processing
 - Handle network state transitions gracefully
 - Implement retry logic with exponential backoff
 
-### Day 20: Offline Mode UI/UX
+### Day 22: Offline Mode UI/UX
 
-#### 20.1 Offline Indicators
+#### 22.1 Offline Indicators
 - Show clear offline status in UI
 - Display pending changes count
 - Implement offline mode notifications
 
-#### 20.2 Offline Data Management
+#### 22.2 Offline Data Management
 - Ensure full app functionality while offline
 - Queue all changes for later sync
 - Handle offline-to-online transitions smoothly
 
-## Phase 10: Pull-to-Refresh Implementation (Day 21)
+## Phase 11: Pull-to-Refresh Implementation (Day 23)
 
-### Day 21: Pull-to-Refresh Feature
+### Day 23: Pull-to-Refresh Feature
 
-#### 21.1 Implement Pull-to-Refresh UI
+#### 23.1 Implement Pull-to-Refresh UI
 - Add pull-to-refresh to RepertoireListView
 - Add pull-to-refresh to practice views
 - Implement proper loading states
 
-#### 21.2 Refresh Logic
+#### 23.2 Refresh Logic
 - Trigger full sync on pull-to-refresh
 - Update UI with fresh data
 - Handle errors during refresh gracefully
 
-## Phase 11: Fix Test Mode Issues (Day 22)
+## Phase 12: Fix Test Mode Issues (Day 24)
 
-### Day 22: Test Mode Authentication
+### Day 24: Test Mode Authentication
 
-#### 11.1 Fix Mock Token Handling
+#### 24.1 Fix Mock Token Handling
 - Update SyncService to detect test mode
 - Prevent real API calls with mock tokens
 - Implement proper test mode behavior
 
-#### 11.2 Test Environment Setup
+#### 24.2 Test Environment Setup
 - Create separate test configuration
 - Implement mock sync service for tests
 - Ensure tests don't affect production data
 
-## Phase 12: Build System Selection (Day 23)
+## Phase 13: Build System Selection (Day 25)
 
-### Day 23: Evaluate and Implement Build System
+### Day 25: Evaluate and Implement Build System
 
-#### 12.1 Build System Evaluation
+#### 25.1 Build System Evaluation
 - Evaluate Bazel for iOS builds
 - Evaluate CMake for iOS builds
 - Consider simple shell script alternative
 
-#### 12.2 Implement Chosen Build System
+#### 25.2 Implement Chosen Build System
 - Set up build configuration
 - Create build scripts
 - Document build process
 - Integrate with existing Xcode workflow
 
-## Phase 13: Web Deployment and Safe Script (Days 24-25)
+## Phase 14: Web Deployment and Safe Script (Days 26-27)
 
-### Day 24: Fix Deployment Script
+### Day 26: Fix Deployment Script
 
-#### 13.1 Analyze Current Script Issues
+#### 26.1 Analyze Current Script Issues
 - Review scripts/deploy-web.sh problems
 - Understand why it removed uncommitted changes
 - Identify why it included too many files in gh-pages
 
-#### 13.2 Create Safe Deployment Script
+#### 26.2 Create Safe Deployment Script
 - Implement safeguards against data loss
 - Use worktree or separate clone for deployment
 - Ensure only web/ contents are deployed
 - Add checks to prevent IDE/process crashes
 
-### Day 25: Web Hosting Setup
+### Day 27: Web Hosting Setup
 
-#### 25.1 GitHub Pages Configuration
+#### 27.1 GitHub Pages Configuration
 - Set up proper GitHub Pages deployment
 - Configure custom domain (haumana.app)
 - Ensure clean gh-pages branch
 
-#### 25.2 Legal Documents Website
+#### 27.2 Legal Documents Website
 - Deploy static website from web/ directory
 - Verify legal documents are accessible
 - Test deployment process end-to-end
@@ -1483,12 +1513,13 @@ struct SyncErrorHandler {
 - **Days 8-9**: UI integration
 - **Day 10**: Practice session sync
 - **Days 11-14**: Testing and polish
-- **Days 15-16**: Fix sync issues (filter and bidirectional)
-- **Days 17-18**: Multi-device sync with conflict resolution
-- **Days 19-20**: Offline mode implementation
-- **Day 21**: Pull-to-refresh
-- **Day 22**: Fix test mode issues
-- **Day 23**: Build system selection
-- **Days 24-25**: Web deployment and safe script
+- **Days 15-16**: Fix authentication and configuration (API Gateway authorizer, amplifyconfiguration.json)
+- **Days 17-18**: Fix sync issues (filter and bidirectional)
+- **Days 19-20**: Multi-device sync with conflict resolution
+- **Days 21-22**: Offline mode implementation
+- **Day 23**: Pull-to-refresh
+- **Day 24**: Fix test mode issues
+- **Day 25**: Build system selection
+- **Days 26-27**: Web deployment and safe script
 
-Total: 25 days
+Total: 27 days
