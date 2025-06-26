@@ -4,8 +4,6 @@
 
 This implementation plan details the technical steps to add cloud synchronization via AWS services to Haumana, enabling multi-device access and automatic data backup.
 
-> **Update (June 2025)**: Due to issues with Cognito Hosted UI causing automatic re-authentication after sign-out, we are migrating to a hybrid authentication approach. See [Cognito Hybrid Authentication Migration Plan](./cognito-hybrid-auth-migration.md) for details.
-
 ## Prerequisites
 
 1. AWS account with appropriate permissions
