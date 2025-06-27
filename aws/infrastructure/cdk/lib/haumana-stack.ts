@@ -4,7 +4,6 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -15,10 +14,7 @@ export interface HaumanaStackProps extends cdk.StackProps {
 
 export class HaumanaStack extends cdk.Stack {
   public readonly userPoolId: string;
-  public readonly userPoolClientId: string;
-  public readonly identityPoolId: string;
   public readonly apiEndpoint: string;
-  public readonly cognitoDomain: string;
 
   constructor(scope: Construct, id: string, props: HaumanaStackProps) {
     super(scope, id, props);
@@ -52,19 +48,17 @@ export class HaumanaStack extends cdk.Stack {
       sortKey: { name: 'startedAt', type: dynamodb.AttributeType.STRING },
     });
 
-    // ===== Cognito User Pool =====
+    // ===== Cognito User Pool (User Database Only) =====
+    // This is used only to store user information synced from Google Sign-In
+    // Authentication is handled by Google Sign-In SDK + Custom Authorizer
     const userPool = new cognito.UserPool(this, 'UserPoolV2', {
       userPoolName: 'haumana-users-v2',
-      selfSignUpEnabled: false, // Only allow federated sign-in for now
+      selfSignUpEnabled: false,
       signInAliases: {
         email: false,
-        username: true, // Use username for federated users
-      },
-      autoVerify: {
-        email: true,
+        username: true, // Users are created as google_{googleUserId}
       },
       standardAttributes: {
-        // Don't require email as standard attribute since it causes issues with federated users
         fullname: {
           required: false,
           mutable: true,
@@ -82,85 +76,7 @@ export class HaumanaStack extends cdk.Stack {
         requireSymbols: false,
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // Allow deletion since we're in development
-    });
-
-    // ===== Cognito Domain =====
-    const cognitoDomain = new cognito.UserPoolDomain(this, 'CognitoDomain', {
-      userPool,
-      cognitoDomain: {
-        domainPrefix: `haumana-v2-${cdk.Stack.of(this).account}`, // Ensures uniqueness
-      },
-    });
-
-    // ===== Get Google Client Secret from Secrets Manager =====
-    const googleClientSecret = secretsmanager.Secret.fromSecretNameV2(this, 'GoogleClientSecret', 'haumana-oauth');
-
-    // ===== Google Identity Provider =====
-    const googleProvider = new cognito.UserPoolIdentityProviderGoogle(this, 'GoogleProvider', {
-      userPool,
-      clientId: props.googleClientId,
-      clientSecretValue: googleClientSecret.secretValue,
-      scopes: ['profile', 'email', 'openid'],
-      attributeMapping: {
-        email: cognito.ProviderAttribute.GOOGLE_EMAIL,
-        fullname: cognito.ProviderAttribute.GOOGLE_NAME,
-        profilePicture: cognito.ProviderAttribute.GOOGLE_PICTURE,
-      },
-    });
-
-    // ===== App Client =====
-    const userPoolClient = new cognito.UserPoolClient(this, 'AppClient', {
-      userPool,
-      userPoolClientName: 'haumana-ios',
-      generateSecret: false, // Mobile apps don't use secrets
-      // No OAuth configuration needed since we're using hybrid auth
-      authFlows: {
-        adminUserPassword: true,
-        custom: true,
-      },
-    });
-
-    // Ensure Google provider is created before client
-    userPoolClient.node.addDependency(googleProvider);
-
-    // ===== Identity Pool =====
-    const identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
-      identityPoolName: 'haumana_identity',
-      allowUnauthenticatedIdentities: false,
-      cognitoIdentityProviders: [{
-        clientId: userPoolClient.userPoolClientId,
-        providerName: userPool.userPoolProviderName,
-      }],
-      supportedLoginProviders: {
-        'accounts.google.com': props.googleClientId,
-      },
-    });
-
-    // ===== IAM Roles for Identity Pool =====
-    const authenticatedRole = new iam.Role(this, 'CognitoAuthenticatedRole', {
-      assumedBy: new iam.FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
-        {
-          StringEquals: {
-            'cognito-identity.amazonaws.com:aud': identityPool.ref,
-          },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'authenticated',
-          },
-        },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AWSIoTDataAccess'), // If using IoT
-      ],
-    });
-
-    new cognito.CfnIdentityPoolRoleAttachment(this, 'IdentityPoolRoleAttachment', {
-      identityPoolId: identityPool.ref,
-      roles: {
-        authenticated: authenticatedRole.roleArn,
-      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     // ===== Lambda Functions =====
@@ -188,7 +104,7 @@ export class HaumanaStack extends cdk.Stack {
       memorySize: 256,
     });
 
-    // Auth Sync Lambda Function
+    // Auth Sync Lambda Function (syncs Google users to Cognito User Pool)
     const authSyncFunction = new NodejsFunction(this, 'AuthSyncFunction', {
       functionName: 'haumana-auth-sync',
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -206,7 +122,8 @@ export class HaumanaStack extends cdk.Stack {
     userPool.grant(authSyncFunction, 
       'cognito-idp:AdminCreateUser',
       'cognito-idp:AdminUpdateUserAttributes',
-      'cognito-idp:AdminGetUser'
+      'cognito-idp:AdminGetUser',
+      'cognito-idp:ListUsers'
     );
 
     // Grant Lambda permissions to DynamoDB
@@ -252,9 +169,8 @@ export class HaumanaStack extends cdk.Stack {
       handler: googleTokenAuthorizerFunction,
       authorizerName: 'GoogleTokenAuthorizer',
       identitySource: 'method.request.header.Authorization',
-      resultsCacheTtl: cdk.Duration.minutes(5), // Cache auth results for 5 minutes
+      resultsCacheTtl: cdk.Duration.minutes(5),
     });
-
 
     // API Resources
     const piecesResource = api.root.addResource('pieces');
@@ -276,19 +192,15 @@ export class HaumanaStack extends cdk.Stack {
 
     // ===== Outputs =====
     this.userPoolId = userPool.userPoolId;
-    this.userPoolClientId = userPoolClient.userPoolClientId;
-    this.identityPoolId = identityPool.ref;
     this.apiEndpoint = api.url;
-    this.cognitoDomain = `https://${cognitoDomain.domainName}.auth.${this.region}.amazoncognito.com`;
 
-    new cdk.CfnOutput(this, 'UserPoolId', { value: this.userPoolId });
-    new cdk.CfnOutput(this, 'UserPoolClientId', { value: this.userPoolClientId });
-    new cdk.CfnOutput(this, 'IdentityPoolId', { value: this.identityPoolId });
-    new cdk.CfnOutput(this, 'ApiEndpoint', { value: this.apiEndpoint });
-    new cdk.CfnOutput(this, 'CognitoDomainUrl', { value: this.cognitoDomain });
-    new cdk.CfnOutput(this, 'GoogleRedirectUri', { 
-      value: `${this.cognitoDomain}/oauth2/idpresponse`,
-      description: 'Add this to Google OAuth Authorized redirect URIs' 
+    new cdk.CfnOutput(this, 'UserPoolId', { 
+      value: this.userPoolId,
+      description: 'Cognito User Pool ID (used for user data storage only)'
+    });
+    new cdk.CfnOutput(this, 'ApiEndpoint', { 
+      value: this.apiEndpoint,
+      description: 'API Gateway endpoint URL'
     });
   }
 }

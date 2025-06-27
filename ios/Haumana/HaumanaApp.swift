@@ -8,9 +8,6 @@
 import SwiftUI
 import SwiftData
 import CoreText
-import Amplify
-import AWSCognitoAuthPlugin
-import AWSAPIPlugin
 
 @main
 struct haumanaApp: App {
@@ -33,13 +30,6 @@ struct haumanaApp: App {
     init() {
         // Register custom fonts
         registerCustomFonts()
-        
-        // Skip configuration if running tests
-        let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-        
-        if !isRunningTests {
-            configureAmplify()
-        }
     }
 
     var body: some Scene {
@@ -98,40 +88,6 @@ struct haumanaApp: App {
             } else {
                 print("Successfully registered \(name) font (legacy method)")
             }
-        }
-    }
-    
-    
-    /// Configure AWS Amplify
-    private func configureAmplify() {
-        // Check if we're in UI test mode
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("-UITestMode")
-        
-        if isUITesting {
-            // Skip Amplify configuration for UI tests
-            print("Running in UI test mode - skipping AWS Amplify configuration")
-            return
-        }
-        
-        // Check if we're in test environment
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
-            print("Running in test environment - skipping AWS Amplify configuration")
-            return
-        }
-        
-        do {
-            // Add Auth plugin
-            try Amplify.add(plugin: AWSCognitoAuthPlugin())
-            
-            // Add API plugin
-            try Amplify.add(plugin: AWSAPIPlugin())
-            
-            // Configure Amplify
-            try Amplify.configure()
-            
-            print("Amplify configured successfully")
-        } catch {
-            print("Failed to configure Amplify: \(error)")
         }
     }
 }

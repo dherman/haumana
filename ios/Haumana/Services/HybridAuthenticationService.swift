@@ -1,6 +1,5 @@
 import Foundation
 import GoogleSignIn
-import Amplify
 import SwiftData
 import SwiftUI
 

@@ -5,19 +5,20 @@ This CDK application deploys all AWS infrastructure for Haumana's cloud sync fun
 ## What Gets Deployed
 
 - **DynamoDB Tables**: `haumana-pieces` and `haumana-sessions` with indexes
-- **Cognito User Pool**: With Google federation configured
-- **Cognito Identity Pool**: For AWS credentials
-- **Lambda Functions**: TypeScript functions for sync operations
-- **API Gateway**: REST API with Cognito authorization
+- **Cognito User Pool**: For user data storage only (not authentication)
+- **Lambda Functions**: 
+  - Sync functions for pieces and sessions
+  - Google token authorizer for API authentication
+  - Auth sync function to store user data
+- **API Gateway**: REST API with custom Google token authorization
 - **IAM Roles**: All necessary permissions
 
 ## Prerequisites
 
 1. AWS CLI configured with credentials
 2. Node.js 18+ and npm
-3. Google OAuth 2.0 Web Application Client ID
-4. Google Client Secret stored in AWS Secrets Manager as `haumana-oauth`
-5. AWS CDK CLI: `npm install -g aws-cdk`
+3. Google OAuth 2.0 iOS Client ID (for the custom authorizer)
+4. AWS CDK CLI: `npm install -g aws-cdk`
 
 ## Setup Instructions
 
@@ -37,23 +38,25 @@ npm run bootstrap
 ### 3. Build Lambda Functions
 
 ```bash
+# Build sync lambdas
 cd ../../lambdas
 npm install
 npm run build:prod
-cd ../infrastructure/cdk
+
+# Build auth-sync lambda
+cd ../lambda/auth-sync
+npm install
+npm run build
+
+# Build Google token authorizer
+cd ../google-token-authorizer
+npm install
+
+# Return to CDK directory
+cd ../../infrastructure/cdk
 ```
 
-### 4. Store Google Client Secret
-
-```bash
-aws secretsmanager create-secret \
-  --name haumana-oauth \
-  --description "Google OAuth Client Secret" \
-  --secret-string "your-google-client-secret" \
-  --region us-west-2
-```
-
-### 5. Deploy Stack
+### 4. Deploy Stack
 
 Option A: Using environment variable
 ```bash
@@ -66,23 +69,11 @@ Option B: Using CDK context
 npm run deploy -- -c googleClientId=your-google-client-id.apps.googleusercontent.com
 ```
 
-### 6. Note the Outputs
+### 5. Note the Outputs
 
 After deployment, CDK will output:
-- User Pool ID
-- App Client ID
-- Identity Pool ID
+- User Pool ID (for user data storage)
 - API Endpoint URL
-- Cognito Domain
-- **Google Redirect URI** - Add this to Google OAuth settings!
-
-### 7. Update Google OAuth
-
-1. Copy the `GoogleRedirectUri` from the output
-2. Go to Google Cloud Console → APIs & Services → Credentials
-3. Edit your OAuth 2.0 Client ID
-4. Add the redirect URI to "Authorized redirect URIs"
-5. Save
 
 ## Customization
 
@@ -151,24 +142,20 @@ Run `npm run bootstrap` first
 ### "Credentials not found"
 Ensure AWS CLI is configured: `aws configure`
 
-### Google OAuth Not Working
-1. Verify Client ID and Secret are correct
-2. Check that redirect URI is added to Google
-3. Ensure it matches exactly (including https://)
+### API Authorization Not Working
+1. Verify Google iOS Client ID is correct in the authorizer
+2. Check that the iOS app is sending Google ID tokens
+3. Review CloudWatch logs for the authorizer Lambda
 
 ## Next Steps
 
-1. Update iOS app with configuration values:
-   ```json
-   {
-     "userPoolId": "[from output]",
-     "appClientId": "[from output]",
-     "identityPoolId": "[from output]",
-     "apiEndpoint": "[from output]",
-     "cognitoDomain": "[from output]"
-   }
-   ```
+1. Update iOS app configuration:
+   - Set API endpoint in AppConstants.swift
+   - Ensure Google Sign-In is configured with iOS client ID
 
-2. Test authentication flow
-3. Verify API endpoints work
-4. Monitor CloudWatch logs
+2. Test the sync flow:
+   - Sign in with Google
+   - Create some pieces
+   - Verify they sync to DynamoDB
+
+3. Monitor CloudWatch logs for any errors

@@ -1,151 +1,79 @@
 # Haumana AWS Infrastructure
 
-This directory contains the AWS infrastructure components for Haumana's cloud sync functionality.
+AWS infrastructure components for Haumana's cloud sync functionality.
 
-## 🚀 Recommended: CDK Quick Start
+## 📚 Documentation
 
-**Deploy everything in 25 minutes using AWS CDK:**
-See [QUICKSTART_CDK.md](QUICKSTART_CDK.md) for the streamlined setup process.
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Step-by-step deployment guide with CDK (~25 minutes)
+- **[infrastructure/cdk/](infrastructure/cdk/README.md)** - CDK stack implementation details
 
-## Prerequisites
+### Additional Guides
 
-1. AWS CLI configured with appropriate credentials
-2. Node.js 18+ and npm
-3. Google OAuth 2.0 client ID and Secret
-4. AWS CDK CLI: `npm install -g aws-cdk`
+- **[CloudWatch Alarms](infrastructure/docs/cloudwatch-alarms-setup.md)** - Monitoring setup
+- **[AWS Budget](infrastructure/docs/create-haumana-budget.md)** - Cost tracking
 
-## Quick Start (CDK - Recommended)
+## 🏗️ Architecture
 
-```bash
-# 1. Install CDK and deploy everything
-cd infrastructure/cdk
-npm install
-export GOOGLE_CLIENT_ID="your-client-id"
-export GOOGLE_CLIENT_SECRET="your-secret"
-cdk deploy
+### Components
 
-# 2. Update Google OAuth with the redirect URI from output
-# 3. Done! See QUICKSTART_CDK.md for details
+- **DynamoDB Tables**:
+  - `haumana-pieces`: Stores user repertoire (partition key: userId, sort key: pieceId)
+  - `haumana-sessions`: Stores practice sessions with composite keys
+  
+- **Lambda Functions**:
+  - `sync-pieces-lambda`: Handles piece synchronization (upload/download/sync)
+  - `sync-sessions-lambda`: Handles practice session uploads
+  - `auth-sync-lambda`: Syncs Google users to Cognito
+  - `google-token-authorizer`: Validates Google ID tokens for API access
+
+- **API Gateway**: REST API with custom Google token authorization
+  - `POST /pieces` - Sync repertoire pieces
+  - `POST /sessions` - Upload practice sessions
+  - `POST /auth/sync` - Sync authentication
+
+- **Authentication**:
+  - Google Sign-In SDK → Google ID Token → Custom Authorizer → API Access
+  - Cognito User Pool stores user data (not used for authentication)
+
+### Data Flow
+
+```
+iOS App → Google Sign-In → ID Token
+    ↓
+API Gateway → Custom Authorizer (validates Google token)
+    ↓
+Lambda Functions → DynamoDB
 ```
 
-## Manual Setup (Alternative)
-
-If you prefer manual setup or want to understand what CDK creates:
-
-### 1. Create DynamoDB Tables
-
-```bash
-# Create the pieces table
-aws dynamodb create-table --cli-input-json file://infrastructure/tables/pieces-table.json
-
-# Create the sessions table  
-aws dynamodb create-table --cli-input-json file://infrastructure/tables/sessions-table.json
-
-# Verify tables were created
-aws dynamodb list-tables
-```
-
-### 2. Set up Cognito (Manual Steps)
-
-1. Go to AWS Cognito Console
-2. Create a new User Pool named "haumana-users"
-3. Configure Google as a federated identity provider
-4. Create an Identity Pool linked to the User Pool
-5. Note down the Pool IDs and Client ID
-
-### 3. Build Lambda Functions
-
-```bash
-cd lambdas
-npm install
-npm run build:prod
-```
-
-### 4. Deploy Lambda Functions
-
-```bash
-# Create sync-pieces function
-aws lambda create-function \
-  --function-name haumana-sync-pieces \
-  --runtime nodejs18.x \
-  --handler dist/sync-pieces-lambda.handler \
-  --zip-file fileb://dist/sync-pieces-lambda.js.zip \
-  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-dynamodb-role \
-  --environment Variables={PIECES_TABLE=haumana-pieces}
-
-# Create sync-sessions function  
-aws lambda create-function \
-  --function-name haumana-sync-sessions \
-  --runtime nodejs18.x \
-  --handler dist/sync-sessions-lambda.handler \
-  --zip-file fileb://dist/sync-sessions-lambda.js.zip \
-  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-dynamodb-role \
-  --environment Variables={SESSIONS_TABLE=haumana-sessions}
-```
-
-### 5. Set up API Gateway
-
-1. Create a new REST API named "haumana-api"
-2. Create resources:
-   - `/pieces` with POST method → sync-pieces Lambda
-   - `/sessions` with POST method → sync-sessions Lambda
-3. Configure Cognito User Pool authorizer
-4. Deploy to "prod" stage
-
-## Development
+## 🧪 Development
 
 ### Running Lambda Functions Locally
 
 ```bash
-# Install development dependencies
-npm install --save-dev @types/aws-lambda
-
-# Build TypeScript
+cd lambdas
+npm install
 npm run build
-
-# Test locally (requires SAM CLI)
-sam local start-api
+sam local start-api  # Requires AWS SAM CLI
 ```
 
 ### Updating Lambda Functions
 
+After modifying Lambda code:
 ```bash
-# Build and bundle
 npm run build:prod
-
-# Update function code
-aws lambda update-function-code \
-  --function-name haumana-sync-pieces \
-  --zip-file fileb://dist/sync-pieces-lambda.js.zip
+cdk deploy  # Redeploys all changes
 ```
 
-## Architecture
+## 💰 Cost Estimates
 
-- **DynamoDB Tables**:
-  - `haumana-pieces`: Stores user repertoire with userId as partition key
-  - `haumana-sessions`: Stores practice sessions with composite keys
+- **DynamoDB**: Pay-per-request (~$0.25 per million requests)
+- **Lambda**: Free tier covers most usage
+- **API Gateway**: $3.50 per million API calls
+- **Total**: ~$10-20/month for 100 active users
 
-- **Lambda Functions**:
-  - `sync-pieces-lambda`: Handles piece synchronization (upload/download/sync)
-  - `sync-sessions-lambda`: Handles practice session uploads
+## 🔒 Security
 
-- **API Gateway**: REST API with Cognito authorization
-
-## Environment Variables
-
-- `PIECES_TABLE`: DynamoDB table name for pieces (default: haumana-pieces)
-- `SESSIONS_TABLE`: DynamoDB table name for sessions (default: haumana-sessions)
-
-## Cost Considerations
-
-- DynamoDB: Pay-per-request billing mode
-- Lambda: Pay per invocation and compute time
-- API Gateway: Pay per API call
-- Estimated monthly cost for 100 active users: ~$10-20
-
-## Security
-
-- All API endpoints require Cognito JWT authentication
-- Lambda functions have minimal IAM permissions
-- Data is encrypted at rest in DynamoDB
-- HTTPS only for all API calls
+- **API Protection**: Custom authorizer validates Google ID tokens
+- **Data Encryption**: At-rest encryption in DynamoDB
+- **Network**: HTTPS only, no public database access
+- **IAM**: Least-privilege permissions for all services
