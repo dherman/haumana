@@ -1,4 +1,4 @@
-# Milestone 4: Google Authentication PRD
+# Product Requirements Document - Google Authentication (Milestone 4)
 
 ## Overview
 

@@ -1,5 +1,4 @@
-# Product Requirements Document - Milestone 1
-## Haumana: Basic Repertoire Management
+# Product Requirements Document - Basic Repertoire Management (Milestone 1)
 
 ### Document Information
 - **Version**: 1.0

@@ -1,5 +1,4 @@
-# Product Requirements Document - Milestone 2
-## Haumana: Practice Mode
+# Product Requirements Document - Practice Mode (Milestone 2)
 
 ### Document Information
 - **Version**: 1.0

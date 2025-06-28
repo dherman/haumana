@@ -1,5 +1,4 @@
-# Product Requirements Document - Milestone 3
-## Haumana: Practice Carousel
+# Product Requirements Document - Practice Carousel (Milestone 3)
 
 ### Document Information
 - **Version**: 1.0
