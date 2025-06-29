@@ -8,11 +8,32 @@ Haumana is an iOS app designed to help students of Hawaiian art and culture mana
 
 ## Project Structure
 
+### Docs: docs/
+
+Project documentation is located in the `docs/` directory:
+- `docs/product/`: Product design docs
+- `docs/architecture/`: Engineering architecture design docs
+
+### Functional specs: specs/
+
+Functional specs for product functionality are all located in the `specs/` directory. Each spec is contained in a subdirectory and consists of three documents:
+- `specs/[feature]/requirements.md`: High-level feature requirements
+- `specs/[feature]/design.md`: Product Requirements Doc (PRD), aka functional specification
+- `specs/[feature]/tasks.md`: Detailed implementation task checklist, listed in the expected order of implementation
+
+### Frontend: ios/
+
 The iOS app code is located in the `ios/` directory:
 - `ios/Haumana/`: Main app source code
 - `ios/Haumana.xcodeproj/`: Xcode project file
 - `ios/DataTests/`: Unit tests for models and data persistence
 - `ios/UITests/`: UI tests for user interface and interactions
+
+### Backend: aws/
+
+The AWS backend is located in the `aws/` directory:
+- `aws/infrastructure/cdk/`: AWS CDK (infrastructure-as-code) automation
+- `aws/lambdas/`: Main backend Lambda functions
 
 ## Development Commands
 

@@ -108,7 +108,7 @@ export class HaumanaStack extends cdk.Stack {
     const authSyncFunction = new NodejsFunction(this, 'AuthSyncFunction', {
       functionName: 'haumana-auth-sync',
       runtime: lambda.Runtime.NODEJS_18_X,
-      entry: path.join(__dirname, '../../../lambda/auth-sync/index.ts'),
+      entry: path.join(__dirname, '../../../lambdas/src/auth-sync-lambda.ts'),
       handler: 'handler',
       environment: {
         USER_POOL_ID: userPool.userPoolId,
@@ -131,10 +131,11 @@ export class HaumanaStack extends cdk.Stack {
     sessionsTable.grantReadWriteData(syncSessionsFunction);
 
     // ===== Google Token Authorizer Lambda =====
-    const googleTokenAuthorizerFunction = new lambda.Function(this, 'GoogleTokenAuthorizer', {
+    const googleTokenAuthorizerFunction = new NodejsFunction(this, 'GoogleTokenAuthorizer', {
+      functionName: 'haumana-google-token-authorizer',
       runtime: lambda.Runtime.NODEJS_18_X,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../../lambda/google-token-authorizer')),
-      handler: 'index.handler',
+      entry: path.join(__dirname, '../../../lambdas/src/google-token-authorizer-lambda.ts'),
+      handler: 'handler',
       environment: {
         GOOGLE_WEB_CLIENT_ID: '872799888201-51c9jb50nkdl2cl4vu8fp9h5cs7tdmuj.apps.googleusercontent.com',
       },

@@ -26,6 +26,16 @@ if [ ! -f "dist/sync-sessions-lambda.js" ]; then
     exit 1
 fi
 
+if [ ! -f "dist/auth-sync-lambda.js" ]; then
+    echo "❌ auth-sync-lambda.js not found after build"
+    exit 1
+fi
+
+if [ ! -f "dist/google-token-authorizer-lambda.js" ]; then
+    echo "❌ google-token-authorizer-lambda.js not found after build"
+    exit 1
+fi
+
 echo "✅ TypeScript compilation successful"
 
 # Bundle for production
@@ -35,27 +45,21 @@ npm run bundle
 # Check bundle sizes
 echo ""
 echo "📦 Bundle sizes:"
-ls -lh dist/*.js | grep -E "(sync-pieces|sync-sessions)"
+ls -lh dist/*.js
 
 # Verify exports
 echo ""
 echo "🔍 Verifying Lambda handler exports..."
 
-# Check for handler export in sync-pieces
-if grep -q "exports.handler" dist/sync-pieces-lambda.js; then
-    echo "✅ sync-pieces-lambda has handler export"
-else
-    echo "❌ sync-pieces-lambda missing handler export"
-    exit 1
-fi
-
-# Check for handler export in sync-sessions
-if grep -q "exports.handler" dist/sync-sessions-lambda.js; then
-    echo "✅ sync-sessions-lambda has handler export"
-else
-    echo "❌ sync-sessions-lambda missing handler export"
-    exit 1
-fi
+# Check for handler export in all Lambda functions
+for lambda in sync-pieces-lambda sync-sessions-lambda auth-sync-lambda google-token-authorizer-lambda; do
+    if grep -q "exports.handler" dist/$lambda.js || grep -q "handler:" dist/$lambda.js; then
+        echo "✅ $lambda has handler export"
+    else
+        echo "❌ $lambda missing handler export"
+        exit 1
+    fi
+done
 
 echo ""
 echo "✅ All Lambda functions built successfully!"

@@ -5,9 +5,11 @@
   "scripts": {
     "build": "tsc",
     "build:prod": "npm run build && npm run bundle",
-    "bundle": "npm run bundle:pieces && npm run bundle:sessions",
+    "bundle": "npm run bundle:pieces && npm run bundle:sessions && npm run bundle:auth-sync && npm run bundle:google-token-authorizer",
     "bundle:pieces": "esbuild src/sync-pieces-lambda.ts --bundle --minify --platform=node --target=es2020 --outfile=dist/sync-pieces-lambda.js",
     "bundle:sessions": "esbuild src/sync-sessions-lambda.ts --bundle --minify --platform=node --target=es2020 --outfile=dist/sync-sessions-lambda.js",
+    "bundle:auth-sync": "esbuild src/auth-sync-lambda.ts --bundle --minify --platform=node --target=es2020 --outfile=dist/auth-sync-lambda.js",
+    "bundle:google-token-authorizer": "esbuild src/google-token-authorizer-lambda.ts --bundle --minify --platform=node --target=es2020 --outfile=dist/google-token-authorizer-lambda.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,9 +23,11 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.600.0",
     "@aws-sdk/client-dynamodb": "^3.828.0",
     "@aws-sdk/lib-dynamodb": "^3.828.0",
     "@types/uuid": "^10.0.0",
+    "google-auth-library": "^10.1.0",
     "uuid": "^11.1.0"
   }
 }
