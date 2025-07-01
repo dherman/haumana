@@ -320,7 +320,3 @@ aws cognito-identity create-identity-pool \
   - [x] Filter by `Tag: Project = Haumana`
   - [x] Verify only Haumana resources appear in the cost breakdown
 
-## Phase 16: Set up CloudWatch alarms
-
-- [ ] Follow runbook in aws/intrastructure/cdk/docs/cloudwatch-alarms-setup.md
-- [ ] Delete aws/intrastructure/cdk/docs/cloudwatch-alarms-setup.md

@@ -26,3 +26,6 @@ This document contains some possible ideas for future functionality. These are c
 - User contributions
 - Ratings and reviews
 - Social features
+
+### Operational Readiness
+- CloudWatch alarms
