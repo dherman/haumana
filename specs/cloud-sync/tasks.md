@@ -49,10 +49,6 @@ aws cognito-identity create-identity-pool \
     - [x] `func enqueue(entityType: String, entityId: String, operation: String)`
     - [x] `func processQueue() async`
     - [x] `private func processItem(_ item: SyncQueueItem) async`
-- [ ] Conflict Resolution Strategy (Services/ConflictResolver.swift)
-  - [ ] Three-way `Resolution` enum (keep local, keep remote, merge)
-  - [ ] Last-write-wins based on `modifiedAt`: `static fun resolve(local: Piece, remote: Piece) -> Resolution`
-  - [ ] Leave a comment about three-way merge based on lyrics as a future extension
 
 ## Phase 4: UI Integration (Days 8-9)
 
@@ -163,60 +159,7 @@ aws cognito-identity create-identity-pool \
   - [x] Fixed pull-to-refresh spinner getting stuck
   - [x] Added proper error handling and logging throughout sync process
 
-## Phase 9: Multi-Device Sync with Conflict Resolution (Days 19-20)
-
-- [ ] Last-Write-Wins Implementation
-  - [ ] Enhance conflict resolver with proper timestamp comparison
-  - [ ] Handle edge cases where timestamps are identical
-  - [ ] Implement version tracking for optimistic concurrency
-- [ ] Multi-Device Testing Framework
-  - [ ] Set up testing scenarios for multiple devices
-  - [ ] Create test cases for concurrent modifications
-  - [ ] Verify conflict resolution works correctly
-- [ ] Multi-Device Sync Polish
-  - [ ] Sync State Management
-    - [ ] Implement device tracking for sync operations
-    - [ ] Handle sync state across multiple devices
-    - [ ] Ensure consistent state after conflicts
-  - [ ] Performance Optimization
-    - [ ] Optimize sync for multiple simultaneous devices
-    - [ ] Implement intelligent sync scheduling
-    - [ ] Reduce unnecessary sync operations
-
-## Phase 10: Offline Mode Implementation (Days 21-22)
-
-- [ ] Implement Network Reachability
-  - [ ] Replace TODO comment with actual network monitoring
-  - [ ] Use iOS Network framework for reachability
-  - [ ] Update sync status based on network state
-- [ ] Offline Queue Enhancement
-  - [ ] Improve offline queue processing
-  - [ ] Handle network state transitions gracefully
-  - [ ] Implement retry logic with exponential backoff
-
-### Day 22: Offline Mode UI/UX
-
-- [ ] Offline Indicators
-  - [ ] Show clear offline status in UI
-  - [ ] Display pending changes count
-  - [ ] Implement offline mode notifications
-- [ ] Offline Data Management
-  - [ ] Ensure full app functionality while offline
-  - [ ] Queue all changes for later sync
-  - [ ] Handle offline-to-online transitions smoothly
-
-## Phase 11: Pull-to-Refresh Implementation (Day 23)
-
-- [ ] Implement Pull-to-Refresh UI
-  - [ ] Add pull-to-refresh to RepertoireListView
-  - [ ] Add pull-to-refresh to practice views
-  - [ ] Implement proper loading states
-- [ ] Refresh Logic
-  - [ ] Trigger full sync on pull-to-refresh
-  - [ ] Update UI with fresh data
-  - [ ] Handle errors during refresh gracefully
-
-## Phase 12: Fix Test Mode Issues (Day 24)
+## Phase 9: Fix Test Mode Issues (Day 24)
 
 - [ ] Fix Mock Token Handling
   - [ ] Update SyncService to detect test mode
@@ -227,41 +170,7 @@ aws cognito-identity create-identity-pool \
   - [ ] Implement mock sync service for tests
   - [ ] Ensure tests don't affect production data
 
-## Phase 13: Build System Selection (Day 25)
-
-- [ ] Build System Evaluation
-  - [ ] Evaluate Bazel for iOS builds
-  - [ ] Evaluate CMake for iOS builds
-  - [ ] Consider simple shell script alternative
-- [ ] Implement Chosen Build System
-  - [ ] Set up build configuration
-  - [ ] Create build scripts
-  - [ ] Document build process
-  - [ ] Integrate with existing Xcode workflow
-
-## Phase 14: Web Deployment and Safe Script (Days 26-27)
-
-- [ ] Analyze Current Script Issues
-  - [ ] Review scripts/deploy-web.sh problems
-  - [ ] Understand why it removed uncommitted changes
-  - [ ] Identify why it included too many files in gh-pages
-- [ ] Create Safe Deployment Script
-  - [ ] Implement safeguards against data loss
-  - [ ] Use worktree or separate clone for deployment
-  - [ ] Ensure only web/ contents are deployed
-  - [ ] Add checks to prevent IDE/process crashes
-- [ ] Web Hosting Setup
-  - [ ] GitHub Pages Configuration
-    - [ ] Set up proper GitHub Pages deployment
-    - [ ] Configure custom domain (haumana.app)
-    - [ ] Ensure clean gh-pages branch
-  - [ ] Legal Documents Website
-    - [ ] Deploy static website from web/ directory
-    - [ ] Verify legal documents are accessible
-    - [ ] Test deployment process end-to-end
-    - [ ] Document deployment procedure
-
-## Phase 15: Set up an AWS budget
+## Phase 10: Set up an AWS budget
 
 - [x] Update CDK stack to tag all resources with:
    - [x] `Project: Haumana`

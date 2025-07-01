@@ -16,7 +16,6 @@
 - DynamoDB tables (pieces and sessions)
 - Simple sync logic
 - Error handling
-- Set up build workflow for repo (consider Bazel or CMake)
 
 **Success Metrics:**
 - Data syncs across devices
