@@ -46,6 +46,11 @@ xcodebuild -scheme haumana -destination 'platform=iOS Simulator,name=iPhone 16,a
 xcodebuild -scheme haumana -destination 'generic/platform=iOS' -project ios/Haumana.xcodeproj
 ```
 
+### Deploying
+```bash
+./scripts/deploy-aws.sh
+```
+
 ### Testing
 ```bash
 # Run unit tests

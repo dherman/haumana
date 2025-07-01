@@ -36,6 +36,7 @@ interface SyncRequest {
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const body: SyncRequest = JSON.parse(event.body || '{}');
+    console.log('Sync request received:', JSON.stringify({ operation: body.operation, piecesCount: body.pieces?.length, lastSyncedAt: body.lastSyncedAt }));
     
     // Extract userId from custom authorizer context
     // The authorizer passes userId in the context
@@ -86,6 +87,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
 async function handleUpload(userId: string, pieces: Piece[]): Promise<APIGatewayProxyResult> {
   const uploadedPieces: string[] = [];
+  const updatedPieces: Piece[] = [];
   const batchSize = 25; // DynamoDB batch write limit
   const now = new Date().toISOString();
   
@@ -97,15 +99,27 @@ async function handleUpload(userId: string, pieces: Piece[]): Promise<APIGateway
       piece.userId = userId;
       piece.lastSyncedAt = now;
       
+      // IMPORTANT: Update modifiedAt so other devices can detect the change
+      if (!piece.modifiedAt || piece.locallyModified) {
+        piece.modifiedAt = now;
+        console.log(`Setting modifiedAt for piece ${piece.pieceId} to ${now}`);
+      }
+      
       // Generate pieceId if not present
       if (!piece.pieceId) {
         piece.pieceId = uuidv4();
       }
       
       // Update version for optimistic locking
-      piece.version = (piece.version || 0) + 1;
+      const oldVersion = piece.version || 0;
+      piece.version = oldVersion + 1;
+      console.log(`Incrementing version for piece ${piece.pieceId}: ${oldVersion} -> ${piece.version}`);
+      
+      // Clear locallyModified flag since it's now synced to server
+      piece.locallyModified = false;
       
       uploadedPieces.push(piece.pieceId);
+      updatedPieces.push(piece);
       
       return {
         PutRequest: {
@@ -129,12 +143,15 @@ async function handleUpload(userId: string, pieces: Piece[]): Promise<APIGateway
     },
     body: JSON.stringify({
       uploadedPieces,
+      updatedPieces,
       syncedAt: now
     })
   };
 }
 
 async function handleDownload(userId: string, lastSyncedAt?: string): Promise<APIGatewayProxyResult> {
+  console.log('handleDownload called with:', { userId, lastSyncedAt });
+  
   const queryParams: any = {
     TableName: PIECES_TABLE,
     KeyConditionExpression: 'userId = :userId',
@@ -144,11 +161,42 @@ async function handleDownload(userId: string, lastSyncedAt?: string): Promise<AP
   };
   
   if (lastSyncedAt) {
-    queryParams.FilterExpression = 'lastSyncedAt > :lastSync';
+    queryParams.FilterExpression = 'modifiedAt > :lastSync';
     queryParams.ExpressionAttributeValues[':lastSync'] = lastSyncedAt;
   }
   
+  // First, let's see all pieces for debugging
+  const allPiecesQuery = {
+    TableName: PIECES_TABLE,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': userId
+    }
+  };
+  const allPiecesResponse = await docClient.send(new QueryCommand(allPiecesQuery));
+  console.log(`Total pieces for user: ${allPiecesResponse.Items?.length || 0}`);
+  if (allPiecesResponse.Items && allPiecesResponse.Items.length > 0) {
+    console.log('Most recent piece:', {
+      title: allPiecesResponse.Items[0].title,
+      modifiedAt: allPiecesResponse.Items[0].modifiedAt,
+      lastSyncedAt: allPiecesResponse.Items[0].lastSyncedAt
+    });
+  }
+  
   const response = await docClient.send(new QueryCommand(queryParams));
+  console.log('Query returned', response.Items?.length || 0, 'pieces');
+  
+  // Log first few pieces for debugging
+  if (response.Items && response.Items.length > 0) {
+    response.Items.slice(0, 3).forEach(item => {
+      console.log('Piece:', {
+        pieceId: item.pieceId,
+        title: item.title,
+        modifiedAt: item.modifiedAt,
+        locallyModified: item.locallyModified
+      });
+    });
+  }
   
   return {
     statusCode: 200,
@@ -157,7 +205,7 @@ async function handleDownload(userId: string, lastSyncedAt?: string): Promise<AP
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      pieces: response.Items || [],
+      serverPieces: response.Items || [],
       syncedAt: new Date().toISOString()
     })
   };
@@ -171,16 +219,27 @@ async function handleSync(
   // Get server pieces modified since last sync
   const serverResponse = await handleDownload(userId, lastSyncedAt);
   const serverData = JSON.parse(serverResponse.body);
-  const serverPieces = serverData.pieces;
+  const serverPieces = serverData.serverPieces || [];
   
   // Upload client changes
   const changesToUpload = clientPieces.filter(piece => piece.locallyModified);
+  console.log(`Found ${changesToUpload.length} pieces to upload`);
   let uploadedPieces: string[] = [];
+  let updatedPieces: Piece[] = [];
   
   if (changesToUpload.length > 0) {
+    changesToUpload.forEach(piece => {
+      console.log('Uploading piece:', {
+        pieceId: piece.pieceId,
+        title: piece.title,
+        locallyModified: piece.locallyModified,
+        modifiedAt: piece.modifiedAt
+      });
+    });
     const uploadResponse = await handleUpload(userId, changesToUpload);
     const uploadData = JSON.parse(uploadResponse.body);
     uploadedPieces = uploadData.uploadedPieces;
+    updatedPieces = uploadData.updatedPieces || [];
   }
   
   return {
@@ -192,6 +251,7 @@ async function handleSync(
     body: JSON.stringify({
       serverPieces,
       uploadedPieces,
+      updatedPieces,
       syncedAt: new Date().toISOString()
     })
   };

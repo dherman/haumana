@@ -9,6 +9,7 @@ struct RepertoireListView: View {
     @State private var showingAddView = false
     @State private var searchText = ""
     @State private var selectedFilter: FilterOption = .all
+    @State private var isRefreshing = false
     
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -50,7 +51,22 @@ struct RepertoireListView: View {
                 AddEditPieceView(piece: nil)
             }
             .refreshable {
-                await syncService?.syncNow()
+                guard !isRefreshing else {
+                    print("RepertoireListView: Refresh already in progress, skipping")
+                    return
+                }
+                
+                if let syncService = syncService {
+                    isRefreshing = true
+                    defer { isRefreshing = false }
+                    
+                    print("RepertoireListView: Starting pull-to-refresh sync")
+                    await syncService.syncNow()
+                    
+                    // Add a small delay to ensure the UI updates properly
+                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                    print("RepertoireListView: Pull-to-refresh sync completed")
+                }
             }
         }
     }

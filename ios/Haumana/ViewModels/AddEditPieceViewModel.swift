@@ -100,13 +100,18 @@ final class AddEditPieceViewModel: ObservableObject {
     }
     
     func save() async -> Bool {
-        guard validateForm() else { return false }
+        print("AddEditPieceViewModel: save() called")
+        guard validateForm() else { 
+            print("AddEditPieceViewModel: Form validation failed")
+            return false 
+        }
         
         isSaving = true
         defer { isSaving = false }
         
         do {
             if let existing = existingPiece {
+                print("AddEditPieceViewModel: Updating existing piece: \(existing.title)")
                 existing.title = title
                 existing.category = category.rawValue
                 existing.lyrics = lyrics

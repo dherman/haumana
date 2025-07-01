@@ -71,9 +71,15 @@ final class PieceRepository: PieceRepositoryProtocol {
     }
     
     func update(_ piece: Piece) throws {
+        print("PieceRepository: Updating piece '\(piece.title)'")
+        print("PieceRepository: Before update - locallyModified: \(piece.locallyModified), version: \(piece.version)")
+        
         piece.updatedAt = Date()
         piece.locallyModified = true
         piece.version += 1
+        
+        print("PieceRepository: After update - locallyModified: \(piece.locallyModified), version: \(piece.version)")
+        
         try modelContext.save()
         
         // Notify sync service

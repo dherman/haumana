@@ -124,22 +124,44 @@ aws cognito-identity create-identity-pool \
 
 ## Phase 8: Fix Sync Issues (Days 17-18)
 
-- [ ] Fix LocallyModified Filter Issue
-  - [ ] Remove the filter that only syncs pieces where `locallyModified = true`
-  - [ ] Implement proper tracking of what needs to be synced
-  - [ ] Ensure all pieces are included in sync operations
-- [ ] Implement Pull Sync
-  - [ ] Add functionality to fetch all remote pieces on initial sync
-  - [ ] Implement periodic pull of remote changes
-  - [ ] Handle merging of remote changes with local data
-- [ ] Update Sync Logic
-  - [ ] Modify sync to send all pieces, not just modified ones
-  - [ ] Implement proper change tracking without filtering
-  - [ ] Ensure sync state is properly maintained
-- [ ] Test Bidirectional Sync
-  - [ ] Verify data flows both ways between devices
-  - [ ] Test initial sync scenarios
-  - [ ] Ensure no data is lost due to filtering
+- [x] Fix LocallyModified Filter Issue
+  - [x] Remove `.filter { $0.locallyModified }` from line 189 in SyncService.swift
+  - [x] Keep locallyModified property for server-side filtering in Lambda
+  - [x] Ensure PieceRepository continues to set locallyModified = true on changes
+  - [x] Verify all pieces are included in sync request payload
+- [x] Implement Pull Sync
+  - [x] Process serverPieces array from sync response in SyncService.syncPieces()
+  - [x] Check if server piece exists locally by matching pieceId
+  - [x] Compare modifiedAt timestamps for existing pieces
+  - [x] Create new local pieces for server pieces not found locally
+  - [x] Update existing local pieces when server version is newer
+  - [x] Set lastSyncedAt on all processed pieces
+- [x] Fix Initial Sync for New Devices
+  - [x] On first sync, send empty lastSyncedAt to get all server pieces
+  - [x] Process all returned server pieces to populate local database
+  - [x] Mark all received pieces with lastSyncedAt timestamp
+  - [x] Test sign-in on fresh device pulls all existing pieces
+- [x] Update Sync State Management
+  - [x] Only mark pieces as locallyModified = false after successful upload
+  - [x] Track sync conflicts in a separate property if needed
+  - [x] Ensure version numbers increment correctly
+  - [x] Handle sync errors without losing local changes
+- [x] Fix Missing Repository Methods
+  - [x] Implement PracticeSessionRepository.fetchUnsyncedSessions()
+  - [x] Add query to fetch sessions where syncedAt is nil
+  - [x] Return array of unsynced PracticeSession objects
+- [x] Test Bidirectional Sync
+  - [x] Create test with two devices signed into same account
+  - [x] Add piece on device A, verify it appears on device B
+  - [x] Edit piece on device B, verify changes appear on device A
+  - [x] Test concurrent edits on both devices
+  - [x] Verify no data loss in any scenario
+- [x] Additional Fixes Implemented
+  - [x] Fixed AddEditPieceView not setting locallyModified flag
+  - [x] Fixed date parsing for ISO8601 dates with/without fractional seconds
+  - [x] Fixed version number synchronization after upload
+  - [x] Fixed pull-to-refresh spinner getting stuck
+  - [x] Added proper error handling and logging throughout sync process
 
 ## Phase 9: Multi-Device Sync with Conflict Resolution (Days 19-20)
 

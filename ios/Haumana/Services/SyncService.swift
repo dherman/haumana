@@ -63,7 +63,10 @@ class SyncService {
     
     // MARK: - Public Methods
     
+    @MainActor
     func syncNow() async {
+        print("SyncService: syncNow() called")
+        
         guard authService.isSignedIn else {
             print("SyncService: Cannot sync - user not signed in")
             return
@@ -76,21 +79,41 @@ class SyncService {
         
         syncStatus = .syncing
         
+        defer {
+            print("SyncService: syncNow() completing")
+        }
+        
         do {
             print("SyncService: Starting sync...")
             
             // Get Google ID token for authentication
             guard let idToken = try await authService.getCurrentIdToken() else {
+                syncStatus = .error("No authentication token available")
                 throw NSError(domain: "SyncService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authentication token available"])
             }
             
+            // Log whether this is an initial sync
+            if lastSyncedAt == nil {
+                print("SyncService: Performing initial sync - fetching all pieces from server")
+            } else {
+                print("SyncService: Syncing changes since \(lastSyncedAt!.ISO8601Format())")
+            }
+            
             // Sync pieces
-            try await syncPieces(token: idToken)
+            let syncedTimestamp = try await syncPieces(token: idToken)
             
             // Sync practice sessions
             try await syncSessions(token: idToken)
             
-            lastSyncedAt = Date()
+            // Use server's timestamp to ensure consistency
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let serverDate = formatter.date(from: syncedTimestamp) {
+                lastSyncedAt = serverDate
+                print("SyncService: Updated lastSyncedAt to server time: \(syncedTimestamp)")
+            } else {
+                lastSyncedAt = Date()
+            }
             syncStatus = .synced
             pendingChanges = 0
             
@@ -131,7 +154,14 @@ class SyncService {
     }
     
     @objc private func localDataChanged() {
+        print("SyncService: localDataChanged notification received")
         markPendingChanges()
+        
+        // Trigger immediate sync when data changes
+        Task {
+            print("SyncService: Triggering immediate sync due to local data change")
+            await syncNow()
+        }
     }
     
     private func startPeriodicSync() {
@@ -158,10 +188,20 @@ class SyncService {
     
     // MARK: - Sync Methods
     
-    private func syncPieces(token: String) async throws {
+    private func syncPieces(token: String) async throws -> String {
         let userId = authService.currentUser?.id ?? ""
         let repository = PieceRepository(modelContext: modelContext)
         let localPieces = try repository.fetchAll(userId: userId)
+        
+        // Log pieces being synced
+        print("SyncService: Preparing to sync \(localPieces.count) pieces")
+        let modifiedPieces = localPieces.filter { $0.locallyModified }
+        print("SyncService: \(modifiedPieces.count) pieces have locallyModified = true")
+        if modifiedPieces.count > 0 {
+            modifiedPieces.forEach { piece in
+                print("SyncService: Modified piece: \(piece.title) - locallyModified: \(piece.locallyModified)")
+            }
+        }
         
         // Prepare sync request
         let syncRequest = PiecesSyncRequest(
@@ -186,7 +226,7 @@ class SyncService {
                     version: piece.version,
                     locallyModified: piece.locallyModified
                 )
-            }.filter { $0.locallyModified },
+            },
             lastSyncedAt: lastSyncedAt?.ISO8601Format()
         )
         
@@ -215,11 +255,35 @@ class SyncService {
         let decoder = JSONDecoder()
         let response = try decoder.decode(PiecesSyncResponse.self, from: data)
         
+        print("SyncService: Received sync response - syncedAt: \(response.syncedAt), serverPieces: \(response.serverPieces.count)")
+        
         // Update local pieces with server changes
         for serverPiece in response.serverPieces {
             if let existingPiece = localPieces.first(where: { $0.id.uuidString == serverPiece.pieceId }) {
                 // Update existing piece if server version is newer
-                if serverPiece.modifiedAt > existingPiece.updatedAt.ISO8601Format() {
+                // Parse the ISO8601 date with or without fractional seconds
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                var serverModifiedDate = formatter.date(from: serverPiece.modifiedAt)
+                
+                // If parsing with fractional seconds fails, try without
+                if serverModifiedDate == nil {
+                    formatter.formatOptions = [.withInternetDateTime]
+                    serverModifiedDate = formatter.date(from: serverPiece.modifiedAt)
+                }
+                
+                let finalDate = serverModifiedDate ?? Date.distantPast
+                
+                print("SyncService: Comparing piece '\(serverPiece.title)':")
+                print("  - Server modifiedAt: \(serverPiece.modifiedAt) (\(finalDate))")
+                print("  - Local updatedAt: \(existingPiece.updatedAt)")
+                print("  - Server version: \(serverPiece.version), Local version: \(existingPiece.version)")
+                print("  - Local locallyModified: \(existingPiece.locallyModified)")
+                
+                // Update if server version is newer OR if timestamps indicate server is newer
+                if serverPiece.version > existingPiece.version || 
+                   (serverPiece.version == existingPiece.version && finalDate > existingPiece.updatedAt && !existingPiece.locallyModified) {
+                    print("SyncService: Updating local piece with server version")
                     existingPiece.title = serverPiece.title
                     existingPiece.category = serverPiece.category
                     existingPiece.lyrics = serverPiece.lyrics
@@ -231,8 +295,13 @@ class SyncService {
                     existingPiece.includeInPractice = serverPiece.includeInPractice
                     existingPiece.isFavorite = serverPiece.isFavorite
                     existingPiece.lastSyncedAt = Date()
-                    existingPiece.locallyModified = false
                     existingPiece.version = serverPiece.version
+                    // Don't change locallyModified if we have local changes
+                    if !existingPiece.locallyModified {
+                        existingPiece.updatedAt = finalDate
+                    }
+                } else {
+                    print("SyncService: Skipping update - local piece is same version or has local changes")
                 }
             } else {
                 // Create new piece from server
@@ -254,20 +323,58 @@ class SyncService {
                 newPiece.lastSyncedAt = Date()
                 newPiece.locallyModified = false
                 newPiece.version = serverPiece.version
+                let dateFormatter = ISO8601DateFormatter()
+                dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                if let serverDate = dateFormatter.date(from: serverPiece.modifiedAt) {
+                    newPiece.updatedAt = serverDate
+                }
+                if let serverCreatedDate = dateFormatter.date(from: serverPiece.createdAt) {
+                    newPiece.createdAt = serverCreatedDate
+                }
                 
                 modelContext.insert(newPiece)
             }
         }
         
-        // Mark uploaded pieces as synced
-        for piece in localPieces.filter({ $0.locallyModified }) {
-            if response.uploadedPieces.contains(piece.id.uuidString) {
-                piece.lastSyncedAt = Date()
-                piece.locallyModified = false
+        // Update uploaded pieces with server response
+        if let updatedPieces = response.updatedPieces {
+            for updatedPiece in updatedPieces {
+                if let localPiece = localPieces.first(where: { $0.id.uuidString == updatedPiece.pieceId }) {
+                    localPiece.version = updatedPiece.version
+                    localPiece.lastSyncedAt = Date()
+                    localPiece.locallyModified = false
+                    
+                    // Update modifiedAt from server
+                    let formatter = ISO8601DateFormatter()
+                    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                    if let serverDate = formatter.date(from: updatedPiece.modifiedAt) {
+                        localPiece.updatedAt = serverDate
+                    }
+                    
+                    print("SyncService: Updated piece '\(localPiece.title)' to version \(localPiece.version) after successful upload")
+                }
+            }
+        } else {
+            // Fallback for older server versions
+            for piece in localPieces.filter({ $0.locallyModified }) {
+                if response.uploadedPieces.contains(piece.id.uuidString) {
+                    piece.lastSyncedAt = Date()
+                    piece.locallyModified = false
+                }
             }
         }
         
-        try modelContext.save()
+        // Save all changes
+        do {
+            try modelContext.save()
+            print("SyncService: Successfully synced \(response.uploadedPieces.count) local changes and \(response.serverPieces.count) remote changes")
+        } catch {
+            print("SyncService: Failed to save sync changes: \(error)")
+            throw error
+        }
+        
+        // Return the server's sync timestamp
+        return response.syncedAt
     }
     
     private func syncSessions(token: String) async throws {
@@ -364,6 +471,7 @@ struct PieceSyncData: Codable {
 struct PiecesSyncResponse: Codable {
     let serverPieces: [PieceSyncData]
     let uploadedPieces: [String]
+    let updatedPieces: [PieceSyncData]?
     let syncedAt: String
 }
 

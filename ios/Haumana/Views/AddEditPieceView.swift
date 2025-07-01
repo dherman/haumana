@@ -238,6 +238,8 @@ struct AddEditPieceView: View {
         // Save
         if let existingPiece = piece {
             // Update existing piece
+            print("AddEditPieceView: Updating piece '\(existingPiece.title)'")
+            print("AddEditPieceView: Current version: \(existingPiece.version)")
             existingPiece.title = trimmedTitle
             existingPiece.category = category.rawValue
             existingPiece.lyrics = trimmedLyrics
@@ -249,6 +251,8 @@ struct AddEditPieceView: View {
             existingPiece.includeInPractice = includeInPractice
             existingPiece.isFavorite = isFavorite
             existingPiece.updatedAt = Date()
+            existingPiece.locallyModified = true
+            // Don't increment version locally - let the server handle versioning
         } else {
             // Create new piece
             let newPiece = Piece(
@@ -270,6 +274,8 @@ struct AddEditPieceView: View {
         // Save context
         do {
             try modelContext.save()
+            // Notify sync service of the change
+            NotificationCenter.default.post(name: NSNotification.Name("LocalDataChanged"), object: nil)
             dismiss()
         } catch {
             validationMessage = "Failed to save: \(error.localizedDescription)"
