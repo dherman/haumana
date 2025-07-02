@@ -19,7 +19,8 @@
 
 **Compliance:**
 - Create privacy policy webpage
-- Create terms of service webpage  
+- Create terms of service webpage
+- Fix broken web deployment script
 - Implement COPPA compliance for users under 13
 
 **Success Metrics:**
