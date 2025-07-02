@@ -2,17 +2,11 @@
 **Theme: "Ready for App Store"**
 
 **Features:**
-- Performance optimization
-- Accessibility improvements
-- Error handling polish
-- Onboarding flow
 - App Store preparation
 - App Store listing and screenshots
-- TestFlight beta program
 - App Store submission and review
 
 **Technical:**
-- Code optimization
 - Crash reporting
 - Analytics setup
 - App Store submission prep
@@ -22,9 +16,5 @@
 - Create terms of service webpage
 - Fix broken web deployment script
 - Implement COPPA compliance for users under 13
-
-**Success Metrics:**
-- No crashes
-- <2s cold start
-- VoiceOver compliant
-- Beautiful, polished experience
+- Add photo credits for the splash screen photo
+- Add acknowledgments for all OSS software used

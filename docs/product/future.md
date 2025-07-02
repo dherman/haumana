@@ -29,3 +29,10 @@ This document contains some possible ideas for future functionality. These are c
 
 ### Operational Readiness
 - CloudWatch alarms
+- Firebase Analytics
+- Crash reporting via Crashlytics
+
+### Child Controls
+- Credit card verification for fallback parental consent
+- Parent dashboard
+- No analytics for children
