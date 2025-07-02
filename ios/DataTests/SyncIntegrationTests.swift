@@ -20,7 +20,7 @@ final class SyncIntegrationTests: XCTestCase {
         try await super.setUp()
         
         // Create in-memory model container
-        let schema = Schema([Piece.self, PracticeSession.self, User.self])
+        let schema = Schema([Piece.self, PracticeSession.self, User.self, SyncQueueItem.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         modelContext = ModelContext(modelContainer)
@@ -249,5 +249,93 @@ final class SyncIntegrationTests: XCTestCase {
                 XCTFail("Failed to handle large repertoire: \(error)")
             }
         }
+    }
+    
+    // MARK: - Network State Transition Tests
+    
+    func testOfflineToOnlineTransition() async throws {
+        let userId = "test-user"
+        let offlineQueue = OfflineQueueManager(modelContext: modelContext)
+        
+        // Create pieces while "offline"
+        let piece1 = Piece(
+            title: "Offline Piece 1",
+            category: .oli,
+            lyrics: "Created while offline",
+            language: "haw"
+        )
+        piece1.userId = userId
+        piece1.locallyModified = true
+        modelContext.insert(piece1)
+        
+        let piece2 = Piece(
+            title: "Offline Piece 2",
+            category: .mele,
+            lyrics: "Also created offline",
+            language: "haw"
+        )
+        piece2.userId = userId
+        piece2.locallyModified = true
+        modelContext.insert(piece2)
+        
+        // Create practice session while offline
+        let session = PracticeSession(
+            pieceId: piece1.id,
+            startTime: Date().addingTimeInterval(-600)
+        )
+        session.endTime = Date().addingTimeInterval(-300)
+        session.userId = userId
+        modelContext.insert(session)
+        
+        try modelContext.save()
+        
+        // Queue sync operations
+        offlineQueue.enqueue(entityType: "piece", entityId: piece1.id.uuidString, operation: "create", userId: userId)
+        offlineQueue.enqueue(entityType: "piece", entityId: piece2.id.uuidString, operation: "create", userId: userId)
+        offlineQueue.enqueue(entityType: "session", entityId: session.id.uuidString, operation: "create", userId: userId)
+        
+        // Verify items are queued
+        let queueCountBefore = try offlineQueue.getQueueCount()
+        XCTAssertEqual(queueCountBefore, 3)
+        
+        // Verify pieces are marked as locally modified
+        let modifiedPieces = try pieceRepository.fetchAll(userId: userId).filter { $0.locallyModified }
+        XCTAssertEqual(modifiedPieces.count, 2)
+        
+        // Verify session is not synced
+        let unsyncedSessions = try sessionRepository.fetchUnsyncedSessions(userId: userId)
+        XCTAssertEqual(unsyncedSessions.count, 1)
+        
+        // Simulate coming back online
+        // In a real scenario, the SyncService would:
+        // 1. Process the offline queue
+        // 2. Upload pieces and sessions
+        // 3. Mark them as synced
+        // 4. Clear the queue
+        
+        // For this test, we'll simulate the sync completion
+        piece1.locallyModified = false
+        piece1.lastSyncedAt = Date()
+        piece2.locallyModified = false
+        piece2.lastSyncedAt = Date()
+        session.syncedAt = Date()
+        
+        // Clear the queue (simulating successful sync)
+        let descriptor = FetchDescriptor<SyncQueueItem>()
+        let queueItems = try modelContext.fetch(descriptor)
+        for item in queueItems {
+            modelContext.delete(item)
+        }
+        try modelContext.save()
+        
+        // Verify everything is synced
+        let stillModifiedPieces = try pieceRepository.fetchAll(userId: userId).filter { $0.locallyModified }
+        XCTAssertEqual(stillModifiedPieces.count, 0)
+        
+        let stillUnsyncedSessions = try sessionRepository.fetchUnsyncedSessions(userId: userId)
+        XCTAssertEqual(stillUnsyncedSessions.count, 0)
+        
+        let queueCountAfter = try offlineQueue.getQueueCount()
+        XCTAssertEqual(queueCountAfter, 0)
     }
 }

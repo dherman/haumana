@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, BatchWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, BatchWriteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -18,6 +18,7 @@ interface PracticeSession {
 
 interface SyncSessionsRequest {
   sessions: PracticeSession[];
+  lastSyncedAt?: string;
 }
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -44,7 +45,39 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const batchSize = 25; // DynamoDB batch write limit
     const now = new Date().toISOString();
     
-    // Process in batches of 25
+    // First, query for existing sessions to download
+    const serverSessions: PracticeSession[] = [];
+    let exclusiveStartKey: any = undefined;
+    
+    do {
+      const queryResult = await docClient.send(new QueryCommand({
+        TableName: SESSIONS_TABLE,
+        KeyConditionExpression: 'pk = :pk',
+        ExpressionAttributeValues: {
+          ':pk': `USER#${userId}`
+        },
+        ExclusiveStartKey: exclusiveStartKey
+      }));
+      
+      if (queryResult.Items) {
+        for (const item of queryResult.Items) {
+          // Extract session data from DynamoDB item
+          serverSessions.push({
+            sessionId: item.sessionId,
+            userId: item.userId,
+            pieceId: item.pieceId,
+            startedAt: item.startedAt,
+            endedAt: item.endedAt,
+            endedAtSource: item.endedAtSource,
+            createdAt: item.createdAt
+          });
+        }
+      }
+      
+      exclusiveStartKey = queryResult.LastEvaluatedKey;
+    } while (exclusiveStartKey);
+    
+    // Process uploaded sessions in batches of 25
     for (let i = 0; i < sessions.length; i += batchSize) {
       const batch = sessions.slice(i, i + batchSize);
       const putRequests = batch.map(session => {
@@ -83,6 +116,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       },
       body: JSON.stringify({
         uploadedSessions,
+        serverSessions,
         syncedAt: now
       })
     };

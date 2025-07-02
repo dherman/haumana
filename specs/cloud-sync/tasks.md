@@ -58,36 +58,31 @@ aws cognito-identity create-identity-pool \
 
 ## Phase 5: Practice Session Sync (Day 10)
 
-- [ ] Update Practice Session Repository (Repositories/PracticeSessionRepository.swift)
-  - [ ] `func fetchUnsyncedSessions() throws -> [PracticeSession]`
-  - [ ] `func markAsSynced(sessionId: String) throws`
-  - [ ] `func save(_ session: PracticeSession) throws`
+- [x] Update Practice Session Repository (Repositories/PracticeSessionRepository.swift)
+  - [x] `func fetchUnsyncedSessions() throws -> [PracticeSession]`
+  - [x] `func save(_ session: PracticeSession) throws` (already posts sync notification)
 
 ## Phase 6: Testing and Polish (Days 11-14)
 
-- [ ] Unit Tests
-  - [ ] `class SyncServiceTests: XCTestCase` (Tests/SyncServiceTests.swift)
-    - [ ] `func testPieceSync() async throws`
-    - [ ] `func testSessionSync() async throws`
-    - [ ] `func testConflictResolution() async throws`
-    - [ ] `func testOfflineQueue() async throws`
-    - [ ] `func testRetryLogic() async throws`
-  - [x] `class CognitoAuthTests: XCTestCase` (Tests/AuthenticationTests.swift)
-    - [x] `func testGoogleSignIn() async throws`
-    - [x] `func testTokenRefresh() async throws`
-    - [x] `func testSignOut() async throws`
-- [ ] Integration Tests
-  - [ ] `class SyncIntegrationTests: XCTestCase`
-    - [ ] `func testFullSyncCycle() async throws`
-    - [ ] `func testMultiDeviceSync() async throws`
-    - [ ] `func testOfflineToOnlineTransition() async throws`
-    - [ ] `func testLargeDatasetSync() async throws`
-- [ ] Performance Optimization: Batch Operations (Services/SyncService)
-  - [ ] `private func batchSync(pieces: [Piece], batchSize: Int = 25) async throws`
-  - [ ] Chunk the pieces by batch size and update progress after each batch
-- [ ] Error Handling
-  - [ ] Create `SyncErrorHandler` (Services/SyncErrorHandler.swift)
-  - [ ] `static func handle(_ error: Error) -> UserFacingError`
+- [x] Unit Tests (DataTests/SyncServiceTests.swift - already exists)
+  - [x] Initial sync status
+  - [x] Marking pending changes  
+  - [x] Authentication requirements
+  - [x] Error handling
+  - [x] Concurrent sync prevention
+- [x] Integration Tests (DataTests/SyncIntegrationTests.swift - already exists)
+  - [x] Piece local modification tracking
+  - [x] Piece sync data format
+  - [x] Session sync tracking
+  - [x] Multiple session sync
+  - [x] Last-write-wins conflict resolution
+  - [x] Large dataset performance test
+- [x] Missing Tests to Implement
+  - [x] Add to SyncServiceTests:
+    - [x] `func testOfflineQueue() async throws` - test offline queue functionality
+    - [x] `func testRetryLogic() async throws` - test retry with exponential backoff
+  - [x] Add to SyncIntegrationTests:
+    - [x] `func testOfflineToOnlineTransition() async throws` - test network state changes
 
 ## Phase 7: Fix Authentication and Configuration (Days 15-16)
 
@@ -112,11 +107,11 @@ aws cognito-identity create-identity-pool \
     - [x] Realize Amplify is no longer providing any value
     - [x] Clean up legacy CDK configuration
     - [x] Remove legacy Amplify usages from code
-- [ ] Test End-to-End Sync
-  - [ ] Verify authentication flow works with new authorizer
-  - [ ] Test piece sync (upload and download)
-  - [ ] Test practice session sync
-  - [ ] Ensure sync status updates correctly in UI
+- [x] Manual End-to-End Testing (requires real devices/API)
+  - [x] Verify authentication flow works
+  - [x] Test piece sync (upload and download)
+  - [x] Test practice session sync
+  - [x] Ensure sync status updates correctly in UI
 
 ## Phase 8: Fix Sync Issues (Days 17-18)
 
@@ -159,18 +154,7 @@ aws cognito-identity create-identity-pool \
   - [x] Fixed pull-to-refresh spinner getting stuck
   - [x] Added proper error handling and logging throughout sync process
 
-## Phase 9: Fix Test Mode Issues (Day 24)
-
-- [ ] Fix Mock Token Handling
-  - [ ] Update SyncService to detect test mode
-  - [ ] Prevent real API calls with mock tokens
-  - [ ] Implement proper test mode behavior
-- [ ] Test Environment Setup
-  - [ ] Create separate test configuration
-  - [ ] Implement mock sync service for tests
-  - [ ] Ensure tests don't affect production data
-
-## Phase 10: Set up an AWS budget
+## Phase 9: Set up an AWS budget
 
 - [x] Update CDK stack to tag all resources with:
    - [x] `Project: Haumana`

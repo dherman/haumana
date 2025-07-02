@@ -20,7 +20,7 @@ final class SyncServiceTests: XCTestCase {
         try await super.setUp()
         
         // Create in-memory model container
-        let schema = Schema([Piece.self, PracticeSession.self, User.self])
+        let schema = Schema([Piece.self, PracticeSession.self, User.self, SyncQueueItem.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         modelContext = ModelContext(modelContainer)
@@ -141,6 +141,82 @@ final class SyncServiceTests: XCTestCase {
         
         // Only one sync should have been executed
         XCTAssertEqual(authService.getCurrentIdTokenCallCount, 1)
+    }
+    
+    // MARK: - Offline Queue Tests
+    
+    func testOfflineQueue() async throws {
+        // Create offline queue manager
+        let offlineQueue = OfflineQueueManager(modelContext: modelContext)
+        
+        // Sign in user
+        let user = User(id: "test-user", email: "test@example.com", displayName: "Test User", photoUrl: nil)
+        modelContext.insert(user)
+        try modelContext.save()
+        
+        authService.currentUser = user
+        authService.isSignedIn = true
+        
+        // Enqueue some items while offline
+        offlineQueue.enqueue(entityType: "piece", entityId: UUID().uuidString, operation: "create", userId: user.id)
+        offlineQueue.enqueue(entityType: "piece", entityId: UUID().uuidString, operation: "update", userId: user.id)
+        offlineQueue.enqueue(entityType: "session", entityId: UUID().uuidString, operation: "create", userId: user.id)
+        
+        // Verify items are queued
+        let queueCount = try offlineQueue.getQueueCount()
+        XCTAssertEqual(queueCount, 3)
+        
+        // Process queue (will fail since processItem throws)
+        do {
+            try await offlineQueue.processQueue()
+        } catch {
+            // Expected - processItem is not implemented
+        }
+        
+        // Verify items are still in queue with increased retry count
+        let descriptor = FetchDescriptor<SyncQueueItem>()
+        let items = try modelContext.fetch(descriptor)
+        XCTAssertEqual(items.count, 3)
+        XCTAssertTrue(items.allSatisfy { $0.retryCount == 1 })
+    }
+    
+    // MARK: - Retry Logic Tests
+    
+    func testRetryLogic() async throws {
+        let offlineQueue = OfflineQueueManager(modelContext: modelContext)
+        
+        // Create a queue item
+        let item = SyncQueueItem(
+            entityType: "piece",
+            entityId: UUID().uuidString,
+            operation: "update",
+            userId: "test-user"
+        )
+        modelContext.insert(item)
+        try modelContext.save()
+        
+        // Process queue multiple times to test retry
+        for expectedRetryCount in 1...3 {
+            do {
+                try await offlineQueue.processQueue()
+            } catch {
+                // Expected failure
+            }
+            
+            // Verify retry count increased
+            let descriptor = FetchDescriptor<SyncQueueItem>()
+            let items = try modelContext.fetch(descriptor)
+            XCTAssertEqual(items.first?.retryCount, expectedRetryCount)
+        }
+        
+        // After 3 retries, item should not be processed anymore
+        let initialCount = try offlineQueue.getQueueCount()
+        XCTAssertEqual(initialCount, 0) // Item has exceeded retry limit
+        
+        // Verify item still exists but won't be processed
+        let allItems = try modelContext.fetch(FetchDescriptor<SyncQueueItem>())
+        XCTAssertEqual(allItems.count, 1)
+        XCTAssertEqual(allItems.first?.retryCount, 3)
     }
 }
 

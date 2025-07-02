@@ -384,10 +384,8 @@ class SyncService {
         // Get unsynced sessions
         let unsyncedSessions = try repository.fetchUnsyncedSessions(userId: userId)
         
-        guard !unsyncedSessions.isEmpty else {
-            print("SyncService: No practice sessions to sync")
-            return
-        }
+        print("SyncService: Starting session sync for user \(userId)")
+        print("SyncService: Found \(unsyncedSessions.count) unsynced sessions to upload")
         
         // Prepare sync request
         let syncRequest = SessionsSyncRequest(
@@ -428,11 +426,64 @@ class SyncService {
         let decoder = JSONDecoder()
         let syncResponse = try decoder.decode(SessionsSyncResponse.self, from: data)
         
-        // Mark sessions as synced
+        print("SyncService: Session sync response - uploaded: \(syncResponse.uploadedSessions.count), server sessions: \(syncResponse.serverSessions?.count ?? 0)")
+        
+        // Mark uploaded sessions as synced
         for sessionId in syncResponse.uploadedSessions {
             if let sessionUUID = UUID(uuidString: sessionId),
                let session = unsyncedSessions.first(where: { $0.id == sessionUUID }) {
                 session.syncedAt = Date()
+            }
+        }
+        
+        // Process downloaded sessions from server
+        if let serverSessions = syncResponse.serverSessions {
+            print("SyncService: Processing \(serverSessions.count) sessions from server for user \(userId)")
+            
+            for serverSession in serverSessions {
+                // Check if session already exists locally
+                let sessionUUID = UUID(uuidString: serverSession.sessionId) ?? UUID()
+                let descriptor = FetchDescriptor<PracticeSession>(
+                    predicate: #Predicate { session in
+                        session.id == sessionUUID
+                    }
+                )
+                
+                let existingSessions = try modelContext.fetch(descriptor)
+                
+                if existingSessions.isEmpty {
+                    // Create new session from server data
+                    let pieceUUID = UUID(uuidString: serverSession.pieceId) ?? UUID()
+                    
+                    print("SyncService: Creating new session - sessionId: \(serverSession.sessionId), pieceId: \(serverSession.pieceId), userId: \(serverSession.userId)")
+                    
+                    // Parse dates
+                    let dateFormatter = ISO8601DateFormatter()
+                    dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                    var startTime = dateFormatter.date(from: serverSession.startedAt)
+                    
+                    // Try without fractional seconds if parsing fails
+                    if startTime == nil {
+                        dateFormatter.formatOptions = [.withInternetDateTime]
+                        startTime = dateFormatter.date(from: serverSession.startedAt)
+                    }
+                    
+                    let newSession = PracticeSession(
+                        pieceId: pieceUUID,
+                        startTime: startTime ?? Date()
+                    )
+                    newSession.id = sessionUUID
+                    newSession.userId = userId
+                    newSession.syncedAt = Date()
+                    
+                    // Parse end time if available
+                    if let endedAtString = serverSession.endedAt {
+                        newSession.endTime = dateFormatter.date(from: endedAtString)
+                    }
+                    
+                    modelContext.insert(newSession)
+                    print("SyncService: Created new session from server: \(serverSession.sessionId) for piece: \(pieceUUID)")
+                }
             }
         }
         
@@ -490,6 +541,7 @@ struct SessionSyncData: Codable {
 
 struct SessionsSyncResponse: Codable {
     let uploadedSessions: [String]
+    let serverSessions: [SessionSyncData]?
     let syncedAt: String
 }
 
