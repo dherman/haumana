@@ -24,8 +24,8 @@ struct SplashScreenView: View {
             Color.white
                 .ignoresSafeArea(.all)
             
-            // Lehua blossom bitmap image
-            Image("lehua")
+            // Yellow background image
+            Image("yellow")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: UIScreen.main.bounds.width * 1.2, height: UIScreen.main.bounds.height * 1.2)
