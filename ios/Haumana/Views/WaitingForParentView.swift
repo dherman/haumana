@@ -25,19 +25,7 @@ struct WaitingForParentView: View {
     
     var body: some View {
         ZStack {
-            // Full screen background image
-            GeometryReader { geometry in
-                Image("kohala")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            }
-            .ignoresSafeArea()
-            
-            // Dark overlay for better text readability
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
+            KohalaBackgroundView()
             
             VStack(spacing: 30) {
                 Spacer()
