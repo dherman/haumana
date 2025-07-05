@@ -105,16 +105,9 @@ struct SplashScreenView: View {
         }
         .fullScreenCover(isPresented: $isActive) {
             if let authService = authService {
-                Group {
-                    if authService.isSignedIn {
-                        // Check if existing user needs age verification
-                        OnboardingCoordinator()
-                    } else {
-                        OnboardingCoordinator()
-                    }
-                }
-                .environment(\.authService, authService)
-                .environment(\.syncService, syncService)
+                OnboardingCoordinator()
+                    .environment(\.authService, authService)
+                    .environment(\.syncService, syncService)
             }
         }
     }
