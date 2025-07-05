@@ -11,7 +11,7 @@ import Security
 class KeychainService {
     static let shared = KeychainService()
     
-    private let birthdateKey = "com.haumana.user.birthdate"
+    private let birthdateKey = "app.haumana.user.birthdate"
     
     private init() {}
     
@@ -21,7 +21,7 @@ class KeychainService {
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "com.haumana",
+            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "app.haumana",
             kSecAttrAccount as String: key,
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
@@ -43,7 +43,7 @@ class KeychainService {
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "com.haumana",
+            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "app.haumana",
             kSecAttrAccount as String: key,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
@@ -69,7 +69,7 @@ class KeychainService {
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "com.haumana",
+            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "app.haumana",
             kSecAttrAccount as String: key
         ]
         
