@@ -1,5 +1,5 @@
 //
-//  SimplifiedWaitingForParentView.swift
+//  WaitingForParentView.swift
 //  haumana
 //
 //  Created on 7/5/2025.
@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct SimplifiedWaitingForParentView: View {
+struct WaitingForParentView: View {
     @Environment(\.authService) private var authService
     @Environment(\.modelContext) private var modelContext
     

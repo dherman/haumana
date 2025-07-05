@@ -52,7 +52,7 @@ struct OnboardingCoordinator: View {
                 }
                 
             case .waitingForParent:
-                SimplifiedWaitingForParentView(modelContext: modelContext) { approved in
+                WaitingForParentView(modelContext: modelContext) { approved in
                     if approved {
                         onboardingStep = .parentApproved
                     } else {
