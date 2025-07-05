@@ -15,21 +15,34 @@ struct ParentEmailCollectionView: View {
     
     var body: some View {
         ZStack {
-            // Lehua red background to match sign-in screen
-            Color.lehuaRed
+            // Full screen background image
+            GeometryReader { geometry in
+                Image("kohala")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            }
+            .ignoresSafeArea()
+            
+            // Dark overlay for better text readability
+            Color.black.opacity(0.4)
                 .ignoresSafeArea()
             
+            // Content container
             VStack(spacing: 30) {
-                // Icon or illustration
+                // Icon or illustration with shadow for better visibility
                 Image(systemName: "person.2.circle.fill")
                     .font(.system(size: 80))
                     .foregroundColor(.white)
+                    .shadow(radius: 10)
                     .padding(.top, 50)
                 
                 // Title
                 Text("Parent Permission Required")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
+                    .shadow(radius: 5)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
@@ -59,7 +72,7 @@ struct ParentEmailCollectionView: View {
                         placeholder: "parent@example.com",
                         placeholderColor: .placeholderText,
                         textColor: .black,
-                        tintColor: UIColor(Color.lehuaRed),
+                        tintColor: UIColor(Color.blue),
                         keyboardType: .emailAddress,
                         autocapitalizationType: .none,
                         isEnabled: !isSubmitting
@@ -88,7 +101,7 @@ struct ParentEmailCollectionView: View {
                             .font(.system(size: 18, weight: .semibold))
                     }
                     .foregroundColor(parentEmail.isEmpty || !isValidEmail(parentEmail) ? 
-                                   .white.opacity(0.6) : Color.lehuaRed)
+                                   .white.opacity(0.6) : Color.blue)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .background(
@@ -101,6 +114,7 @@ struct ParentEmailCollectionView: View {
                 .padding(.horizontal, 40)
                 .padding(.bottom, 50)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     

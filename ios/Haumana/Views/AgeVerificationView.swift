@@ -27,8 +27,18 @@ struct AgeVerificationView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background matching sign-in screen
-                Color.lehuaRed
+                // Full screen background image
+                GeometryReader { geometry in
+                    Image("kohala")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                }
+                .ignoresSafeArea()
+                
+                // Dark overlay for better text readability
+                Color.black.opacity(0.4)
                     .ignoresSafeArea()
                 
                 VStack(spacing: 30) {
@@ -38,10 +48,12 @@ struct AgeVerificationView: View {
                             .font(.system(size: 60))
                             .foregroundColor(.white)
                             .symbolRenderingMode(.hierarchical)
+                            .shadow(radius: 10)
                         
                         Text("Verify Your Age")
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
+                            .shadow(radius: 5)
                         
                         Text("This is to make sure you have a safe and helpful experience whatever your age.")
                             .font(.system(size: 16))
@@ -77,7 +89,7 @@ struct AgeVerificationView: View {
                     Button(action: verifyAge) {
                         Text("Continue")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.lehuaRed)
+                            .foregroundColor(.blue)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
                             .background(Color.white)

@@ -28,9 +28,19 @@ struct WaitingForParentView: View {
     
     var body: some View {
         ZStack {
-            // Lehua red background to match other screens
-            Color.lehuaRed
+            // Full screen background image
+            GeometryReader { geometry in
+                Image("kohala")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            }
             .ignoresSafeArea()
+            
+            // Dark overlay for better text readability
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
             
             VStack(spacing: 30) {
                 Spacer()
@@ -40,18 +50,21 @@ struct WaitingForParentView: View {
                     .font(.system(size: 100))
                     .foregroundColor(.white)
                     .symbolEffect(.pulse)
+                    .shadow(radius: 10)
                 
                 // Status text
                 Text("Waiting for Parent Approval")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
+                    .shadow(radius: 5)
                 
                 Text("We've sent an email to your parent.\nAs soon as we get their permission, you can get started!")
                     .font(.system(size: 18))
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
+                    .shadow(radius: 2)
                 
                 // Parent email
                 if let parentEmail = authService?.currentUser?.parentEmail {
