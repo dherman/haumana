@@ -41,6 +41,13 @@ final class ProfileViewModel {
     // App info
     let appVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     
+    // Test mode helpers
+    #if DEBUG
+    var isInTestMode: Bool {
+        return KWSAPIClient.shared.isTestMode
+    }
+    #endif
+    
     init(modelContext: ModelContext, authService: AuthenticationServiceProtocol) {
         self.modelContext = modelContext
         self.authService = authService
@@ -136,6 +143,70 @@ final class ProfileViewModel {
             await loadProfileData()
         }
     }
+    
+    // MARK: - Test Mode Methods
+    #if DEBUG
+    /// Simulates parent approval in test mode
+    func simulateParentApproval() async {
+        guard isInTestMode else {
+            print("⚠️ simulateParentApproval only works in test mode")
+            return
+        }
+        
+        guard let userId = UserDefaults.standard.string(forKey: "testKWS_userId") else {
+            print("⚠️ No test user ID found")
+            return
+        }
+        
+        print("🧪 TEST MODE: Simulating parent approval for user \(userId)")
+        
+        // Update test consent status
+        UserDefaults.standard.set("approved", forKey: "testKWS_consentStatus")
+        
+        // Update the user's consent status in the database
+        if let user = currentUser {
+            user.parentConsentStatus = ParentConsentStatus.approved.rawValue
+            user.parentConsentDate = Date()
+            
+            do {
+                try modelContext.save()
+                print("✅ Parent consent approved in test mode")
+            } catch {
+                print("❌ Failed to save consent status: \(error)")
+            }
+        }
+    }
+    
+    /// Simulates parent denial in test mode
+    func simulateParentDenial() async {
+        guard isInTestMode else {
+            print("⚠️ simulateParentDenial only works in test mode")
+            return
+        }
+        
+        guard let userId = UserDefaults.standard.string(forKey: "testKWS_userId") else {
+            print("⚠️ No test user ID found")
+            return
+        }
+        
+        print("🧪 TEST MODE: Simulating parent denial for user \(userId)")
+        
+        // Update test consent status
+        UserDefaults.standard.set("denied", forKey: "testKWS_consentStatus")
+        
+        // Update the user's consent status in the database
+        if let user = currentUser {
+            user.parentConsentStatus = ParentConsentStatus.denied.rawValue
+            
+            do {
+                try modelContext.save()
+                print("❌ Parent consent denied in test mode")
+            } catch {
+                print("❌ Failed to save consent status: \(error)")
+            }
+        }
+    }
+    #endif
 }
 
 // Helper struct to combine session with piece data

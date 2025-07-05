@@ -18,4 +18,5 @@ npm run build
 echo "Deploying CDK stack..."
 cd "$ROOT_DIR/aws/infrastructure/cdk"
 npm install
-npx cdk deploy
+# Pass any additional arguments to cdk deploy (e.g., --require-approval never)
+npx cdk deploy "$@"

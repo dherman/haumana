@@ -107,9 +107,10 @@ struct SplashScreenView: View {
             if let authService = authService {
                 Group {
                     if authService.isSignedIn {
-                        MainTabView()
+                        // Check if existing user needs age verification
+                        OnboardingCoordinator()
                     } else {
-                        SignInView()
+                        OnboardingCoordinator()
                     }
                 }
                 .environment(\.authService, authService)

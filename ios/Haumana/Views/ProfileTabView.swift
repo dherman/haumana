@@ -104,6 +104,39 @@ struct ProfileTabView: View {
                 )
             }
             
+            // Test mode controls
+            #if DEBUG
+            if profileViewModel.isInTestMode {
+                Section("🧪 Test Mode - Parental Consent") {
+                    if let user = authService.currentUser,
+                       user.isMinor,
+                       let status = user.parentConsentStatus {
+                        Text("Current Status: \(status)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Button("Simulate Parent Approval") {
+                            Task {
+                                await profileViewModel.simulateParentApproval()
+                            }
+                        }
+                        .foregroundColor(.green)
+                        
+                        Button("Simulate Parent Denial") {
+                            Task {
+                                await profileViewModel.simulateParentDenial()
+                            }
+                        }
+                        .foregroundColor(.red)
+                    } else {
+                        Text("Test mode active - Sign in as a minor to test consent")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            #endif
+            
             // Common footer sections
             ProfileFooterView(appVersion: profileViewModel.appVersion)
         }

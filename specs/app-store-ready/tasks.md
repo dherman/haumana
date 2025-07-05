@@ -4,29 +4,67 @@
 
 This implementation plan details the technical steps to prepare Haumana for App Store submission, including COPPA compliance, legal documentation, and App Store assets.
 
-## Phase 1: COPPA Compliance Implementation (Days 1-2)
+## Phase 1: COPPA Compliance Implementation (Days 1-3)
 
-- [ ] Age Verification UI
-  - [ ] Create AgeVerificationView.swift with date picker
-  - [ ] Add age verification step to onboarding flow after Google sign-in
-  - [ ] Calculate age and store birthdate encrypted in Keychain
-  - [ ] Add clear explanation text about why birthdate is needed
-  - [ ] Prevent navigation backward once age is entered
-- [ ] Family Sharing Detection
-  - [ ] Import FamilyControls framework
-  - [ ] Create FamilyAuthorizationService.swift
-  - [ ] Detect if current user is a child in Family Sharing
-  - [ ] Create method to request parental authorization
-  - [ ] Handle authorization success/failure callbacks
-- [ ] Parental Consent Flow
-  - [ ] Create ParentalConsentView.swift for children without Family Sharing
-  - [ ] Display clear message that Family Sharing is required
-  - [ ] Add button to open Family Sharing settings
-  - [ ] Provide parent contact information for support
-- [ ] Child Account Restrictions
-  - [ ] Update User model to include isMinor flag
-  - [ ] Ensure no analytics or tracking for minors
-  - [ ] Test all features work normally for child accounts
+- [x] Age Verification UI
+  - [x] Create AgeVerificationView.swift with date picker
+  - [x] Add age verification step to onboarding flow after Google sign-in
+  - [x] Calculate age and store birthdate encrypted in Keychain
+  - [x] Add clear explanation text about why birthdate is needed
+  - [x] Prevent navigation backward once age is entered
+- [x] User Model Updates
+  - [x] Update User model to include isMinor flag
+  - [x] Add birthdate field with automatic minor calculation
+  - [x] Implement secure Keychain storage for birthdate
+- [x] KWS Integration Setup
+  - [x] Create Epic Games developer account
+  - [x] Register for KWS access at developer portal
+  - [x] Create Haumana organization in KWS dashboard
+  - [x] Obtain API credentials and store securely
+  - [x] Create Lambda function for KWS webhook receiver
+  - [x] Deploy webhook endpoint via API Gateway
+  - [x] Configure KWS webhook URL in dashboard
+  - [x] Submit KWS configuration for review
+  - [x] Receive and store webhook secret after approval
+- [x] AWS Webhook Infrastructure
+  - [x] Create kws-webhook-lambda in aws/lambdas directory
+  - [x] Implement webhook signature validation
+  - [x] Parse KWS verification events
+  - [x] Update DynamoDB with parent consent status
+  - [x] Add CloudWatch logging for webhook events
+  - [x] Create API Gateway POST endpoint /webhooks/kws
+  - [x] Deploy and test webhook endpoint
+  - [x] Add webhook URL to KWS dashboard
+- [x] KWS API Client Implementation
+  - [x] Create KWSAPIClient.swift with base URL and authentication
+  - [x] Implement createUser method for KWS user registration
+  - [x] Implement requestParentConsent method with parent email parameter
+  - [x] Add KWS user ID field to User model
+  - [x] Create ParentConsentStatus enum (pending, approved, denied)
+  - [x] Implement proper error handling for all API calls
+  - [x] Add method to check consent status from DynamoDB
+- [x] Parent Consent UI Updates
+  - [x] Replace ParentalConsentView with KWSParentConsentView
+  - [x] Create parent email collection form with validation
+  - [x] Add loading state while sending consent request
+  - [x] Create WaitingForParentView showing consent pending status
+  - [x] Check consent status from DynamoDB on app launch
+  - [x] Create success view for when consent is approved
+  - [x] Add error states for denied consent or API failures
+- [x] Onboarding Flow Integration
+  - [x] Update OnboardingCoordinator to use KWS
+  - [x] Remove FamilyAuthorizationService entirely
+  - [x] Add KWS user creation after age verification
+  - [x] Integrate parent email collection for minors
+  - [x] Check DynamoDB for existing consent status
+  - [x] Store parent consent status in User model
+  - [x] Prevent data collection until consent is approved
+- [x] Child Account Restrictions
+  - [x] Add consent checks before any AWS sync operations (N/A - blocked at onboarding)
+  - [x] Disable practice session uploads for unapproved minors (N/A - blocked at onboarding)
+  - [x] Show limited UI for children awaiting consent
+  - [x] Add consent status indicator in profile view (N/A - minors can't access app until approved)
+  - [x] Test all features work normally after consent approval
 
 ## Phase 2: Legal Documentation (Days 3-4)
 
@@ -79,13 +117,13 @@ This implementation plan details the technical steps to prepare Haumana for App 
   - [ ] Create DataExportService.swift
   - [ ] Generate JSON export of user's data
   - [ ] Share exported file via iOS share sheet
+  - [ ] Implement data export restrictions for minors
 - [ ] Legal Section
   - [ ] Add Privacy Policy link opening in SafariView
   - [ ] Add Terms of Service link opening in SafariView
   - [ ] Add Acknowledgments navigation link
   - [ ] Display app version and build number
 - [ ] Minor Account UI
-  - [ ] Show parental consent status for minors
   - [ ] Add parent support contact link
   - [ ] Hide adult-only features
 

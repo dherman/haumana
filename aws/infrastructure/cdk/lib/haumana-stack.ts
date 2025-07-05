@@ -4,6 +4,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -20,6 +21,14 @@ export class HaumanaStack extends cdk.Stack {
     super(scope, id, props);
 
     // ===== DynamoDB Tables =====
+    const usersTable = new dynamodb.Table(this, 'UsersTable', {
+      tableName: 'haumana-users',
+      partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
+    });
+
     const piecesTable = new dynamodb.Table(this, 'PiecesTable', {
       tableName: 'haumana-pieces',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
@@ -130,6 +139,52 @@ export class HaumanaStack extends cdk.Stack {
     piecesTable.grantReadWriteData(syncPiecesFunction);
     sessionsTable.grantReadWriteData(syncSessionsFunction);
 
+    // ===== KWS Webhook Secret =====
+    // Create a secret to store the KWS webhook secret
+    // You'll need to manually update this in AWS Secrets Manager after KWS provides the secret
+    const kwsWebhookSecret = new secretsmanager.Secret(this, 'KWSWebhookSecret', {
+      secretName: 'haumana-kws-webhook-secret',
+      description: 'KWS webhook secret for validating parent consent notifications',
+      // We'll update the value manually in AWS Console after deployment
+      secretStringValue: cdk.SecretValue.unsafePlainText('PLACEHOLDER_UPDATE_IN_CONSOLE'),
+    });
+
+    // ===== KWS Webhook Lambda =====
+    const kwsWebhookFunction = new NodejsFunction(this, 'KWSWebhookFunction', {
+      functionName: 'haumana-kws-webhook',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '../../../lambdas/kws-webhook/index.ts'),
+      handler: 'handler',
+      environment: {
+        USERS_TABLE: 'haumana-users',
+        KWS_WEBHOOK_SECRET_ARN: kwsWebhookSecret.secretArn,
+      },
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+    });
+
+    // Grant the Lambda function permission to read the secret
+    kwsWebhookSecret.grantRead(kwsWebhookFunction);
+
+    // Grant webhook function permission to update user table
+    usersTable.grantWriteData(kwsWebhookFunction);
+
+    // ===== Check Consent Status Lambda =====
+    const checkConsentStatusFunction = new NodejsFunction(this, 'CheckConsentStatusFunction', {
+      functionName: 'haumana-check-consent-status',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '../../../lambdas/src/check-consent-status-lambda.ts'),
+      handler: 'handler',
+      environment: {
+        USERS_TABLE: usersTable.tableName,
+      },
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+    });
+
+    // Grant permission to read from users table
+    usersTable.grantReadData(checkConsentStatusFunction);
+
     // ===== Google Token Authorizer Lambda =====
     const googleTokenAuthorizerFunction = new NodejsFunction(this, 'GoogleTokenAuthorizer', {
       functionName: 'haumana-google-token-authorizer',
@@ -191,6 +246,20 @@ export class HaumanaStack extends cdk.Stack {
     const authSyncResource = authResource.addResource('sync');
     authSyncResource.addMethod('POST', new apigateway.LambdaIntegration(authSyncFunction));
 
+    // KWS Webhook endpoint (no authorizer - KWS validates with signature)
+    const webhooksResource = api.root.addResource('webhooks');
+    const kwsResource = webhooksResource.addResource('kws');
+    kwsResource.addMethod('POST', new apigateway.LambdaIntegration(kwsWebhookFunction));
+
+    // Users resource for consent status checking
+    const usersResource = api.root.addResource('users');
+    const userIdResource = usersResource.addResource('{userId}');
+    const consentStatusResource = userIdResource.addResource('consent-status');
+    consentStatusResource.addMethod('GET', new apigateway.LambdaIntegration(checkConsentStatusFunction), {
+      authorizer: googleAuthorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
+    });
+
     // ===== Outputs =====
     this.userPoolId = userPool.userPoolId;
     this.apiEndpoint = api.url;
@@ -202,6 +271,10 @@ export class HaumanaStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ApiEndpoint', { 
       value: this.apiEndpoint,
       description: 'API Gateway endpoint URL'
+    });
+    new cdk.CfnOutput(this, 'KWSWebhookUrl', { 
+      value: `${this.apiEndpoint}webhooks/kws`,
+      description: 'KWS Webhook URL for parent consent notifications'
     });
   }
 }

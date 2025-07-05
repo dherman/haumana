@@ -1,0 +1,19 @@
+{
+  "name": "kws-webhook-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to handle KWS parent verification webhooks",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.540.0",
+    "@aws-sdk/lib-dynamodb": "^3.540.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.136",
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.2"
+  }
+}
