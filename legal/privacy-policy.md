@@ -1,6 +1,6 @@
 # Privacy Policy for Haumana
 
-*Last updated: July 5, 2025*
+*Version 1.1 - Last updated: July 5, 2025*
 
 ## Introduction
 
@@ -141,3 +141,21 @@ If you are in the EU, you have rights under the General Data Protection Regulati
 ---
 
 By using Haumana, you acknowledge that you have read and understood this Privacy Policy.
+
+## Version History
+
+**Version 1.1** (July 5, 2025)
+- Added comprehensive COPPA compliance section
+- Added KWS (Kids Web Services) integration explanation
+- Documented parental consent process for users under 13
+- Updated third-party services disclosure to include Epic Games KWS
+- Added birthdate collection and storage explanation
+- Included parental rights section for minors' data
+
+**Version 1.0** (June 22, 2025)
+- Initial privacy policy release
+- Basic data collection and usage policies
+- Google Sign-In and AWS services disclosure
+- Data storage and security measures
+- User rights and choices
+- Regional compliance (CCPA, GDPR)

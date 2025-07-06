@@ -1,6 +1,6 @@
 # Terms of Service for Haumana
 
-*Last updated: July 5, 2025*
+*Version 1.1 - Last updated: July 5, 2025*
 
 ## 1. Acceptance of Terms
 
@@ -179,3 +179,20 @@ Haumana uses open source software. A list of acknowledgments and licenses is ava
 ---
 
 By using Haumana, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+
+## Version History
+
+**Version 1.1** (July 5, 2025)
+- Added age requirements section requiring parental consent for users under 13
+- Updated account creation to include birthdate and consent requirements
+- Added section explaining parental control for users under 13
+- Added Epic Games KWS to third-party services
+- Updated educational use section for COPPA compliance
+- Added special provisions for minors in data collection section
+
+**Version 1.0** (June 22, 2025)
+- Initial terms of service release
+- Basic usage terms and account requirements
+- Content ownership and intellectual property
+- Service availability and limitations
+- Governing law (California)
