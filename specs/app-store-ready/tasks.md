@@ -79,17 +79,22 @@ This implementation plan details the technical steps to prepare Haumana for App 
   - [ ] Include usage restrictions and age requirements
   - [ ] Add content ownership clarification
   - [ ] Include limitation of liability
-  - [ ] Set governing law to Hawaii
-- [ ] Web Infrastructure Setup
-  - [ ] Register haumana.app domain
-  - [ ] Set up AWS S3 bucket for static hosting
-  - [ ] Configure CloudFront distribution
-  - [ ] Set up SSL certificate via ACM
-  - [ ] Configure www redirect to main domain
+  - [ ] Set governing law to California
+- [ ] Fix deploy-web.sh Script
+  - [ ] Update script to work within a temporary directory
+  - [ ] Avoid using git rm -rf . which clears the working directory
+  - [ ] Use git worktree or temporary clone approach instead
+  - [ ] Test script doesn't affect main working directory
+- [ ] GitHub Pages Infrastructure Setup
+  - [ ] Configure haumana.app domain for GitHub Pages
+  - [ ] Set up CNAME file in web directory
+  - [ ] Configure DNS settings to point to GitHub Pages
+  - [ ] Enable HTTPS in GitHub repository settings
+  - [ ] Configure www subdomain redirect
 - [ ] Deploy Legal Pages
   - [ ] Convert markdown to responsive HTML
   - [ ] Create simple CSS for mobile-friendly display
-  - [ ] Deploy to S3 via fixed deployment script
+  - [ ] Deploy using fixed deploy-web.sh script
   - [ ] Test pages load correctly on mobile devices
   - [ ] Add version tracking to pages
 
