@@ -1,6 +1,6 @@
 # Privacy Policy for Haumana
 
-*Last updated: June 22, 2025*
+*Last updated: July 5, 2025*
 
 ## Introduction
 
@@ -10,6 +10,8 @@ Haumana ("we," "our," or "us") is committed to protecting your privacy. This Pri
 
 ### Information You Provide
 - **Google Account Information**: When you sign in, we receive your name, email address, and Google profile picture from Google Sign-In
+- **Age Verification**: Your birthdate to determine if parental consent is required (stored securely in your device's Keychain)
+- **Parent Email (for users under 13)**: If you are under 13, we collect your parent's email address to obtain consent
 - **Cultural Content**: Oli (chants) and mele (songs) you add, including:
   - Titles, lyrics, and translations
   - Authors and source URLs
@@ -56,6 +58,13 @@ We **MAY** share information:
 - To protect our rights or prevent fraud
 - With service providers who help operate our app (under strict confidentiality)
 
+### Third-Party Services We Use
+- **Google Sign-In**: For secure authentication (Google's privacy policy applies)
+- **Amazon Web Services (AWS)**: For data storage and synchronization
+- **Epic Games Kids Web Services (KWS)**: For COPPA-compliant parental consent verification
+  - KWS only receives: child's email, parent's email, and birthdate
+  - KWS does not have access to your cultural content or practice data
+
 ## Your Rights and Choices
 
 ### Access and Control
@@ -68,9 +77,37 @@ We **MAY** share information:
 - **Cloud Sync**: Use the app in offline mode without syncing
 - **Sign Out**: Disconnect from cloud features while keeping local data
 
-## Children's Privacy
+## Children's Privacy (COPPA Compliance)
 
-Haumana is designed for users of all ages interested in Hawaiian cultural practices. We do not knowingly collect additional personal information from children under 13 beyond what is necessary for app functionality.
+Haumana complies with the Children's Online Privacy Protection Act (COPPA). We take special precautions to protect the privacy of children under 13.
+
+### Age Verification
+- All users must provide their birthdate during account setup
+- Birthdates are stored securely on the device using iOS Keychain
+- We calculate age to determine if parental consent is required
+
+### Parental Consent for Users Under 13
+If a user is under 13:
+- **Consent Required**: The app requires verifiable parental consent before allowing access
+- **Parent Email Collection**: We collect only the parent's email address to send consent requests
+- **Third-Party Verification**: We use Epic Games' Kids Web Services (KWS) to manage parental consent
+- **Limited Access**: Children cannot use the app until parental consent is obtained
+- **No Data Collection**: We do not collect or sync any data from children before consent is received
+
+### Parental Rights
+Parents of children under 13 have the right to:
+- **Review**: Access their child's personal information
+- **Delete**: Request deletion of their child's account and data
+- **Refuse**: Decline consent and prevent data collection
+- **Revoke**: Withdraw consent at any time
+
+To exercise these rights, parents should contact us at david.herman@gmail.com with "COPPA Request" in the subject line.
+
+### Third-Party Services for Minors
+For users under 13 with parental consent:
+- Google Sign-In is used only for authentication
+- KWS handles the consent verification process
+- AWS services store data only after consent is obtained
 
 ## International Users
 

@@ -1,10 +1,15 @@
 # Terms of Service for Haumana
 
-*Last updated: June 22, 2025*
+*Last updated: July 5, 2025*
 
 ## 1. Acceptance of Terms
 
 By downloading, installing, or using Haumana ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
+
+### Age Requirements
+- Users under 13 years old may only use Haumana with verifiable parental consent
+- By using the App, you represent that you are at least 13 years old OR have obtained parental consent
+- We verify age during account creation and obtain parental consent through Epic Games' Kids Web Services (KWS)
 
 ## 2. Description of Service
 
@@ -18,9 +23,16 @@ Haumana is a mobile application designed to help students and practitioners of H
 
 ### Account Creation
 - You must sign in using a valid Google account
-- You must provide accurate and complete information
+- You must provide accurate and complete information, including your birthdate
+- Users under 13 must have parental consent before accessing the App
 - You are responsible for maintaining the security of your account
 - You must notify us immediately of any unauthorized access
+
+### For Users Under 13
+- A parent or guardian must provide consent through our verification system
+- Parents can review, delete, or revoke consent at any time
+- The App will not function until parental consent is obtained
+- Parents maintain control over their child's data
 
 ### Account Responsibilities
 - You are responsible for all content added under your account
@@ -57,12 +69,13 @@ Given the cultural nature of the content, users are encouraged to:
 ### Third-Party Content
 - Google Sign-In is provided by Google LLC under their terms
 - AWS services are provided by Amazon under their terms
+- Epic Games' Kids Web Services (KWS) is used for parental consent verification
 - We are not responsible for third-party services
 
 ## 6. Privacy and Data
 
 ### Data Collection
-Your use of Haumana is subject to our Privacy Policy, which is incorporated into these Terms by reference.
+Your use of Haumana is subject to our Privacy Policy, which is incorporated into these Terms by reference. Special provisions apply to users under 13 as detailed in the Privacy Policy.
 
 ### Data Storage
 - Your content is stored locally on your device
@@ -155,8 +168,9 @@ For questions about these Terms:
 
 If you are using Haumana in an educational setting:
 - Teachers may recommend but not require the App
-- Parental consent may be required for users under 13
-- Educational institutions must comply with applicable privacy laws
+- Parental consent is required for all users under 13
+- Educational institutions must comply with applicable privacy laws (FERPA, COPPA)
+- Schools should not create accounts on behalf of students
 
 ## 15. Open Source Acknowledgments
 
