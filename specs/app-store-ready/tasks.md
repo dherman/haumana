@@ -68,29 +68,31 @@ This implementation plan details the technical steps to prepare Haumana for App 
 
 ## Phase 2: Legal Documentation (Days 3-4)
 
-- [ ] Privacy Policy Creation
-  - [ ] Write privacy policy content in markdown
-  - [ ] Include COPPA compliance section
-  - [ ] Document data collection practices
-  - [ ] Add third-party services disclosure (Google, AWS)
-  - [ ] Include data deletion and export procedures
-- [ ] Terms of Service Creation
-  - [ ] Write terms of service content in markdown
-  - [ ] Include usage restrictions and age requirements
-  - [ ] Add content ownership clarification
-  - [ ] Include limitation of liability
-  - [ ] Set governing law to California
+- [ ] Privacy Policy Updates
+  - [ ] Update existing privacy policy with COPPA compliance details
+  - [ ] Add KWS (Kids Web Services) integration explanation
+  - [ ] Document parental consent process for users under 13
+  - [ ] Update third-party services disclosure (Google, AWS, Epic Games KWS)
+  - [ ] Add birthdate collection and storage explanation
+  - [ ] Include parental rights section for minors' data
+- [ ] Terms of Service Updates
+  - [ ] Update age requirements section for COPPA compliance
+  - [ ] Add section about parental consent for minors
+  - [ ] Update account creation requirements for users under 13
+  - [ ] Verify governing law is set to California (already done)
+  - [ ] Add Epic Games KWS terms acknowledgment
 - [ ] Fix deploy-web.sh Script
   - [ ] Update script to work within a temporary directory
   - [ ] Avoid using git rm -rf . which clears the working directory
   - [ ] Use git worktree or temporary clone approach instead
   - [ ] Test script doesn't affect main working directory
+  - [ ] Replace deploy-web.sh with deploy-web-safe.sh once tested
 - [ ] GitHub Pages Infrastructure Setup
-  - [ ] Configure haumana.app domain for GitHub Pages
-  - [ ] Set up CNAME file in web directory
-  - [ ] Configure DNS settings to point to GitHub Pages
+  - [ ] Verify haumana.app domain configuration (CNAME already exists)
+  - [ ] Check DNS settings point to GitHub Pages
   - [ ] Enable HTTPS in GitHub repository settings
   - [ ] Configure www subdomain redirect
+  - [ ] Test GitHub Pages is accessible
 - [ ] Deploy Legal Pages
   - [ ] Convert markdown to responsive HTML
   - [ ] Create simple CSS for mobile-friendly display
