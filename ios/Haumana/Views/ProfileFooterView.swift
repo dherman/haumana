@@ -22,10 +22,9 @@ struct ProfileFooterView: View {
                 }
             }
             
-            // Legal Section - Hidden until public release
-            /*
+            // Legal Section
             Section("Legal") {
-                Link(destination: URL(string: "https://haumana.app/privacy")!) {
+                Link(destination: URL(string: "https://haumana.app/legal/privacy-policy")!) {
                     HStack {
                         Text("Privacy Policy")
                         Spacer()
@@ -35,7 +34,7 @@ struct ProfileFooterView: View {
                     }
                 }
                 
-                Link(destination: URL(string: "https://haumana.app/terms")!) {
+                Link(destination: URL(string: "https://haumana.app/legal/terms-of-service")!) {
                     HStack {
                         Text("Terms of Service")
                         Spacer()
@@ -44,8 +43,11 @@ struct ProfileFooterView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                
+                NavigationLink(destination: AcknowledgmentsView()) {
+                    Text("Acknowledgments")
+                }
             }
-            */
             
             // About Section
             Section("About") {

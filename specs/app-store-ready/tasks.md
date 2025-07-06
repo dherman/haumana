@@ -102,19 +102,19 @@ This implementation plan details the technical steps to prepare Haumana for App 
 
 ## Phase 3: Credits and Acknowledgments (Day 5)
 
-- [ ] Photo Credits Implementation
-  - [ ] Add photographer credit to SplashScreenView.swift
-  - [ ] Include photo license information
-  - [ ] Add link to original source if available
-- [ ] Open Source Acknowledgments
-  - [ ] Create script to extract dependencies from Package.swift
-  - [ ] Generate acknowledgments list with licenses
-  - [ ] Create AcknowledgmentsView.swift
-  - [ ] Add navigation from Profile tab to acknowledgments
-- [ ] Cultural Acknowledgments
-  - [ ] Write respectful acknowledgment of Hawaiian culture
-  - [ ] Add educational purpose statement
-  - [ ] Include in acknowledgments screen
+- [x] Photo Credits Implementation
+  - [x] Add photographer credit to SplashScreenView.swift
+  - [x] Include photo license information
+  - [x] Add link to original source if available
+- [x] Open Source Acknowledgments
+  - [x] Create script to extract dependencies from Package.swift
+  - [x] Generate acknowledgments list with licenses
+  - [x] Create AcknowledgmentsView.swift
+  - [x] Add navigation from Profile tab to acknowledgments
+- [x] Cultural Acknowledgments
+  - [x] Write respectful acknowledgment of Hawaiian culture
+  - [x] Add educational purpose statement
+  - [x] Include in acknowledgments screen
 
 ## Phase 4: Profile Screen Updates (Day 6)
 
@@ -125,11 +125,11 @@ This implementation plan details the technical steps to prepare Haumana for App 
   - [ ] Generate JSON export of user's data
   - [ ] Share exported file via iOS share sheet
   - [ ] Implement data export restrictions for minors
-- [ ] Legal Section
-  - [ ] Add Privacy Policy link opening in SafariView
-  - [ ] Add Terms of Service link opening in SafariView
-  - [ ] Add Acknowledgments navigation link
-  - [ ] Display app version and build number
+- [x] Legal Section
+  - [x] Add Privacy Policy link opening in SafariView
+  - [x] Add Terms of Service link opening in SafariView
+  - [x] Add Acknowledgments navigation link
+  - [x] Display app version and build number
 - [ ] Minor Account UI
   - [ ] Add parent support contact link
   - [ ] Hide adult-only features
