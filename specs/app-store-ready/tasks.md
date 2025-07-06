@@ -68,35 +68,35 @@ This implementation plan details the technical steps to prepare Haumana for App 
 
 ## Phase 2: Legal Documentation (Days 3-4)
 
-- [ ] Privacy Policy Updates
-  - [ ] Update existing privacy policy with COPPA compliance details
-  - [ ] Add KWS (Kids Web Services) integration explanation
-  - [ ] Document parental consent process for users under 13
-  - [ ] Update third-party services disclosure (Google, AWS, Epic Games KWS)
-  - [ ] Add birthdate collection and storage explanation
-  - [ ] Include parental rights section for minors' data
-- [ ] Terms of Service Updates
-  - [ ] Update age requirements section for COPPA compliance
-  - [ ] Add section about parental consent for minors
-  - [ ] Update account creation requirements for users under 13
-  - [ ] Verify governing law is set to California (already done)
-  - [ ] Add Epic Games KWS terms acknowledgment
-- [ ] Fix deploy-web.sh Script
-  - [ ] Update script to work within a temporary directory
-  - [ ] Avoid using git rm -rf . which clears the working directory
-  - [ ] Use git worktree or temporary clone approach instead
-  - [ ] Test script doesn't affect main working directory
-  - [ ] Replace deploy-web.sh with deploy-web-safe.sh once tested
+- [x] Privacy Policy Updates
+  - [x] Update existing privacy policy with COPPA compliance details
+  - [x] Add KWS (Kids Web Services) integration explanation
+  - [x] Document parental consent process for users under 13
+  - [x] Update third-party services disclosure (Google, AWS, Epic Games KWS)
+  - [x] Add birthdate collection and storage explanation
+  - [x] Include parental rights section for minors' data
+- [x] Terms of Service Updates
+  - [x] Update age requirements section for COPPA compliance
+  - [x] Add section about parental consent for minors
+  - [x] Update account creation requirements for users under 13
+  - [x] Verify governing law is set to California (already done)
+  - [x] Add Epic Games KWS terms acknowledgment
+- [x] Fix deploy-web.sh Script
+  - [x] Update script to work within a temporary directory
+  - [x] Avoid using git rm -rf . which clears the working directory
+  - [x] Use git worktree or temporary clone approach instead
+  - [x] Test script doesn't affect main working directory
+  - [x] Replace deploy-web.sh with deploy-web-safe.sh once tested
 - [ ] GitHub Pages Infrastructure Setup
   - [ ] Verify haumana.app domain configuration (CNAME already exists)
   - [ ] Check DNS settings point to GitHub Pages
   - [ ] Enable HTTPS in GitHub repository settings
   - [ ] Configure www subdomain redirect
   - [ ] Test GitHub Pages is accessible
-- [ ] Deploy Legal Pages
-  - [ ] Convert markdown to responsive HTML
-  - [ ] Create simple CSS for mobile-friendly display
-  - [ ] Deploy using fixed deploy-web.sh script
+- [x] Deploy Legal Pages
+  - [x] Convert markdown to responsive HTML
+  - [x] Create simple CSS for mobile-friendly display
+  - [x] Deploy using fixed deploy-web.sh script
   - [ ] Test pages load correctly on mobile devices
   - [ ] Add version tracking to pages
 

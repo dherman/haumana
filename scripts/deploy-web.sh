@@ -1,59 +1,70 @@
 #!/bin/bash
 
-# Deploy web content to GitHub Pages
-# This script deploys the web/ directory to the gh-pages branch
+# Deploy web content to GitHub Pages with a clean approach
+# This script creates a fresh gh-pages branch with only web content
 
 set -e
 
 echo "Deploying Haumana web content to GitHub Pages..."
 
-# Store current branch
-CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+# Ensure we're in the repository root
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
 
-# Create temporary directory
-TEMP_DIR=$(mktemp -d)
-
-# Copy web content to temp directory
-cp -R web/* "$TEMP_DIR/"
-
-# Check if gh-pages branch exists
-if git show-ref --quiet refs/heads/gh-pages; then
-    echo "gh-pages branch exists, updating..."
-    git checkout gh-pages
-else
-    echo "Creating gh-pages branch..."
-    git checkout --orphan gh-pages
-    git rm -rf .
+# Check if web directory exists
+if [ ! -d "web" ]; then
+    echo "Error: web/ directory not found"
+    exit 1
 fi
 
-# Copy files from temp directory
-cp -R "$TEMP_DIR"/* .
+# Create a temporary directory
+TEMP_DIR=$(mktemp -d)
+
+# Function to clean up on exit
+cleanup() {
+    echo "Cleaning up..."
+    rm -rf "$TEMP_DIR"
+}
+trap cleanup EXIT
+
+# Copy web content to temp directory
+echo "Copying web content..."
+cp -R web/* "$TEMP_DIR/"
+
+# Initialize a new git repo in temp directory
+cd "$TEMP_DIR"
+git init
+git checkout -b gh-pages
+
+# Add CNAME file if not present
+if [ ! -f "CNAME" ]; then
+    echo "haumana.app" > CNAME
+fi
+
+# Add .nojekyll file to bypass Jekyll processing
+touch .nojekyll
 
 # Add all files
 git add -A
 
-# Commit if there are changes
-if ! git diff --cached --quiet; then
-    git commit -m "Update GitHub Pages site"
-    echo "Changes committed"
-else
-    echo "No changes to commit"
-fi
+# Commit
+git commit -m "Deploy GitHub Pages - $(date '+%Y-%m-%d %H:%M:%S')"
 
-# Push to GitHub
+# Add the original repo as remote
+git remote add origin $(cd "$REPO_ROOT" && git remote get-url origin)
+
+# Force push to gh-pages (this will overwrite the existing branch)
 echo "Pushing to GitHub..."
-git push origin gh-pages
+git push -f origin gh-pages
 
-# Switch back to original branch
-git checkout "$CURRENT_BRANCH"
-
-# Clean up
-rm -rf "$TEMP_DIR"
+# Return to original directory
+cd "$REPO_ROOT"
 
 echo "✅ Deployment complete!"
 echo ""
 echo "Your site will be available at:"
-echo "  https://haumana.app"
+echo "  https://haumana.app (after DNS configuration)"
+echo "  https://dherman.github.io/haumana (immediately)"
 echo ""
 echo "Legal documents will be at:"
 echo "  https://haumana.app/legal/privacy-policy"
