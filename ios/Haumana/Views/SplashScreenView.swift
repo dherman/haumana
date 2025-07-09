@@ -24,8 +24,8 @@ struct SplashScreenView: View {
             Color.white
                 .ignoresSafeArea(.all)
             
-            // Yellow background image
-            Image("yellow")
+            // Red background image
+            Image("red")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: UIScreen.main.bounds.width * 1.2, height: UIScreen.main.bounds.height * 1.2)
@@ -49,14 +49,13 @@ struct SplashScreenView: View {
             VStack(spacing: 0) {
                 Spacer()
                 
-                // Main app title with serif font hierarchy
+                // Main app title with Borel font
                 Text("Haumana")
-                    .font(.custom("Adelia", size: 60))
-                    .fontWeight(.light)
-                    .foregroundColor(.black) // Changed to black for better readability
+                    .font(.custom("Borel-Regular", size: 60))
+                    .foregroundColor(.white) // White text on red background
                     .opacity(opacity)
                     .scaleEffect(scale)
-                    .shadow(color: .white.opacity(0.8), radius: 4, x: 0, y: 0) // White shadow for definition
+                    .shadow(color: .black, radius: 6, x: 0, y: 2) // Dark shadow for depth
                     .tracking(0.5) // Reduced kerning for better spacing
                                 
                 Spacer()
@@ -79,7 +78,7 @@ struct SplashScreenView: View {
             
             // Animate blossom first
             withAnimation(.easeInOut(duration: 2.0)) {
-                blossomOpacity = 0.7  // Higher opacity for bitmap image
+                blossomOpacity = 1.0  // Full opacity for vibrant image
                 blossomScale = 1.0
             }
             

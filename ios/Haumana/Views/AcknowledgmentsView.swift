@@ -11,12 +11,11 @@ struct AcknowledgmentsView: View {
     var body: some View {
         List {
             // Cultural Acknowledgment Section
-            Section("Aloha Mēheuheu (Honoring the Culture)") {
+            Section("Honoring the Culture") {
                 Text("""
-                This app is intended to support practice routines of haumana, not to replace \
-                traditional teaching methods or cultural protocols. We encourage users always \
-                to seek guidance from their kumu and to approach their practice with aloha kānaka \
-                and aloha ʻāina.
+                This app is only a tool to help students with their practice routines. It cannot replace \
+                traditional teaching methods or cultural protocols. Students \
+                should always seek guidance from their kumu and knowledgeable cultural practitioners.
                 """)
                 .font(.system(size: 14))
                 .foregroundColor(.secondary)
@@ -25,12 +24,12 @@ struct AcknowledgmentsView: View {
             
             // Photo Credits Section
             Section("Photo Credits") {
-                // Yellow flower image
+                // Red flower image
                 PhotoCreditRow(
-                    title: "Yellow ʻŌhiʻa Lehua Blossom",
-                    photographer: "David Eickhoff",
-                    license: "CC BY 2.0",
-                    sourceURL: "https://www.flickr.com/photos/50823119@N08/5113316760",
+                    title: "Red ʻŌhiʻa Lehua Blossom",
+                    photographer: "David Herman",
+                    license: "CC BY 4.0",
+                    sourceURL: "https://github.com/dherman/haumana/blob/main/assets/red.jpg",
                     usage: "Splash screen background"
                 )
                 
@@ -41,6 +40,16 @@ struct AcknowledgmentsView: View {
                     license: "Public Domain",
                     sourceURL: "https://www.flickr.com/photos/145081981@N02/34343706751",
                     usage: "Parental consent flow background"
+                )
+            }
+            
+            // Font Credits Section
+            Section("Font Credits") {
+                TypefaceRow(
+                    name: "Borel",
+                    designer: "Rosalie Wagner",
+                    license: "SIL Open Font License 1.1",
+                    sourceURL: "https://fonts.google.com/specimen/Borel"
                 )
             }
             
@@ -118,6 +127,40 @@ struct PhotoCreditRow: View {
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
                 .italic()
+        }
+    }
+}
+
+struct TypefaceRow: View {
+    let name: String
+    let designer: String
+    let license: String
+    let sourceURL: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(name)
+                .font(.system(size: 15, weight: .medium))
+            
+            Text("Designed by \(designer)")
+                .font(.system(size: 13))
+                .foregroundColor(.secondary)
+            
+            HStack {
+                Text(license)
+                    .font(.system(size: 12))
+                    .foregroundColor(.blue)
+                
+                Spacer()
+                
+                Link(destination: URL(string: sourceURL)!) {
+                    HStack(spacing: 4) {
+                        Text("View on Google Fonts")
+                        Image(systemName: "arrow.up.right.square")
+                    }
+                    .font(.system(size: 12))
+                }
+            }
         }
     }
 }

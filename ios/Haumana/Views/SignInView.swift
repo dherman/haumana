@@ -26,7 +26,7 @@ struct SignInView: View {
             VStack(spacing: 50) {
                 // App title with animation
                 Text("Haumana")
-                    .font(.custom("Adelia", size: 60))
+                    .font(.custom("Borel-Regular", size: 60))
                     .foregroundColor(.white)
                     .scaleEffect(titleScale)
                     .opacity(titleOpacity)
