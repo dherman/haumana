@@ -96,21 +96,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       getUserSessions(userId)
     ]);
     
-    // Check if user is a minor and has parental consent
-    if (userData?.isMinor && userData?.parentConsentStatus !== 'approved') {
-      return {
-        statusCode: 403,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ 
-          error: 'Data export requires parental consent',
-          code: 'PARENTAL_CONSENT_REQUIRED'
-        })
-      };
-    }
-    
     // Compile export data
     const exportData: ExportData = {
       exportDate: new Date().toISOString(),

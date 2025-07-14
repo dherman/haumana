@@ -129,7 +129,7 @@ This implementation plan details the technical steps to prepare Haumana for App 
   - [x] Call export API and present share sheet with response
   - [x] Handle loading state during export request
   - [x] Show error alert if export fails
-  - [ ] Implement data export restrictions for minors
+  - [x] Implement data export restrictions for minors
   - [ ] Create delete-user-data Lambda function
   - [ ] Implement data deletion across all DynamoDB tables
   - [ ] Add /users/{userId} DELETE endpoint
@@ -144,6 +144,12 @@ This implementation plan details the technical steps to prepare Haumana for App 
 - [ ] Minor Account UI
   - [ ] Add parent support contact link
   - [ ] Hide adult-only features
+  - [ ] Implement parental consent revocation handling
+    - [ ] Check consent status on app launch
+    - [ ] Handle KWS webhook for consent revocation
+    - [ ] Sign out user if consent is revoked
+    - [ ] Show appropriate message to child user
+    - [ ] Update privacy policy with KWS parent portal link
 
 ## Phase 5: App Store Assets (Day 7)
 
