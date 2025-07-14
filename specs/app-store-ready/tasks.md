@@ -120,11 +120,22 @@ This implementation plan details the technical steps to prepare Haumana for App 
 
 - [ ] Privacy Section
   - [ ] Add "Request Data Deletion" button
-  - [ ] Implement data export functionality
-  - [ ] Create DataExportService.swift
-  - [ ] Generate JSON export of user's data
-  - [ ] Share exported file via iOS share sheet
+  - [x] Create export-user-data Lambda function
+  - [x] Implement DynamoDB queries for all user data in Lambda
+  - [x] Format user data as JSON in Lambda response
+  - [x] Add /users/{userId}/export API endpoint
+  - [x] Create exportUserData method in APIClient.swift
+  - [x] Add "Export My Data" button to Profile view
+  - [x] Call export API and present share sheet with response
+  - [x] Handle loading state during export request
+  - [x] Show error alert if export fails
   - [ ] Implement data export restrictions for minors
+  - [ ] Create delete-user-data Lambda function
+  - [ ] Implement data deletion across all DynamoDB tables
+  - [ ] Add /users/{userId} DELETE endpoint
+  - [ ] Create deleteUserData method in APIClient.swift
+  - [ ] Show confirmation dialog before deletion
+  - [ ] Sign out user after successful deletion
 - [x] Legal Section
   - [x] Add Privacy Policy link opening in SafariView
   - [x] Add Terms of Service link opening in SafariView

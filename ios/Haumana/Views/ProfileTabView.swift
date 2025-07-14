@@ -8,6 +8,10 @@
 import SwiftUI
 import SwiftData
 
+extension URL: Identifiable {
+    public var id: String { absoluteString }
+}
+
 struct ProfileTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.authService) private var authService
@@ -16,6 +20,10 @@ struct ProfileTabView: View {
     @State private var profileViewModel: ProfileViewModel?
     @State private var showingSignOutConfirmation = false
     @State private var errorMessage: String?
+    @State private var exportFileURL: URL?
+    @State private var isExportingData = false
+    @State private var showingExportError = false
+    @State private var exportError: String?
     
     // Use @Query to observe changes
     @Query(sort: \PracticeSession.startTime, order: .reverse) private var sessions: [PracticeSession]
@@ -79,6 +87,16 @@ struct ProfileTabView: View {
         } message: { error in
             Text(error)
         }
+        .sheet(item: $exportFileURL) { url in
+            ShareSheet(activityItems: [url])
+        }
+        .alert("Export Error", isPresented: $showingExportError, presenting: exportError) { _ in
+            Button("OK") {
+                exportError = nil
+            }
+        } message: { error in
+            Text(error)
+        }
     }
     
     @ViewBuilder
@@ -138,10 +156,55 @@ struct ProfileTabView: View {
             #endif
             
             // Common footer sections
-            ProfileFooterView(appVersion: profileViewModel.appVersion)
+            ProfileFooterView(
+                appVersion: profileViewModel.appVersion,
+                onExportData: exportData,
+                isExportingData: isExportingData
+            )
         }
         .refreshable {
             await profileViewModel.refresh()
         }
     }
+    
+    private func exportData() {
+        guard let authService = authService else { return }
+        
+        isExportingData = true
+        
+        Task {
+            do {
+                let privacyService = PrivacyService(authService: authService)
+                let exportData = try await privacyService.exportUserData()
+                
+                // Create file in temporary directory
+                let fileName = "haumana-export-\(Int(Date().timeIntervalSince1970)).json"
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                try exportData.write(to: tempURL)
+                
+                await MainActor.run {
+                    isExportingData = false
+                    exportFileURL = tempURL
+                }
+            } catch {
+                await MainActor.run {
+                    isExportingData = false
+                    exportError = error.localizedDescription
+                    showingExportError = true
+                }
+            }
+        }
+    }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        controller.excludedActivityTypes = [.assignToContact, .saveToCameraRoll, .addToReadingList]
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

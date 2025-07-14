@@ -6,6 +6,7 @@ struct AuthenticatedProfileView: View {
     let recentSessions: [SessionWithPiece]
     let onSignOut: () -> Void
     @Environment(\.syncService) private var syncService
+    @Environment(\.authService) private var authService
     
     struct ProfileStats {
         let currentStreak: Int
@@ -192,3 +193,6 @@ struct StatRow: View {
         }
     }
 }
+
+
+

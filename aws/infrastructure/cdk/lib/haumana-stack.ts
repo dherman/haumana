@@ -185,6 +185,26 @@ export class HaumanaStack extends cdk.Stack {
     // Grant permission to read from users table
     usersTable.grantReadData(checkConsentStatusFunction);
 
+    // ===== Export User Data Lambda =====
+    const exportUserDataFunction = new NodejsFunction(this, 'ExportUserDataFunction', {
+      functionName: 'haumana-export-user-data',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      entry: path.join(__dirname, '../../../lambdas/src/export-user-data-lambda.ts'),
+      handler: 'handler',
+      environment: {
+        USERS_TABLE: usersTable.tableName,
+        PIECES_TABLE: piecesTable.tableName,
+        SESSIONS_TABLE: sessionsTable.tableName,
+      },
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 256,
+    });
+
+    // Grant permissions to read from all tables
+    usersTable.grantReadData(exportUserDataFunction);
+    piecesTable.grantReadData(exportUserDataFunction);
+    sessionsTable.grantReadData(exportUserDataFunction);
+
     // ===== Google Token Authorizer Lambda =====
     const googleTokenAuthorizerFunction = new NodejsFunction(this, 'GoogleTokenAuthorizer', {
       functionName: 'haumana-google-token-authorizer',
@@ -251,11 +271,18 @@ export class HaumanaStack extends cdk.Stack {
     const kwsResource = webhooksResource.addResource('kws');
     kwsResource.addMethod('POST', new apigateway.LambdaIntegration(kwsWebhookFunction));
 
-    // Users resource for consent status checking
+    // Users resource for consent status checking and data export
     const usersResource = api.root.addResource('users');
     const userIdResource = usersResource.addResource('{userId}');
     const consentStatusResource = userIdResource.addResource('consent-status');
     consentStatusResource.addMethod('GET', new apigateway.LambdaIntegration(checkConsentStatusFunction), {
+      authorizer: googleAuthorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
+    });
+    
+    // Data export endpoint
+    const exportResource = userIdResource.addResource('export');
+    exportResource.addMethod('GET', new apigateway.LambdaIntegration(exportUserDataFunction), {
       authorizer: googleAuthorizer,
       authorizationType: apigateway.AuthorizationType.CUSTOM,
     });

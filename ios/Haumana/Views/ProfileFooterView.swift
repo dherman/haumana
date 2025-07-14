@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ProfileFooterView: View {
     let appVersion: String
+    let onExportData: () -> Void
+    let isExportingData: Bool
     
     var body: some View {
         Group {
@@ -19,6 +21,26 @@ struct ProfileFooterView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
+                }
+            }
+            
+            // Privacy Section
+            Section("Privacy") {
+                Button(action: onExportData) {
+                    HStack {
+                        Label("Export My Data", systemImage: "square.and.arrow.up")
+                        Spacer()
+                        if isExportingData {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                    }
+                }
+                .disabled(isExportingData)
+                
+                NavigationLink(destination: Text("Data Deletion Coming Soon")) {
+                    Label("Request Data Deletion", systemImage: "trash")
+                        .foregroundColor(.red)
                 }
             }
             
