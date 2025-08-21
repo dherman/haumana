@@ -90,7 +90,7 @@ Haumana complies with the Children's Online Privacy Protection Act (COPPA). We t
 If a user is under 13:
 - **Consent Required**: The app requires verifiable parental consent before allowing access
 - **Parent Email Collection**: We collect only the parent's email address to send consent requests
-- **Third-Party Verification**: We use Epic Games' Kids Web Services (KWS) to manage parental consent
+- **Third-Party Verification**: We use [parental consent verification](https://kidswebservices.com/) to manage parental consent
 - **Limited Access**: Children cannot use the app until parental consent is obtained
 - **No Data Collection**: We do not collect or sync any data from children before consent is received
 
@@ -106,7 +106,7 @@ To exercise these rights, parents should contact us at david.herman@gmail.com wi
 ### Third-Party Services for Minors
 For users under 13 with parental consent:
 - Google Sign-In is used only for authentication
-- KWS handles the consent verification process
+- [Parental consent verification](https://kidswebservices.com/) service handles the consent process
 - AWS services store data only after consent is obtained
 
 ## International Users
@@ -149,9 +149,9 @@ By using Haumana, you acknowledge that you have read and understood this Privacy
 
 **Version 1.1** (July 5, 2025)
 - Added comprehensive COPPA compliance section
-- Added KWS (Kids Web Services) integration explanation
+- Added parental consent verification integration explanation
 - Documented parental consent process for users under 13
-- Updated third-party services disclosure to include Epic Games KWS
+- Updated third-party services disclosure to include parental consent verification
 - Added birthdate collection and storage explanation
 - Included parental rights section for minors' data
 
