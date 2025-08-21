@@ -1,6 +1,6 @@
 # Privacy Policy for Haumana
 
-*Version 1.1 - Last updated: July 5, 2025*
+*Version 1.2 - Last updated: August 21, 2025*
 
 ## Introduction
 
@@ -61,9 +61,9 @@ We **MAY** share information:
 ### Third-Party Services We Use
 - **Google Sign-In**: For secure authentication (Google's privacy policy applies)
 - **Amazon Web Services (AWS)**: For data storage and synchronization
-- **Epic Games Kids Web Services (KWS)**: For COPPA-compliant parental consent verification
-  - KWS only receives: child's email, parent's email, and birthdate
-  - KWS does not have access to your cultural content or practice data
+- **Parent verification service**: For COPPA-compliant [parental consent verification](https://kidswebservices.com/)
+  - Verification service only receives: parent's email, child's birthdate
+  - Verification service does not have access to your cultural content or practice data
 
 ## Your Rights and Choices
 
@@ -143,6 +143,9 @@ If you are in the EU, you have rights under the General Data Protection Regulati
 By using Haumana, you acknowledge that you have read and understood this Privacy Policy.
 
 ## Version History
+
+**Version 1.2** (August 21, 2025)
+- Revised wording about parental consent verification
 
 **Version 1.1** (July 5, 2025)
 - Added comprehensive COPPA compliance section

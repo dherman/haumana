@@ -1,6 +1,6 @@
 # Terms of Service for Haumana
 
-*Version 1.1 - Last updated: July 5, 2025*
+*Version 1.2 - Last updated: August 21, 2025*
 
 ## 1. Acceptance of Terms
 
@@ -9,7 +9,7 @@ By downloading, installing, or using Haumana ("the App"), you agree to be bound 
 ### Age Requirements
 - Users under 13 years old may only use Haumana with verifiable parental consent
 - By using the App, you represent that you are at least 13 years old OR have obtained parental consent
-- We verify age during account creation and obtain parental consent through Epic Games' Kids Web Services (KWS)
+- We verify age during account creation and obtain parental consent through a [parent verification service](https://kidswebservices.com/)
 
 ## 2. Description of Service
 
@@ -69,7 +69,7 @@ Given the cultural nature of the content, users are encouraged to:
 ### Third-Party Content
 - Google Sign-In is provided by Google LLC under their terms
 - AWS services are provided by Amazon under their terms
-- Epic Games' Kids Web Services (KWS) is used for parental consent verification
+- Emails sent from the [parental consent verification](https://kidswebservices.com/)
 - We are not responsible for third-party services
 
 ## 6. Privacy and Data
@@ -182,11 +182,14 @@ By using Haumana, you acknowledge that you have read, understood, and agree to b
 
 ## Version History
 
+**Version 1.2** (August 21, 2025)
+- Revised wording about parental consent verification
+
 **Version 1.1** (July 5, 2025)
 - Added age requirements section requiring parental consent for users under 13
 - Updated account creation to include birthdate and consent requirements
 - Added section explaining parental control for users under 13
-- Added Epic Games KWS to third-party services
+- Added parental consent verification to third-party services
 - Updated educational use section for COPPA compliance
 - Added special provisions for minors in data collection section
 
