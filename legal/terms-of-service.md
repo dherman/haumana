@@ -1,6 +1,6 @@
 # Terms of Service for Haumana
 
-*Version 1.2 - Last updated: August 21, 2025*
+*Version 1.3 - Last updated: August 29, 2025*
 
 ## 1. Acceptance of Terms
 
@@ -9,12 +9,12 @@ By downloading, installing, or using Haumana ("the App"), you agree to be bound 
 ### Age Requirements
 - Users under 13 years old may only use Haumana with verifiable parental consent
 - By using the App, you represent that you are at least 13 years old OR have obtained parental consent
-- We verify age during account creation and obtain parental consent through a [parent verification service](https://kidswebservices.com/)
+- Users under 13 must obtain parental consent from a verified parent or guardian to access the App
 
 ## 2. Description of Service
 
 Haumana is a mobile application designed to help students and practitioners of Hawaiian culture manage their practice routines for oli (chants) and mele (songs). The App provides:
-- Local storage and organization of cultural content
+- Private storage and organization of cultural content
 - Practice session tracking
 - Multi-device synchronization through cloud services
 - Random selection of pieces for practice variety
@@ -69,7 +69,7 @@ Given the cultural nature of the content, users are encouraged to:
 ### Third-Party Content
 - Google Sign-In is provided by Google LLC under their terms
 - AWS services are provided by Amazon under their terms
-- Emails sent from the [parental consent verification](https://kidswebservices.com/)
+- Emails sent from the [parent verification service](https://kidswebservices.com/)
 - We are not responsible for third-party services
 
 ## 6. Privacy and Data
@@ -181,6 +181,9 @@ Haumana uses open source software. A list of acknowledgments and licenses is ava
 By using Haumana, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
 
 ## Version History
+
+**Version 1.3** (August 29, 2025)
+- Revised wording about parent verification services
 
 **Version 1.2** (August 21, 2025)
 - Revised wording about parental consent verification

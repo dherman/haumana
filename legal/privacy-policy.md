@@ -1,6 +1,6 @@
 # Privacy Policy for Haumana
 
-*Version 1.2 - Last updated: August 21, 2025*
+*Version 1.3 - Last updated: August 29, 2025*
 
 ## Introduction
 
@@ -61,9 +61,9 @@ We **MAY** share information:
 ### Third-Party Services We Use
 - **Google Sign-In**: For secure authentication (Google's privacy policy applies)
 - **Amazon Web Services (AWS)**: For data storage and synchronization
-- **Parent verification service**: For COPPA-compliant [parental consent verification](https://kidswebservices.com/)
-  - Verification service only receives: parent's email, child's birthdate
-  - Verification service does not have access to your cultural content or practice data
+- **Parent verification service**: Adult verification to facilitate COPPA compliance
+  - [Verification service](https://kidswebservices.com/) only receives: parent's email, child's birthdate
+  - [Verification service](https://kidswebservices.com/) does not have access to your cultural content or practice data
 
 ## Your Rights and Choices
 
@@ -90,7 +90,7 @@ Haumana complies with the Children's Online Privacy Protection Act (COPPA). We t
 If a user is under 13:
 - **Consent Required**: The app requires verifiable parental consent before allowing access
 - **Parent Email Collection**: We collect only the parent's email address to send consent requests
-- **Third-Party Verification**: We use [parental consent verification](https://kidswebservices.com/) to manage parental consent
+- **Third-Party Verification**: We use a [parent verification service](https://kidswebservices.com/) to verify parent or guardian as an adult
 - **Limited Access**: Children cannot use the app until parental consent is obtained
 - **No Data Collection**: We do not collect or sync any data from children before consent is received
 
@@ -106,8 +106,8 @@ To exercise these rights, parents should contact us at david.herman@gmail.com wi
 ### Third-Party Services for Minors
 For users under 13 with parental consent:
 - Google Sign-In is used only for authentication
-- [Parental consent verification](https://kidswebservices.com/) service handles the consent process
-- AWS services store data only after consent is obtained
+- [Parent verification service](https://kidswebservices.com/) verifies parent or guardian as an adult
+- AWS services store data only after parental consent is obtained
 
 ## International Users
 
@@ -143,6 +143,9 @@ If you are in the EU, you have rights under the General Data Protection Regulati
 By using Haumana, you acknowledge that you have read and understood this Privacy Policy.
 
 ## Version History
+
+**Version 1.3** (August 29, 2025)
+- Revised wording about parent verification services
 
 **Version 1.2** (August 21, 2025)
 - Revised wording about parental consent verification
