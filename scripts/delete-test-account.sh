@@ -1,9 +1,19 @@
 #!/bin/bash
 
 # Script to delete a test account from Haumana databases
-# Usage: ./delete-test-account.sh <email>
+# Usage: ./delete-test-account.sh <email-or-user-id>
+#
+# You can pass either:
+#   - An email address (will look up user ID from users table or pieces table)
+#   - A Google user ID directly (numeric string like "116501050889958732345")
 
 set -e
+
+# AWS region - adjust if your tables are in a different region
+AWS_REGION="${AWS_REGION:-us-west-2}"
+
+# Cognito User Pool ID
+COGNITO_USER_POOL_ID="${COGNITO_USER_POOL_ID:-us-west-2_Au01WZBqZ}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -14,12 +24,23 @@ NC='\033[0m' # No Color
 
 # Check if email parameter is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <email>"
+    echo "Usage: $0 <email-or-user-id>"
     echo "Example: $0 test@example.com"
+    echo "Example: $0 116501050889958732345"
     exit 1
 fi
 
-EMAIL="$1"
+INPUT="$1"
+
+# Detect if input is an email or user ID
+if [[ "$INPUT" =~ ^[0-9]+$ ]]; then
+    IS_USER_ID=true
+    USER_ID="$INPUT"
+    EMAIL="(user ID: $USER_ID)"
+else
+    IS_USER_ID=false
+    EMAIL="$INPUT"
+fi
 
 # Display warning
 echo -e "${RED}${BOLD}⚠️  WARNING: DANGEROUS OPERATION ⚠️${NC}"
@@ -47,12 +68,23 @@ fi
 
 # Second confirmation for safety
 echo -e "${RED}${BOLD}FINAL CONFIRMATION${NC}"
-read -p "Type the email address to confirm deletion: " -r CONFIRM_EMAIL
+if [ "$IS_USER_ID" = true ]; then
+    read -p "Type the user ID to confirm deletion: " -r CONFIRM_INPUT
+else
+    read -p "Type the email address to confirm deletion: " -r CONFIRM_INPUT
+fi
 echo
 
-if [[ "$CONFIRM_EMAIL" != "$EMAIL" ]]; then
-    echo "Email addresses do not match. Operation cancelled."
-    exit 1
+if [ "$IS_USER_ID" = true ]; then
+    if [[ "$CONFIRM_INPUT" != "$USER_ID" ]]; then
+        echo "User IDs do not match. Operation cancelled."
+        exit 1
+    fi
+else
+    if [[ "$CONFIRM_INPUT" != "$EMAIL" ]]; then
+        echo "Email addresses do not match. Operation cancelled."
+        exit 1
+    fi
 fi
 
 echo "Proceeding with deletion..."
@@ -67,91 +99,147 @@ check_aws_cli() {
     fi
 }
 
-# Function to get user ID from email using DynamoDB
+# Function to get user ID from email using Cognito and DynamoDB
 get_user_id() {
     local email="$1"
-    
+
     echo "Looking up user ID for email: $email"
-    
-    # Query the Users table to find the user by email
-    # Note: This assumes you have a GSI on email or scan the table
-    # The table name should match your CDK deployment
+
+    # First, try Cognito User Pool (most reliable source)
+    # Username format is google_<userId>
+    echo "  - Checking Cognito User Pool..."
+    COGNITO_USER=$(aws cognito-idp list-users \
+        --user-pool-id "$COGNITO_USER_POOL_ID" \
+        --region "$AWS_REGION" \
+        --filter "email = \"$email\"" \
+        --output json 2>/dev/null || echo "{}")
+
+    # Extract user ID from Username (format: google_<userId>)
+    COGNITO_USERNAME=$(echo "$COGNITO_USER" | jq -r '.Users[0].Username // empty')
+    if [ -n "$COGNITO_USERNAME" ]; then
+        USER_ID=$(echo "$COGNITO_USERNAME" | sed 's/^google_//')
+        if [ -n "$USER_ID" ]; then
+            echo "Found user ID in Cognito: $USER_ID"
+            return 0
+        fi
+    fi
+
+    # Try the DynamoDB Users table
+    # Users table uses PK=USER#<userId>, SK=USER#<userId>
+    echo "  - Checking DynamoDB users table..."
     USER_DATA=$(aws dynamodb scan \
-        --table-name HaumanaStack-UsersTable \
+        --table-name haumana-users \
+        --region "$AWS_REGION" \
         --filter-expression "email = :email" \
         --expression-attribute-values "{\":email\":{\"S\":\"$email\"}}" \
         --output json 2>/dev/null || echo "{}")
-    
-    USER_ID=$(echo "$USER_DATA" | jq -r '.Items[0].id.S // empty')
-    
-    if [ -z "$USER_ID" ]; then
-        echo -e "${YELLOW}No user found with email: $email in DynamoDB${NC}"
-        return 1
+
+    # Extract user ID from PK (format: USER#<userId>)
+    USER_ID=$(echo "$USER_DATA" | jq -r '.Items[0].PK.S // empty' | sed 's/^USER#//')
+
+    if [ -n "$USER_ID" ]; then
+        echo "Found user ID in DynamoDB users table: $USER_ID"
+        return 0
     fi
-    
-    echo "Found user ID: $USER_ID"
-    return 0
+
+    echo -e "${YELLOW}No user found with email: $email${NC}"
+    echo ""
+    echo "Tip: You can also pass the Google user ID directly if you know it."
+    echo "To find user IDs with pieces, run:"
+    echo "  aws dynamodb scan --table-name haumana-pieces --region $AWS_REGION | jq '.Items[] | {userId: .userId.S, title: .title.S}'"
+    return 1
+}
+
+# Function to delete from Cognito User Pool
+delete_from_cognito() {
+    local user_id="$1"
+
+    echo "Deleting from Cognito User Pool..."
+    local cognito_username="google_${user_id}"
+
+    aws cognito-idp admin-delete-user \
+        --user-pool-id "$COGNITO_USER_POOL_ID" \
+        --region "$AWS_REGION" \
+        --username "$cognito_username" \
+        2>/dev/null && echo "  ✓ Deleted Cognito user: $cognito_username" \
+        || echo "  (Cognito user not found or already deleted)"
 }
 
 # Function to delete from DynamoDB
 delete_from_dynamodb() {
     local user_id="$1"
-    
-    echo "Deleting from AWS DynamoDB..."
-    
+
+    echo "Deleting from AWS DynamoDB (region: $AWS_REGION)..."
+
     # Delete user record
-    echo "  - Deleting user record..."
+    # Users table: PK=USER#<userId>, SK=USER#<userId>
+    echo "  - Deleting user record from DynamoDB..."
     aws dynamodb delete-item \
-        --table-name HaumanaStack-UsersTable \
-        --key "{\"id\": {\"S\": \"$user_id\"}}" \
+        --table-name haumana-users \
+        --region "$AWS_REGION" \
+        --key "{\"PK\": {\"S\": \"USER#$user_id\"}, \"SK\": {\"S\": \"USER#$user_id\"}}" \
         2>/dev/null || echo "    (User record not found or already deleted)"
-    
+
     # Delete all pieces for this user
+    # Pieces table: userId (partition key), pieceId (sort key)
     echo "  - Deleting user's pieces..."
-    
-    # First, query all pieces for this user
+
+    # Query all pieces for this user
     PIECES=$(aws dynamodb query \
-        --table-name HaumanaStack-PiecesTable \
-        --key-condition-expression "PK = :pk" \
-        --expression-attribute-values "{\":pk\":{\"S\":\"USER#$user_id\"}}" \
+        --table-name haumana-pieces \
+        --region "$AWS_REGION" \
+        --key-condition-expression "userId = :userId" \
+        --expression-attribute-values "{\":userId\":{\"S\":\"$user_id\"}}" \
         --output json 2>/dev/null || echo "{}")
-    
+
+    PIECE_COUNT=$(echo "$PIECES" | jq -r '.Items | length')
+    echo "    Found $PIECE_COUNT pieces to delete"
+
     # Delete each piece
     echo "$PIECES" | jq -r '.Items[]? | @base64' | while read -r piece_data; do
         _jq() {
             echo "${piece_data}" | base64 --decode | jq -r "${1}"
         }
-        PIECE_SK=$(_jq '.SK.S')
-        
+        PIECE_ID=$(_jq '.pieceId.S')
+
         aws dynamodb delete-item \
-            --table-name HaumanaStack-PiecesTable \
-            --key "{\"PK\": {\"S\": \"USER#$user_id\"}, \"SK\": {\"S\": \"$PIECE_SK\"}}" \
+            --table-name haumana-pieces \
+            --region "$AWS_REGION" \
+            --key "{\"userId\": {\"S\": \"$user_id\"}, \"pieceId\": {\"S\": \"$PIECE_ID\"}}" \
             2>/dev/null || true
+        echo "    Deleted piece: $PIECE_ID"
     done
-    
+
     # Delete all sessions for this user
+    # Sessions table: pk (partition key), sk (sort key) - lowercase!
     echo "  - Deleting user's practice sessions..."
-    
+
     # Query all sessions for this user
     SESSIONS=$(aws dynamodb query \
-        --table-name HaumanaStack-SessionsTable \
-        --key-condition-expression "PK = :pk" \
+        --table-name haumana-sessions \
+        --region "$AWS_REGION" \
+        --key-condition-expression "pk = :pk" \
         --expression-attribute-values "{\":pk\":{\"S\":\"USER#$user_id\"}}" \
         --output json 2>/dev/null || echo "{}")
-    
+
+    SESSION_COUNT=$(echo "$SESSIONS" | jq -r '.Items | length')
+    echo "    Found $SESSION_COUNT sessions to delete"
+
     # Delete each session
     echo "$SESSIONS" | jq -r '.Items[]? | @base64' | while read -r session_data; do
         _jq() {
             echo "${session_data}" | base64 --decode | jq -r "${1}"
         }
-        SESSION_SK=$(_jq '.SK.S')
-        
+        SESSION_SK=$(_jq '.sk.S')
+
         aws dynamodb delete-item \
-            --table-name HaumanaStack-SessionsTable \
-            --key "{\"PK\": {\"S\": \"USER#$user_id\"}, \"SK\": {\"S\": \"$SESSION_SK\"}}" \
+            --table-name haumana-sessions \
+            --region "$AWS_REGION" \
+            --key "{\"pk\": {\"S\": \"USER#$user_id\"}, \"sk\": {\"S\": \"$SESSION_SK\"}}" \
             2>/dev/null || true
+        echo "    Deleted session: $SESSION_SK"
     done
-    
+
     echo -e "${GREEN}  ✓ DynamoDB deletion complete${NC}"
 }
 
@@ -183,11 +271,22 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
-# Try to get user ID from DynamoDB
-if get_user_id "$EMAIL"; then
+# Get user ID and delete from all backends
+if [ "$IS_USER_ID" = true ]; then
+    # User ID was provided directly
+    echo "Using provided user ID: $USER_ID"
+    echo ""
+    delete_from_cognito "$USER_ID"
+    echo ""
+    delete_from_dynamodb "$USER_ID"
+elif get_user_id "$EMAIL"; then
+    # Found user ID from email lookup
+    echo ""
+    delete_from_cognito "$USER_ID"
+    echo ""
     delete_from_dynamodb "$USER_ID"
 else
-    echo -e "${YELLOW}Skipping DynamoDB deletion (user not found)${NC}"
+    echo -e "${YELLOW}Skipping backend deletion (user not found)${NC}"
 fi
 
 echo ""

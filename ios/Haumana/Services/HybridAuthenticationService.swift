@@ -261,7 +261,7 @@ class HybridAuthenticationService: AuthenticationServiceProtocol {
         let email = profile?.email ?? ""
         let displayName = profile?.name
         let photoUrl = profile?.imageURL(withDimension: 200)?.absoluteString
-        
+
         // Try to fetch existing user
         let descriptor = FetchDescriptor<User>(
             predicate: #Predicate { $0.id == userId }
